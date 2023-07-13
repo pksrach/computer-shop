@@ -8,7 +8,7 @@
 			<!-- section title -->
 			<div class="col-md-12">
 				<div class="section-title">
-					<h3 class="title">New Products</h3>
+					<h3 class="title">PHONE</h3>
 					<div class="section-nav">
 						<ul class="section-tab-nav tab-nav">
 							<li class="active"><a data-toggle="tab" href="#tab1">Laptops</a></li>
@@ -31,7 +31,7 @@
 								<!-- product -->
 								<div class="product">
 									<div class="product-img">
-										<img src="./img/product01.png" alt="">
+										<img src="./img/phone/1.webp" alt="">
 										<div class="product-label">
 											<span class="sale">-30%</span>
 											<span class="new">NEW</span>
@@ -63,7 +63,7 @@
 								<!-- product -->
 								<div class="product">
 									<div class="product-img">
-										<img src="./img/product02.png" alt="">
+										<img src="./img/phone/2.webp" alt="">
 										<div class="product-label">
 											<span class="new">NEW</span>
 										</div>
@@ -94,7 +94,7 @@
 								<!-- product -->
 								<div class="product">
 									<div class="product-img">
-										<img src="./img/product03.png" alt="">
+										<img src="./img/phone/3.webp" alt="">
 										<div class="product-label">
 											<span class="sale">-30%</span>
 										</div>
@@ -120,7 +120,7 @@
 								<!-- product -->
 								<div class="product">
 									<div class="product-img">
-										<img src="./img/product04.png" alt="">
+										<img src="./img/phone/4.webp" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
@@ -148,7 +148,7 @@
 								<!-- product -->
 								<div class="product">
 									<div class="product-img">
-										<img src="./img/product05.png" alt="">
+										<img src="./img/phone/5.webp" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-category">Category</p>
