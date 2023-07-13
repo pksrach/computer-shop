@@ -63,7 +63,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="./img/product02.png" alt="">
+												<img src="https://tkcustomcomputer.com/assets/uploads/0334e1dbe4a8b561f750240daf182db7.png" alt="">
 												<div class="product-label">
 													<span class="new">NEW</span>
 												</div>
@@ -120,7 +120,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="./img/product04.png" alt="">
+												<img src="./img/computer/d385137f2e3c15c9f81f746ea5079fe4.jpg" alt="">
 											</div>
 											<div class="product-body">
 												<p class="product-category">Category</p>
@@ -148,7 +148,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="./img/product05.png" alt="">
+												<img src="./img/computer/ASUS ROG G713RC-HX044W -ECLIPSE GRAY.jpg" alt="">
 											</div>
 											<div class="product-body">
 												<p class="product-category">Category</p>
@@ -298,7 +298,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="./img/product07.png" alt="">
+												<img src="https://tkcustomcomputer.com/assets/uploads/a3f6c59c5ced374c2088d8bdc2e36f70.gif" alt="">
 												<div class="product-label">
 													<span class="new">NEW</span>
 												</div>
@@ -355,7 +355,7 @@
 										<!-- product -->
 										<div class="product">
 											<div class="product-img">
-												<img src="./img/product09.png" alt="">
+												<img src="https://tkcustomcomputer.com/assets/uploads/3c2db5851b83411810128f6beb0245d5.jpg" alt="">
 											</div>
 											<div class="product-body">
 												<p class="product-category">Category</p>
