@@ -1,0 +1,8 @@
+# Demo Computer Shop
+### Contributors:
+- PHAN KONGSAMRACH
+- SUON PISEY
+- MOEURN MEAN
+- NUB VIBOL
+- BORN VANDET
+- SUON SOKHENG
