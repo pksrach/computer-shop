@@ -1,0 +1,75 @@
+@font-face {
+    font-family: 'Kantumruy Pro';
+    src: url('KantumruyPro-Regular.eot');
+    src: url('KantumruyPro-Regular.eot?#iefix') format('embedded-opentype'),
+        url('KantumruyPro-Regular.woff2') format('woff2'),
+        url('KantumruyPro-Regular.woff') format('woff'),
+        url('KantumruyPro-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Koh Santepheap';
+    src: url('KohSantepheap-Black.eot');
+    src: url('KohSantepheap-Black.eot?#iefix') format('embedded-opentype'),
+        url('KohSantepheap-Black.woff2') format('woff2'),
+        url('KohSantepheap-Black.woff') format('woff'),
+        url('KohSantepheap-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Koh Santepheap';
+    src: url('KohSantepheap-Light.eot');
+    src: url('KohSantepheap-Light.eot?#iefix') format('embedded-opentype'),
+        url('KohSantepheap-Light.woff2') format('woff2'),
+        url('KohSantepheap-Light.woff') format('woff'),
+        url('KohSantepheap-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Koh Santepheap';
+    src: url('KohSantepheap-Bold.eot');
+    src: url('KohSantepheap-Bold.eot?#iefix') format('embedded-opentype'),
+        url('KohSantepheap-Bold.woff2') format('woff2'),
+        url('KohSantepheap-Bold.woff') format('woff'),
+        url('KohSantepheap-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Koh Santepheap';
+    src: url('KohSantepheap-Regular.eot');
+    src: url('KohSantepheap-Regular.eot?#iefix') format('embedded-opentype'),
+        url('KohSantepheap-Regular.woff2') format('woff2'),
+        url('KohSantepheap-Regular.woff') format('woff'),
+        url('KohSantepheap-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Koh Santepheap';
+    src: url('KohSantepheap-Thin.eot');
+    src: url('KohSantepheap-Thin.eot?#iefix') format('embedded-opentype'),
+        url('KohSantepheap-Thin.woff2') format('woff2'),
+        url('KohSantepheap-Thin.woff') format('woff'),
+        url('KohSantepheap-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+body{
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, 'Koh Santepheap','Kantumruy Pro', "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
