@@ -7,7 +7,7 @@
         die("Connection Failed.!".mysqli_connect_error());
         exit();
     }
-    mysqli_select_db($conn,"computershop") or die("Error selecting from database");
+    mysqli_select_db($conn,"computer-shop-db") or die("Error selecting from database");
     printf("Your Connection Successfully");
 ?>
 <?php

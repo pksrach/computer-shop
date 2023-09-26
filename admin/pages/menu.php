@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>RealEstate-Backend</title>
+    <title>Computer-Shop-Admin</title>
 
     <!-- Meta -->
     <meta charset="utf-8">
@@ -159,7 +159,7 @@
         <div class="sidepanel-inner d-flex flex-column">
             <a href="#" id="sidepanel-close" class="sidepanel-close d-xl-none">&times;</a>
             <div class="app-branding">
-                <a class="app-logo" href="index.php?pg=homepage"><img class="logo-icon me-2" src="assets/images/app-logo.svg" alt="logo"><span class="logo-text">អចលនទ្រព្យ</span></a>
+                <a class="app-logo" href="index.php?pg=homepage"><img class="logo-icon me-2" src="assets/images/app-logo.svg" alt="logo"><span class="logo-text">ហាងលក់ Computer</span></a>
 
             </div><!--//app-branding-->
 
@@ -189,7 +189,7 @@
 	  <path d="M6 0h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1H4a2 2 0 0 1 2-2z"/>
 	</svg>
 						         </span>
-                            <span class="nav-link-text">គ្រប់គ្រងអចលនទ្រព្យ</span>
+                            <span class="nav-link-text">គ្រប់គ្រងផលិតផល</span>
                             <span class="submenu-arrow">
 		                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 	  <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/>
@@ -198,8 +198,8 @@
                         </a><!--//nav-link-->
                         <div id="submenu-11" class="collapse submenu submenu-11" data-bs-parent="#menu-accordion">
                             <ul class="submenu-list list-unstyled">
-                                <li class="submenu-item"><a class="submenu-link" href="index.php?pt=property_type">ប្រភេទនៃអចលនទ្រព្យ</a></li>
-                                <li class="submenu-item"><a class="submenu-link" href="index.php?p=insert_property">បង្កើតព័ត៌មានអចលនទ្រព្យ</a></li>
+                                <li class="submenu-item"><a class="submenu-link" href="index.php?pt=category">ប្រភេទ </a></li>
+                                <li class="submenu-item"><a class="submenu-link" href="index.php?p=insert_property">បង្កើតផលិតផល</a></li>
                                 <li class="submenu-item"><a class="submenu-link" href="index.php?p=property">ព័ត៌មានអចលនទ្រព្យ</a></li>
                             </ul>
                         </div>

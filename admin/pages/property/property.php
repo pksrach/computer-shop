@@ -6,7 +6,7 @@
 
             <div class="row g-3 mb-4 align-items-center justify-content-between">
                 <div class="col-auto">
-                    <h1 class="app-page-title mb-0">ប្រភេទនៃអចលនទ្រព្យ</h1>
+                    <h1 class="app-page-title mb-0">ប្រភេទផលិតផល</h1>
                 </div>
                 <div class="col-auto">
                     <div class="page-utilities">
