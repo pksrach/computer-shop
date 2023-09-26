@@ -11,36 +11,56 @@
                 <div class="col-auto">
                     <div class="page-utilities">
                         <div class="row g-2 justify-content-start justify-content-md-end align-items-center">
-                            <div class="col-auto">
-                                <form class="table-search-form row gx-1 align-items-center">
+
+                            <div class="col-auto" >
+                                <form method="get"  class="table-search-form row gx-1 align-items-center" >
+                                    <input type="hidden" name="p" value="property">
                                     <div class="col-auto">
-                                        <input type="text" id="search-orders" name="searchorders" class="form-control search-orders" placeholder="Search">
+
+                                        <select class="form-select w-auto" name='key_property_type' id="key_property_type">
+
+                                            <option value="">---សូមជ្រើសរើសប្រភេទអចលនទ្រព្យ---</option>
+                                            <?php
+                                            $sql=mysqli_query($conn,"SELECT * FROM tbl_propery_type");
+                                            while($r=mysqli_fetch_assoc($sql)){
+
+                                                echo"<option value='".$r['property_type_id']."'>".$r['property_type_kh']."</option>";
+                                            }
+                                            ?>
+
+                                        </select>
+
+                                    </div>
+
+
+                                    <div class="col-auto ">
+                                        <select class="form-select w-auto" name='key_property_status' id="key_property_status" >
+
+                                            <option value="">---សូមជ្រើសរើសស្ថានភាព---</option>
+                                            <?php
+                                            $sql=mysqli_query($conn,"SELECT * FROM tbl_property_status");
+                                            while($r=mysqli_fetch_assoc($sql)){
+                                                echo"<option value='".$r['property_status_id']."'>".$r['property_status']."</option>";
+                                            }
+
+                                            ?>
+                                        </select>
+                                    </div>
+
+
+
+                                    <div class="col-auto" >
+                                        <input type="text" id="keyinputdata" name='keyinputdata' class="form-control search-orders" placeholder="Search">
                                     </div>
                                     <div class="col-auto">
-                                        <button type="submit" class="btn app-btn-secondary">Search</button>
+                                        <button type="submit" name="btnSearch" class="btn app-btn-secondary">Search</button>
                                     </div>
                                 </form>
 
                             </div><!--//col-->
-                            <div class="col-auto">
 
-                                <select class="form-select w-auto" >
-                                    <option selected value="option-1">All</option>
-                                    <option value="option-2">This week</option>
-                                    <option value="option-3">This month</option>
-                                    <option value="option-4">Last 3 months</option>
 
-                                </select>
-                            </div>
-                            <div class="col-auto">
-                                <a class="btn app-btn-secondary" href="#">
-                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download me-1" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
-                                        <path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
-                                    </svg>
-                                    Download CSV
-                                </a>
-                            </div>
+
                         </div><!--//row-->
                     </div><!--//table-utilities-->
                 </div><!--//col-auto-->
@@ -52,6 +72,30 @@
                 <a class="flex-sm-fill text-sm-center nav-link"  id="create_property_type-tab" data-bs-toggle="tab" href="#create_property_type" role="tab" aria-controls="orders-paid" aria-selected="false">បង្កើតប្រភេទអចលនទ្រព្យថ្មី</a>
 
             </nav>
+
+            <?php
+            if(isset($_GET['msg'])){
+                $msg=$_GET['msg'];
+                if($msg==200){
+                    echo msgstyle("កែប្រែបានជោគជ័យ","success");
+                }else if($msg==202){
+                    echo msgstyle("លុបបានជោគជ័យ","danger");
+                }else{
+                    echo msgstyle("មិនបានជោគជ័យ","info");
+                }
+            }
+            ?>
+
+<!--            --><?php
+//                if (isset($_GET['msg'])){
+//                    $msg=$_GET['msg'];
+//                    if ($msg==202){
+//                        echo msgstyle("លុបបានជោគជ័យ","success");
+//                    }else
+//                        echo msgstyle("លុបមិនបានជោគជ័យ","danger");
+//                }
+//            ?>
+
             <div class="tab-content" id="orders-table-tab-content">
                 <div class="tab-pane fade show active" id="property_type_list" role="tabpanel" aria-labelledby="property_type_list-tab">
                     
@@ -63,42 +107,177 @@
                                     <thead>
                                         <tr>
                                             <th class="cell">#</th>
-                                            <th class="cell">ឈ្មោះអចលនទ្រព្យជាភាសាខ្មែរ</th>
-                                            <th class="cell">ឈ្មោះអចលនទ្រព្យជាភាសាអង់គ្លេស</th>
+                                            <th class="cell">រូបភាពអចលនទ្រព្យ</th>
+                                            <th class="cell">ឈ្មោះអចលនទ្រព្យ</th>
                                             <th class="cell">តម្លៃអចលនទ្រព្យ</th>
                                             <th class="cell">បរិយាយ</th>
-                                            <th class="cell">រូបភាព</th>
+                                            <th class="cell">ប្រភេទអចលនទ្រព្យ</th>
                                             <th class="cell">ស្ថានភាព</th>
-                                            <th class="cell"></th>
+                                            <th class="cell">សកម្មភាព</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
-                                        $sql="SELECT
-                                                p.property_id,
-                                                p.property_name,
-                                                p.property_price,
-                                                p.property_desc,
-                                                p.property_img,
-                                                pt.property_type_kh
-                                            FROM 
-                                            tbl_property p
-                                            INNER JOIN tbl_propery_type pt ON pt.property_type_id=p.property_type_id 
-                                            ORDER BY p.property_id DESC ";
+                                        #searching data
+                                        if(isset($_GET['btnSearch'])){
+                                            $keyproperty_type=$_GET['key_property_type'];
+                                            $keyproperty_status=$_GET['key_property_status'];
+                                            $keyinputdata=$_GET['keyinputdata'];
+
+                                            #pagination when searching
+                                            $number_of_page=0;
+                                            $s="SELECT count(*)
+                                            FROM
+                                                        tbl_property p
+                                            INNER JOIN tbl_propery_type pt ON pt.property_type_id = p.property_type_id
+                                            LEFT JOIN tbl_property_status ps ON ps.property_status_id = p.property_status_id
+                                           ";
+                                            $q=$conn->query($s);
+                                            $r=mysqli_fetch_row($q);
+                                            $row_per_page = 5;
+                                            $number_of_page = ceil($r[0]/$row_per_page); #Round numbers up to the nearest integer
+                                            if(!isset($_GET['pn'])){
+                                                $current_page=0;
+                                            }else{
+                                                $current_page = $_GET['pn'];
+                                                $current_page = ($current_page-1)*$row_per_page;
+                                            }
+
+
+
+
+
+                                            $sql_select="
+                                                SELECT
+                                                    p.property_id,
+                                                    p.property_img,
+                                                    p.property_name,                              
+                                                    p.property_price,
+                                                    p.property_desc,
+                                                    p.property_img,
+                                                    pt.property_type_kh,
+                                                    ps.property_status
+                                                FROM 
+                                                    tbl_property p
+                                                INNER JOIN tbl_propery_type pt ON pt.property_type_id=p.property_type_id 
+                                                LEFT  JOIN tbl_property_status ps ON ps.property_status_id=p.property_status_id
+                                                                                                 
+                                            ";
+                                            if($keyproperty_type=="" && $keyproperty_status=="" && $keyinputdata=="")
+                                            {
+                                                $sql=$sql_select."LIMIT $current_page,$row_per_page";
+                                            }if($keyproperty_type) {
+                                                $sql = $sql_select . " WHERE
+                                                    pt.property_type_id='$keyproperty_type'
+                                                ORDER BY p.property_id DESC LIMIT $current_page,$row_per_page";
+                                            }
+                                            if($keyproperty_status){
+                                                $sql=$sql_select." WHERE
+                                                    ps.property_status_id='$keyproperty_status'
+                                                ORDER BY p.property_id DESC LIMIT $current_page,$row_per_page";
+                                            }
+                                            if($keyinputdata){
+                                                $sql=$sql_select."WHERE
+                                                p.property_name LIKE '%".$keyinputdata."%'
+                                                OR p.property_price LIKE '%".$keyinputdata."%'
+                                                OR p.property_desc LIKE '%".$keyinputdata."%'
+                                                OR pt.property_type_kh LIKE '%".$keyinputdata."%'
+                                                OR ps.property_status LIKE '%".$keyinputdata."%'                                
+                                                ORDER BY p.property_id DESC LIMIT $current_page,$row_per_page";
+                                            }
+                                            #echo "search= ".$sql;
+                                            $result=mysqli_query($conn,$sql);
+                                            $num_row=$result->num_rows;
+                                        }else{
+                                            #load all data
+                                            #pagination when first load
+                                            $number_of_page=0;
+                                            $s="SELECT count(*)
+                                            FROM
+                                                        tbl_property p
+                                            INNER JOIN tbl_propery_type pt ON pt.property_type_id = p.property_type_id
+                                            LEFT JOIN tbl_property_status ps ON ps.property_status_id = p.property_status_id
+                                           ";
+                                            $q=$conn->query($s);
+                                            $r=mysqli_fetch_row($q);
+                                            $row_per_page = 5;
+                                            $number_of_page = ceil($r[0]/$row_per_page); #Round numbers up to the nearest integer
+                                            if(!isset($_GET['pn'])){
+                                                $current_page=0;
+                                            }else{
+                                                $current_page = $_GET['pn'];
+                                                $current_page = ($current_page-1)*$row_per_page;
+                                            }
+
+
+
+                                            $sql="SELECT
+                                                    p.property_id,
+                                                    p.property_img,
+                                                    p.property_name,                              
+                                                    p.property_price,
+                                                    p.property_desc,
+                                                    p.property_img,
+                                                    pt.property_type_kh,
+                                                    ps.property_status
+                                                FROM 
+                                                    tbl_property p
+                                                INNER JOIN tbl_propery_type pt ON pt.property_type_id=p.property_type_id 
+                                                LEFT  JOIN tbl_property_status ps ON ps.property_status_id=p.property_status_id
+                                                ORDER BY p.property_id DESC  LIMIT $current_page,$row_per_page
+                                                ;";
+                                        }
                                         $result=mysqli_query($conn,$sql);
+                                        $num_row=$result->num_rows;
+                                        #echo "$num_row record(s) found";
+                                        #echo $sql;
+
+                                        if($result->num_rows>0){
+
+                                        $i=1;
                                         while ($row=mysqli_fetch_array($result)){
                                             ?>
                                             <tr>
                                                 <td class="cell"><?=$row[0]?></td>
+                                                <td class="cell"><img style="width: 50px" src="assets/images/img_uploaded/<?=$row['property_img']?>" alt="image"></td>
                                                 <td class="cell"><?=$row['property_name']?></td>
                                                 <td class="cell"><?=$row['property_price']?></td>
                                                 <td class="cell"><?=$row['property_desc']?></td>
-                                                <td class="cell"><?=$row['property_img']?></td>
                                                 <td class="cell"><?=$row['property_type_kh']?></td>
-                                                <td class="cell"><span class="badge bg-success">Paid</span></td>
-                                                <td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
+                                                <td class="cell">
+                                                    <?php
+                                                        if($row['property_status']=="Sale") {
+                                                            echo ' <span class="badge bg-success">' . $row['property_status'] . '</span>';
+                                                        }elseif ($row['property_status']=="Booked"){
+                                                            echo ' <span class="badge bg-warning">' . $row['property_status'] . '</span>';
+                                                        }elseif ($row['property_status']=="Available") {
+                                                            echo ' <span class="badge bg-info">' . $row['property_status'] . '</span>';
+                                                        }elseif ($row['property_status']=="Blocke") {
+                                                            echo ' <span class="badge bg-danger">' . $row['property_status'] . '</span>';
+                                                        }else{
+                                                            echo ' <span class="badge bg-secondary">N/A</span>';
+                                                        }
+                                                            ?>
+                                                </td>
+
+                                                        <td class="cell">
+                                                            <a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a>
+                                                            <!-- <button type="button" class="btn btn-primary"><i class="fas fa-edit"></i></button> -->
+                                                            <a class="btn btn-primary" href="index.php?p=update_property&id=<?= $row[0] ?>"><i class="far fa-edit"></i></a>
+                                                            <a href="pages/property/delete_property.php?id=<?= $row[0] ?>" class="btn btn-danger" onclick="return confirm('Are you sur to delete it!')"><i class="fas fa-trash-alt"></i></a>
+
+                                                        </td>
+
                                             </tr>
                                             <?php
+                                            $i++;
+                                        }
+                                        }else{
+                                            echo'
+                                                <tr>
+                                                    <td colspan="8" class="cell" style="color: red;text-align: center; font-weight: bold">Data not found!</td>
+                                                </tr>
+                                            ';
                                         }
                                         ?>
                                     </tbody>
@@ -107,19 +286,23 @@
 
                         </div><!--//app-card-body-->
                     </div><!--//app-card-->
-                    <nav class="app-pagination">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                            </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
-                        </ul>
-                    </nav><!--//app-pagination-->
+
+
+                    <?php
+                        require_once 'pages/pagin/paggin.php';
+
+
+
+
+                    ?>
+
+<!--                    Start pagination-->
+
+
+
+<!--                    end pagination-->
+
+
 
                 </div><!--//tab-pane-->
 
@@ -202,4 +385,3 @@
                     });
                 });
             </script>
-        
