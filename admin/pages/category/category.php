@@ -49,11 +49,12 @@
             if (isset($_POST['btnUpdte'])) {
                 $id = $_POST['u_id'];
                 $txt_category_name = $_POST['txt_category_name'];
+                $txt_description = $_POST['txt_description'];
 
                 if (trim($txt_category_name) != '') {
                     $sql = "
                                 UPDATE tbl_category
-                                SET category_name=' $txt_category_name' 
+                                SET category_name=' $txt_category_name', description='$txt_description'
                                 WHERE id=$id      
                         ";
                     // echo $sql;
@@ -76,6 +77,7 @@
                                         <tr>
                                             <th class="cell">លេខសម្គាល់#</th>
                                             <th class="cell">ឈ្មោះប្រភេទ</th>
+                                            <th class="cell">បរិយាយ</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -90,6 +92,7 @@
                                                 <tr>
                                                     <td class="cell"><?= $row['id'] ?></td>
                                                     <td class="cell"><?= $row['category_name'] ?></td>
+                                                    <td class="cell"><?= $row['description'] ?></td>
                                                     <!-- Button action -->
                                                     <td class="cell">
                                                         <!-- <a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a> -->
@@ -116,9 +119,14 @@
                                                             <form class="settings-form" method="POST" ">
                                                                 <input type="hidden" name="u_id" id="" value="' . $row['id'] . '">
                                                                 <div class="mb-3">
-                                                                    <label for="txt_category_name" class="form-label" >ឈ្មោះប្រភេទ<span style="color: red"> *</span></label>
+                                                                    <label for="lbl_category_name" class="form-label" >ឈ្មោះប្រភេទ<span style="color: red"> *</span></label>
                                                                     <input type="text" name="txt_category_name" class="form-control" id="txt_category_name" value="' . $row['category_name'] . '" required>
                                                                 </div>
+                                                                <div class="mb-3">
+                                                                    <label for="txt_description" class="form-label" >បរិយាយ</label>
+                                                                    <input type="text" name="txt_description" class="form-control" id="txt_description" value="' . $row['description'] . '">
+                                                                </div>
+
                                                                 <button type="submit" name="btnUpdte" class="btn app-btn-primary" >កែប្រែ</button>
                                                             </form>
                                                         </div><!--//app-card-body--> 
@@ -160,8 +168,14 @@
                     // insert
                     if (isset($_POST['btnSave'])) {
                         $txt_category_name = $_POST['txt_category_name'];
+                        // validate empty data
+                        if (trim($txt_category_name) == '') {
+                            msgstyle('សូមបញ្ចូលឈ្មោះប្រភេទផលិតផល', 'danger');
+                            return;
+                        }
+
                         $sql = "
-                            INSERT INTO tbl_category (category_name) VALUES('$txt_category_name');
+                            INSERT INTO tbl_category (category_name, description) VALUES('$txt_category_name', '$txt_description');
                         ";
                         if (mysqli_query($conn, $sql)) {
                             // echo"Data inserting successfully";
@@ -204,6 +218,10 @@
                                                     <div class="mb-3">
                                                         <label for="lbl_category_name" class="form-label">ឈ្មោះប្រភេទ<span style="color: red"> *</span></label>
                                                         <input type="text" name="txt_category_name" class="form-control" id="txt_category_name" value="" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="txt_description" class="form-label">បរិយាយ</label>
+                                                        <input type="text" name="txt_description" class="form-control" id="txt_description" value="">
                                                     </div>
 
                                                     <button type="submit" name="btnSave" class="btn app-btn-primary">រក្សាទុក</button>
