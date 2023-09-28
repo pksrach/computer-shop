@@ -168,6 +168,7 @@
                     // insert
                     if (isset($_POST['btnSave'])) {
                         $txt_category_name = $_POST['txt_category_name'];
+                        $txt_description = $_POST['txt_description'];
                         // validate empty data
                         if (trim($txt_category_name) == '') {
                             msgstyle('សូមបញ្ចូលឈ្មោះប្រភេទផលិតផល', 'danger');
@@ -180,6 +181,7 @@
                         if (mysqli_query($conn, $sql)) {
                             // echo"Data inserting successfully";
                             echo msgstyle('Data inserting successfully', 'success');
+                            include 'refresh_page.php';
                         } else {
                             echo "Error Inserting $sql" . mysqli_error($conn);
                         }
@@ -196,6 +198,7 @@
                         $sql = mysqli_query($conn, "DELETE FROM tbl_category WHERE id=$id");
                         if ($sql) {
                             echo msgstyle('Data Delete sucess!', 'success');
+                            include 'refresh_page.php';
                         } else {
                             echo msgstyle('Data Delete unsucess!', 'info');
                         }
@@ -213,18 +216,17 @@
                                         <div class="app-card app-card-settings shadow-sm p-4">
 
                                             <div class="app-card-body">
-                                                <form class="settings-form" method="POST" action="<?php $_SERVER['PHP_SELF'] ?>">
+                                                <form class="settings-form" method="POST" action="<?php $_SERVER['PHP_SELF']; ?>">
 
                                                     <div class="mb-3">
                                                         <label for="lbl_category_name" class="form-label">ឈ្មោះប្រភេទ<span style="color: red"> *</span></label>
-                                                        <input type="text" name="txt_category_name" class="form-control" id="txt_category_name" value="" required>
+                                                        <input type="text" name="txt_category_name" class="form-control" id="txt_category_name2" value="" required>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="txt_description" class="form-label">បរិយាយ</label>
                                                         <input type="text" name="txt_description" class="form-control" id="txt_description" value="">
                                                     </div>
-
-                                                    <button type="submit" name="btnSave" class="btn app-btn-primary">រក្សាទុក</button>
+                                                    <button id="btnSave" type="submit" name="btnSave" class="btn app-btn-primary">រក្សាទុក</button>
                                                 </form>
                                             </div><!--//app-card-body-->
 
@@ -244,8 +246,8 @@
             <script type="text/javascript">
                 $(document).ready(function() {
                     $("#category_list-tab").click(function() {
-                        alert('Test click tap');
-                        // window.location.href = "index.php?pt=category";
+                        // alert('Test click tap');
+                        window.location.href = "index.php?pt=category";
                     });
                 });
             </script>

@@ -48,3 +48,9 @@
         }
     }
 ?>
+
+<?php 
+    function refreshPage(){
+        include './admin/pages/category/refresh_page.php';
+    }
+?>
