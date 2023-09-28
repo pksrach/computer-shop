@@ -5,7 +5,7 @@
 
             <div class="row g-3 mb-4 align-items-center justify-content-between">
                 <div class="col-auto">
-                    <h1 class="app-page-title mb-0">ប្រភេទនៃផលិតផល</h1>
+                    <h1 class="app-page-title mb-0">ប្រេននៃផលិតផល</h1>
                 </div>
                 <div class="col-auto">
                     <div class="page-utilities">
@@ -39,22 +39,22 @@
 
 
             <nav id="orders-table-tab" class="orders-table-tab app-nav-tabs nav shadow-sm flex-column flex-sm-row mb-4">
-                <a class="flex-sm-fill text-sm-center nav-link active" id="category_list-tab" data-bs-toggle="tab" href="#category_list" role="tab" aria-controls="orders-all" aria-selected="true">បញ្ជីប្រភេទផលិតផល</a>
-                <a class="flex-sm-fill text-sm-center nav-link" id="create_category_list-tab" data-bs-toggle="tab" href="#create_category" role="tab" aria-controls="orders-paid" aria-selected="false">បង្កើតប្រភេទថ្មី</a>
+                <a class="flex-sm-fill text-sm-center nav-link active" id="brand_list-tab" data-bs-toggle="tab" href="#brand_list" role="tab" aria-controls="orders-all" aria-selected="true">បញ្ជីប្រេន</a>
+                <a class="flex-sm-fill text-sm-center nav-link" id="create_brand_list-tab" data-bs-toggle="tab" href="#create_brand" role="tab" aria-controls="orders-paid" aria-selected="false">បង្កើតប្រេនថ្មី</a>
 
             </nav>
 
             <?php
             // update
-            if (isset($_POST['btnUpdte'])) {
+            if (isset($_POST['btnUpdate'])) {
                 $id = $_POST['u_id'];
-                $txt_category_name = $_POST['txt_category_name'];
+                $txt_brand_name = $_POST['txt_brand_name'];
                 $txt_description = $_POST['txt_description'];
 
-                if (trim($txt_category_name) != '') {
+                if (trim($txt_brand_name) != '') {
                     $sql = "
-                                UPDATE tbl_category
-                                SET category_name=' $txt_category_name', description='$txt_description'
+                                UPDATE tbl_brand
+                                SET brand_name=' $txt_brand_name', description='$txt_description'
                                 WHERE id=$id      
                         ";
                     // echo $sql;
@@ -68,7 +68,7 @@
 
             ?>
             <div class="tab-content" id="orders-table-tab-content">
-                <div class="tab-pane fade show active" id="category_list" role="tabpanel" aria-labelledby="category_list-tab">
+                <div class="tab-pane fade show active" id="brand_list" role="tabpanel" aria-labelledby="brand_list-tab">
                     <div class="app-card app-card-orders-table shadow-sm mb-5">
                         <div class="app-card-body">
                             <div class="table-responsive">
@@ -76,22 +76,22 @@
                                     <thead>
                                         <tr>
                                             <th class="cell">លេខសម្គាល់#</th>
-                                            <th class="cell">ឈ្មោះប្រភេទ</th>
+                                            <th class="cell">ឈ្មោះប្រេន</th>
                                             <th class="cell">បរិយាយ</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php
-                                        $sql = "SELECT * FROM tbl_category ORDER BY id DESC";
+                                        $sql = "SELECT * FROM tbl_brand ORDER BY id DESC";
                                         $result = mysqli_query($conn, $sql);
                                         while ($row = mysqli_fetch_array($result)) {
                                         ?>
                                             <form method="get">
-                                                <input type="hidden" name="pt" value="category" id="">
+                                                <input type="hidden" name="br" value="brand" id="">
                                                 <input type="hidden" name="txtid" id="" value="<?= $row['id'] ?>">
                                                 <tr>
                                                     <td class="cell"><?= $row['id'] ?></td>
-                                                    <td class="cell"><?= $row['category_name'] ?></td>
+                                                    <td class="cell"><?= $row['brand_name'] ?></td>
                                                     <td class="cell"><?= $row['description'] ?></td>
                                                     <!-- Button action -->
                                                     <td class="cell">
@@ -111,22 +111,22 @@
                                                         <div class="modal-content">
                                                     
                                                             <div class="modal-header">
-                                                                <h5 class="modal-title" id="exampleModalLabel">កែប្រែប្រភេទ</h5>
+                                                                <h5 class="modal-title" id="exampleModalLabel">កែប្រែ</h5>
                                                             </div>
                                                         <div class="modal-body">
                                                         
                                                         <div class="app-card-body">
-                                                            <form class="settings-form" method="POST" ">
+                                                            <form class="settings-form" method="POST">
                                                                 <input type="hidden" name="u_id" id="" value="' . $row['id'] . '">
                                                                 <div class="mb-3">
-                                                                    <label for="lbl_category_name" class="form-label" >ឈ្មោះប្រភេទ<span style="color: red"> *</span></label>
-                                                                    <input type="text" name="txt_category_name" class="form-control" id="txt_category_name" value="' . $row['category_name'] . '" required>
+                                                                    <label for="lbl_name" class="form-label" >ឈ្មោះប្រេន<span style="color: red"> *</span></label>
+                                                                    <input type="text" name="txt_brand_name" class="form-control" id="txt_brand_name" value="' . $row['brand_name'] . '" required>
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label for="txt_description" class="form-label" >បរិយាយ</label>
                                                                     <textarea type="text" name="txt_description" id="txt_description' . $row['id'] . '" class="form-control" style="height: 100px"></textarea>
                                                                 </div>
-                                                                <button type="submit" name="btnUpdte" class="btn app-btn-primary" >កែប្រែ</button>
+                                                                <button type="submit" name="btnUpdate" class="btn app-btn-primary" >កែប្រែ</button>
                                                             </form>
                                                             <script>
                                                                 var textarea = document.getElementById("txt_description' . $row['id'] . '");
@@ -164,22 +164,22 @@
 
                 </div><!--//tab-pane-->
 
-                <div class="tab-pane fade" id="create_category" role="tabpanel" aria-labelledby="create_category-tab">
+                <div class="tab-pane fade" id="create_brand" role="tabpanel" aria-labelledby="create_brand-tab">
 
 
                     <?php
                     // insert
                     if (isset($_POST['btnSave'])) {
-                        $txt_category_name = $_POST['txt_category_name'];
+                        $txt_brand_name = $_POST['txt_brand_name'];
                         $txt_description = $_POST['txt_description'];
                         // validate empty data
-                        if (trim($txt_category_name) == '') {
+                        if (trim($txt_brand_name) == '') {
                             msgstyle('សូមបញ្ចូលឈ្មោះប្រភេទផលិតផល', 'danger');
                             return;
                         }
 
                         $sql = "
-                            INSERT INTO tbl_category (category_name, description) VALUES('$txt_category_name', '$txt_description');
+                            INSERT INTO tbl_brand (brand_name, description) VALUES('$txt_brand_name', '$txt_description');
                         ";
                         if (mysqli_query($conn, $sql)) {
                             // echo"Data inserting successfully";
@@ -198,7 +198,7 @@
                     // delete
                     if (isset($_GET['btnDelete'])) {
                         $id = $_GET['txtid'];
-                        $sql = mysqli_query($conn, "DELETE FROM tbl_category WHERE id=$id");
+                        $sql = mysqli_query($conn, "DELETE FROM tbl_brand WHERE id=$id");
                         if ($sql) {
                             echo msgstyle('Data Delete sucess!', 'success');
                             include 'refresh_page.php';
@@ -211,7 +211,7 @@
                     <div class="app-card app-card-orders-table mb-5">
                         <div class="app-card-body">
                             <div class="container-xl">
-                                <h1 class="app-page-title">បំពេញព័ត៌មានប្រភេទនៃផលិតផល</h1>
+                                <h1 class="app-page-title">បំពេញព័ត៌មានប្រេន</h1>
                                 <!-- <hr class="my-4"> -->
                                 <div class="row">
 
@@ -222,8 +222,8 @@
                                                 <form class="settings-form" method="POST" action="<?php $_SERVER['PHP_SELF']; ?>">
 
                                                     <div class="mb-3">
-                                                        <label for="lbl_category_name" class="form-label">ឈ្មោះប្រភេទ<span style="color: red"> *</span></label>
-                                                        <input type="text" name="txt_category_name" class="form-control" id="txt_category_name" value="" required>
+                                                        <label for="lbl_name" class="form-label">ឈ្មោះប្រភេទ<span style="color: red"> *</span></label>
+                                                        <input type="text" name="txt_brand_name" class="form-control" id="txt_brand_name" value="" required>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="txt_description" class="form-label">បរិយាយ</label>
@@ -248,9 +248,9 @@
 
             <script type="text/javascript">
                 $(document).ready(function() {
-                    $("#category_list-tab").click(function() {
+                    $("#brand_list-tab").click(function() {
                         // alert('Test click tap');
-                        window.location.href = "index.php?pt=category";
+                        window.location.href = "index.php?br=brand";
                     });
                 });
             </script>
