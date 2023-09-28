@@ -244,8 +244,8 @@
             <script type="text/javascript">
                 $(document).ready(function() {
                     $("#category_list-tab").click(function() {
-                        // alert('Test click tap');
-                        window.location.href = "index.php?pt=category";
+                        alert('Test click tap');
+                        // window.location.href = "index.php?pt=category";
                     });
                 });
             </script>

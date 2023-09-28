@@ -1,13 +1,13 @@
 <?php
- $dbhost='localhost'; #localhost:3306, 127.0.0.1
+    $port=3306;
+    $dbhost='localhost:'.$port; #localhost:3306, 127.0.0.1
     $dbuser='root';
     $dbpwd='';
     $conn=mysqli_connect($dbhost,$dbuser,$dbpwd);
     if(!$conn){
         die("Connection Failed.!".mysqli_connect_error());
-        exit();
     }
-    mysqli_select_db($conn,"computer-shop-db") or die("Error selecting from database");
+    mysqli_select_db($conn,"computer-shop-db") or die("Error cannot connect to database");
     printf("Your Connection Successfully");
 ?>
 <?php
