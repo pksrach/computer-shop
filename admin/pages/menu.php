@@ -149,7 +149,7 @@
             <div class="sidepanel-inner d-flex flex-column">
                 <a href="#" id="sidepanel-close" class="sidepanel-close d-xl-none">&times;</a>
                 <div class="app-branding">
-                    <a class="app-logo" href="index.php?pg=homepage"><img class="logo-icon me-2" src="assets/images/app-logo.svg" alt="logo"><span class="logo-text">ហាងលក់ Computer</span></a>
+                    <a class="app-logo" href="index.php?pg=homepage"><img class="logo-icon me-2" src="assets/images/X-ComShop Logo.svg" alt="logo"><span class="logo-text">X-ComShop</span></a>
 
                 </div><!--//app-branding-->
 
