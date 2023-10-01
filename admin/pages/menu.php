@@ -189,6 +189,7 @@
                             <div id="submenu-11" class="collapse submenu submenu-11" data-bs-parent="#menu-accordion">
                                 <ul class="submenu-list list-unstyled">
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?br=brand">ប្រេន</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?um=unit_measurement">ខ្នាត</a></li>
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?pt=category">ប្រភេទ</a></li>
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?p=insert_property">បង្កើតផលិតផល</a></li>
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?p=property">ព័ត៌មានអចលនទ្រព្យ</a></li>

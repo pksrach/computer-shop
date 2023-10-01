@@ -12,6 +12,8 @@ include_once "pages/menu.php";
 <?php
 if (isset($_GET['pg'])) {
     include "pages/" . $_GET['pg'] . ".php";
+} elseif (isset($_GET['um'])) {
+    include "pages/unit_measurement/" . $_GET['um'] . ".php";
 } elseif (isset($_GET['br'])) {
     include "pages/brand/" . $_GET['br'] . ".php";
 } elseif (isset($_GET['pt'])) {
