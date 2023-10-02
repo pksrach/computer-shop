@@ -19,7 +19,7 @@ if (isset($_GET['pg'])) {
 } elseif (isset($_GET['pt'])) {
     include "pages/category/" . $_GET['pt'] . ".php";
 } elseif (isset($_GET['p'])) {
-    include "pages/property/" . $_GET['p'] . ".php";
+    include "pages/product/" . $_GET['p'] . ".php";
 } elseif (isset($_GET['agency'])) {
     include "pages/agency/" . $_GET['agency'] . ".php";
 } else {

@@ -8,7 +8,8 @@
         die("Connection Failed.!".mysqli_connect_error());
     }
     mysqli_select_db($conn,"computer-shop-db") or die("Error cannot connect to database");
-    printf("Your Connection Successfully");
+    echo "<script>console.log(`Connection Db Successful`)</script>";
+
 ?>
 <?php
     function msgstyle($msg, $type){
