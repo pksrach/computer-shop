@@ -16,7 +16,7 @@
 
 									<div class="col-auto">
 										<select class="form-select w-auto" name="key_brand" id="sel_brand">
-											<option value="">---ជ្រើសរើសប្រេន---</option>
+											<option value="">ជ្រើសរើសប្រេន</option>
 											<?php
 											$sql = mysqli_query($conn, "SELECT * FROM tbl_brand");
 											while ($row = mysqli_fetch_assoc($sql)) {
@@ -28,7 +28,7 @@
 
 									<div class="col-auto">
 										<select class="form-select w-auto" name='key_category' id='sel_category'>
-											<option value="">---ជ្រើសរើសប្រភេទ---</option>
+											<option value="">ជ្រើសរើសប្រភេទ</option>
 											<?php
 											$sql = mysqli_query($conn, "SELECT * FROM tbl_category");
 											while ($row = mysqli_fetch_assoc($sql)) {
@@ -39,7 +39,7 @@
 									</div>
 
 									<div class="col-auto">
-										<input type="text" id="keyinputdata" name="keyinputdata" class="form-control search-orders" placeholder="Search">
+										<input type="text" id="keyinputdata" name="keyinputdata" class="form-control search-orders" placeholder="ស្វែងរកឈ្មោះផលិតផល">
 									</div>
 									<div class="col-auto">
 										<button type="submit" name="btnSearch" class="btn app-btn-secondary">Search</button>
@@ -233,7 +233,7 @@
 													<td class="cell" style="text-align: center;"><?= $row['category_name'] ?></td>
 													<td class="cell" style="text-align: left;"><?= $row['product_name'] ?></td>
 													<td class="cell" style="text-align: left;"><?= $row['description'] ?></td>
-													<td class="cell" style="text-align: right;"><?= $row['price'] ?></td>
+													<td class="cell" style="text-align: right;">$<?= $row['price'] ?></td>
 													<td class="cell" style="text-align: center;"><?= $row['unit_name'] ?></td>
 													<td class="cell" style="text-align: center;"><?= $row['rate'] ?></td>
 													<td class="cell" style="text-align: center;"><?= productStatus($row['status']) ?></td>
@@ -249,7 +249,7 @@
 										} else {
 											echo '
 												<tr>
-													<td colspan="8" style="text-align: center; color: red; font-size: 18pt;">មិនមានទិន្នន័យទេ</td>
+													<td colspan="10" style="text-align: center; color: red; font-size: 18pt;">មិនមានទិន្នន័យទេ</td>
 												</tr>
 											';
 										}

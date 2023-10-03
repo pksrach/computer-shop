@@ -82,11 +82,12 @@
 				if ($file_size > 2097152) {
 					echo msgstyle("ទំហំ File ត្រូវតែតូចជាង 2MB", "info");
 				} else {
-					if (in_array($file_ext, $extensions) === false && $filename != '') {
+					if (in_array($file_ext, $extensions) === false && ($filename != '' || $filename != null)) {
 						echo msgstyle("extension not allowed, please choose a JPEG or PNG file.", "info");
 						return;
 					} else {
-						$path_to_store_img = "assets/images/img_data_store_upload/" . $filename;
+						$genNewFileName = md5(time() . $filename) . '.' . $file_ext;
+						$path_to_store_img = "assets/images/img_data_store_upload/" . $genNewFileName;
 						move_uploaded_file($filetmp, $path_to_store_img);
 					}
 				}
@@ -105,7 +106,7 @@
 					}
 					// Execute query and save into database
 					$stmt = $conn->prepare($sql);
-					$stmt->bind_param("iisdisss", $brand_id, $category_id, $product_name, $price, $unit_id, $filename, $status, $description);
+					$stmt->bind_param("iisdisss", $brand_id, $category_id, $product_name, $price, $unit_id, $genNewFileName, $status, $description);
 					if ($stmt->execute()) {
 						echo msgstyle("បង្កើតព័ត៌មានផលិតផលថ្មីបានជោគជ័យ", "success");
 						echo '<script type="text/javascript"> 
@@ -172,7 +173,7 @@
 
 														<div class="mb-3">
 															<label class="form-label">តម្លៃផលិតផល<span style="color: red;">*</span></label>
-															<input type="number" class="form-control" name="txt_product_price" id="txt_product_price" value="<?php echo $price; ?>">
+															<input type="text" class="form-control" name="txt_product_price" id="txt_product_price" value="<?php echo $price; ?>">
 														</div>
 
 														<!-- Select Um -->
@@ -205,7 +206,7 @@
 
 														<div class="mb-3">
 															<label class="form-label">បរិយាយ</label>
-															<textarea class="form-control" rows="3" name="tar_desc" id="tar_desc" style="height: 100px;"></textarea>
+															<textarea class="form-control" rows="3" name="tar_desc" id="tar_desc" style="height: 200px;"></textarea>
 														</div>
 
 														<button type="submit" name="btnSave" class="btn app-btn-primary">រក្សាទុក</button>
@@ -299,14 +300,6 @@
 
 </div><!--//app-wrapper-->
 
-
-
-<!-- Script -->
-<!-- <script type="text/javascript">
-	$(document).ready(function() {
-		$("#btnSave").click(function() {
-			//alert('testing');
-			window.location.href = "index.php?p=property";
-		});
-	});
-</script> -->
+<!-- javascrip validation links -->
+<script src="assets/js/validation-text-area.js"></script>
+<script src="assets/js/validation-input-price.js"></script>
