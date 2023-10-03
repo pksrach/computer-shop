@@ -275,11 +275,3 @@
 	</div><!--//app-content-->
 
 </div><!--//app-wrapper-->
-
-<script type="text/javascript">
-	$(document).ready(function() {
-		$('#product_list-tab', '#create_product').click(function() {
-			window.location.href = "index.php?p=product";
-		})
-	})
-</script>
