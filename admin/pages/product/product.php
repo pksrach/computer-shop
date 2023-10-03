@@ -2,7 +2,7 @@
 
 	<div class="app-content pt-3 p-md-3 p-lg-4">
 		<div class="container-xl">
-
+			<!-- Search -->
 			<div class="row g-3 mb-4 align-items-center justify-content-between">
 				<div class="col-auto">
 					<h1 class="app-page-title mb-0">ព័ត៌មាន ផលិតផល</h1>
@@ -12,10 +12,10 @@
 						<div class="row g-2 justify-content-start justify-content-md-end align-items-center">
 							<div class="col-auto">
 								<form method="get" class="table-search-form row gx-1 align-items-center">
-									<input type="hidden" name="p" value="property" />
+									<input type="hidden" name="p" value="product" />
 
 									<div class="col-auto">
-										<select class="form-select w-auto" name="key_property_status" id="sel_property_status">
+										<select class="form-select w-auto" name="key_brand" id="sel_brand">
 											<option value="">---ជ្រើសរើសប្រេន---</option>
 											<?php
 											$sql = mysqli_query($conn, "SELECT * FROM tbl_brand");
@@ -27,7 +27,7 @@
 									</div>
 
 									<div class="col-auto">
-										<select class="form-select w-auto" name='key_property_type' id='sel_property_type'>
+										<select class="form-select w-auto" name='key_category' id='sel_category'>
 											<option value="">---ជ្រើសរើសប្រភេទ---</option>
 											<?php
 											$sql = mysqli_query($conn, "SELECT * FROM tbl_category");
@@ -53,28 +53,29 @@
 				</div><!--//col-auto-->
 			</div><!--//row-->
 
-
+			<!-- Tab -->
 			<nav id="orders-table-tab" class="orders-table-tab app-nav-tabs nav shadow-sm flex-column flex-sm-row mb-4">
-				<a class="flex-sm-fill text-sm-center nav-link active" id="property_list-tab" data-bs-toggle="tab" href="#property_list" role="tab" aria-controls="orders-all" aria-selected="true">បញ្ជីប្រភេទអចលនទ្រព្យ</a>
-				<a class="flex-sm-fill text-sm-center nav-link" id="create_property-tab" data-bs-toggle="tab" href="#create_property" role="tab" aria-controls="orders-paid" aria-selected="false">បង្កើតអចលនទ្រព្យថ្មី</a>
+				<a class="flex-sm-fill text-sm-center nav-link active" id="product_list-tab" data-bs-toggle="tab" href="#product_list" role="tab" aria-controls="orders-all" aria-selected="true">បញ្ជីផលិតផល</a>
 			</nav>
 
-			<!-- Msg -->
+			<!-- Msg response -->
 			<?php
 			if (isset($_GET['msg'])) {
-				#delete= 200, #updated, created =200
+				#delete= 200, #updated=200, created =200
 				if ($_GET['msg'] == 202) {
-					echo msgstyle('ការលុបបានជោគជ័យ!', 'danger');
+					echo msgstyle($DELETE, "danger");
 				} elseif ($_GET['msg'] == 200) {
-					echo msgstyle("កែប្រែព័ត៌មានបានជោគជ័យ", "success");
+					echo msgstyle($UPDATE, "success");
+				} elseif ($_GET['msg'] == 201) {
+					echo msgstyle($CREATE, "success");
 				} else {
-					echo msgstyle("Error message", 'danger');
+					echo msgstyle($ERROR, "danger");
 				}
 			}
 			?>
 
 			<div class="tab-content" id="orders-table-tab-content">
-				<div class="tab-pane fade show active" id="property_list" role="tabpanel" aria-labelledby="property_list-tab">
+				<div class="tab-pane fade show active" id="product_list" role="tabpanel" aria-labelledby="product_list-tab">
 					<div class="app-card app-card-orders-table shadow-sm mb-5">
 						<div class="app-card-body">
 							<div class="table-responsive">
@@ -83,10 +84,13 @@
 										<tr>
 											<th class="cell">#</th>
 											<th class="cell" style="text-align: center;">រូបភាព</th>
-											<th class="cell" style="text-align: center;">ឈ្មោះអចលនទ្រព្យ</th>
-											<th class="cell" style="text-align: center;">តម្លៃអចលនទ្រព្យ</th>
-											<th class="cell" style="text-align: center;">បរិយាយ</th>
+											<th class="cell" style="text-align: center;">ឈ្មោះប្រេន</th>
 											<th class="cell" style="text-align: center;">ប្រភេទ</th>
+											<th class="cell" style="text-align: center;">ឈ្មោះផលិតផល</th>
+											<th class="cell" style="text-align: center;">បរិយាយ</th>
+											<th class="cell" style="text-align: center;">តម្លៃផលិតផល</th>
+											<th class="cell" style="text-align: center;">ខ្នាតផលិតផល</th>
+											<th class="cell" style="text-align: center;">បរិមាណខ្នាត</th>
 											<th class="cell" style="text-align: center;">ស្ថានភាព</th>
 										</tr>
 									</thead>
@@ -97,18 +101,19 @@
 
 										// searching data
 										if (isset($_GET['btnSearch'])) {
-											$keypropertytype = $_GET['key_property_type'];
-											$keypropertystatus = $_GET['key_property_status'];
+											$keycategory = $_GET['key_category'];
+											$keybrand = $_GET['key_brand'];
 											$keyinputdata = $_GET['keyinputdata'];
 
 											// Pagination when searching
 											$number_of_page = 0;
 											$s = "SELECT count(*) 
 												FROM
-												  tbl_property p
-												  INNER JOIN tbl_property_type pt ON pt.property_type_id = p.property_type_id
-												  LEFT JOIN tbl_property_status ps ON ps.property_status_id = p.property_status_id
-												";
+												  tbl_product p
+												  INNER JOIN tbl_brand b ON p.brand_id = b.id
+												  INNER JOIN tbl_category c ON p.category_id = c.id
+												  INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id
+											";
 											$q = $conn->query($s);
 											$r = mysqli_fetch_row($q);
 											$row_per_page = 5;
@@ -121,46 +126,49 @@
 											}
 											// End pagination
 
-											$sql_select = "
-												SELECT
-													p.property_id,
-													p.property_img,
-													p.property_name,
-													p.property_price,
-													p.property_desc,
-													pt.property_type_kh,
-													ps.property_status 
-												FROM
-													tbl_property p
-													INNER JOIN tbl_property_type pt ON p.property_type_id = pt.property_type_id 
-													LEFT JOIN tbl_property_status ps on p.property_status_id = ps.property_status_id
-												";
-											if ($keypropertytype == "" && $keypropertystatus == "" && $keyinputdata == "") {
+											$sql_select = "SELECT
+												p.id,
+												p.attatchment_url,
+												b.brand_name,
+												c.category_name,
+												p.product_name,
+												p.description,
+												p.price,
+												u.unit_name,
+												u.rate,
+												p.status
+											FROM
+												tbl_product p
+												INNER JOIN tbl_brand b ON p.brand_id = b.id
+												INNER JOIN tbl_category c ON p.category_id = c.id
+												INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id
+											";
+											if ($keycategory == "" && $keybrand == "" && $keyinputdata == "") {
 												$sql = $sql_select . "LIMIT $current_page, $row_per_page;";
 											}
 
-											if ($keypropertytype) {
+											if ($keycategory) {
 												$sql = $sql_select . "
 												WHERE
-													p.property_type_id = '$keypropertytype'
+													p.category_id = '$keycategory'
 												ORDER BY
-													p.property_id DESC LIMIT $current_page, $row_per_page;";
+													p.id DESC LIMIT $current_page, $row_per_page;";
 											}
 
-											if ($keypropertystatus) {
+											if ($keybrand) {
 												$sql = $sql_select . "
 												WHERE
-													ps.property_status_id = '$keypropertystatus'
+													p.brand_id = '$keybrand'
 												ORDER BY
-													p.property_id DESC LIMIT $current_page, $row_per_page;";
+													p.id DESC LIMIT $current_page, $row_per_page;";
 											}
 
 											if ($keyinputdata) {
 												$sql = $sql_select . "
 												WHERE
-													p.property_name LIKE '%" . $keyinputdata . "%'
+													p.product_name LIKE '%" . $keyinputdata . "%'
 												ORDER BY
-													p.property_id DESC LIMIT $current_page, $row_per_page;";
+													p.id DESC LIMIT $current_page, $row_per_page;";
 											}
 
 											$result = mysqli_query($conn, $sql);
@@ -173,10 +181,11 @@
 											$number_of_page = 0;
 											$s = "SELECT count(*) 
 												FROM
-												  tbl_property p
-												  INNER JOIN tbl_property_type pt ON pt.property_type_id = p.property_type_id
-												  LEFT JOIN tbl_property_status ps ON ps.property_status_id = p.property_status_id
-												";
+												  tbl_product p
+												  INNER JOIN tbl_brand b ON p.brand_id = b.id
+												  INNER JOIN tbl_category c ON p.category_id = c.id
+												  INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id
+											";
 											$q = $conn->query($s);
 											$r = mysqli_fetch_row($q);
 											$row_per_page = 5;
@@ -189,21 +198,24 @@
 											}
 											// End pagination
 
-											$sql = "
-												SELECT
-													p.property_id,
-													p.property_img,
-													p.property_name,
-													p.property_price,
-													p.property_desc,
-													pt.property_type_kh,
-													ps.property_status 
+											$sql = "SELECT
+													p.id,
+													p.attatchment_url,
+													b.brand_name,
+													c.category_name,
+													p.product_name,
+													p.description,
+													p.price,
+													u.unit_name,
+													u.rate,
+													p.status
 												FROM
-													tbl_property p
-													INNER JOIN tbl_property_type pt ON p.property_type_id = pt.property_type_id 
-													LEFT JOIN tbl_property_status ps on p.property_status_id = ps.property_status_id
+													tbl_product p
+													INNER JOIN tbl_brand b ON p.brand_id = b.id
+													INNER JOIN tbl_category c ON p.category_id = c.id
+													INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id
 												ORDER BY
-													p.property_id DESC
+													p.id DESC
 												LIMIT $current_page, $row_per_page;
 											";
 											$result = mysqli_query($conn, $sql);
@@ -216,17 +228,19 @@
 										?>
 												<tr>
 													<td class="cell"><?= $rowNumber++ ?></td>
-													<td class="cell" style="text-align: center;"><img src="<?= $row['property_img'] ? "assets/images/img_data_store_upload/" . $row['property_img'] : 'assets/images/Asset.png' ?>" width="50px" height="50px"></td>
-													<td class="cell" style="text-align: center;"><?= $row['property_name'] ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['property_price'] ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['property_desc'] ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['property_type_kh'] ?></td>
-													<td class="cell" style="text-align: center;"><?= statusStyle($row['property_status']) ?></td>
+													<td class="cell" style="text-align: center;"><img src="<?= $row['attatchment_url'] ? "assets/images/img_data_store_upload/" . $row['attatchment_url'] : 'assets/images/default_product.jpg' ?>" width="50px" height="50px"></td>
+													<td class="cell" style="text-align: center;"><?= $row['brand_name'] ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['category_name'] ?></td>
+													<td class="cell" style="text-align: left;"><?= $row['product_name'] ?></td>
+													<td class="cell" style="text-align: left;"><?= $row['description'] ?></td>
+													<td class="cell" style="text-align: right;"><?= $row['price'] ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['unit_name'] ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['rate'] ?></td>
+													<td class="cell" style="text-align: center;"><?= productStatus($row['status']) ?></td>
 
 													<td class="cell">
-														<a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a>
-														<a class="btn btn-primary" href="index.php?p=update_property&proid=<?= $row['property_id'] ?>"><i class="far fa-edit"></i></a>
-														<a href="pages/property/del_property.php?id=<?= $row['property_id'] ?>" type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('Are you sure to delete ?')"><i class="fas fa-eraser"></i></i></a>
+														<a class="btn btn-primary" href="index.php?p=update_product&proid=<?= $row['id'] ?>"><i class="far fa-edit"></i></a>
+														<a href="pages/product/del_product.php?id=<?= $row['id'] ?>" type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('តើអ្នកពិតជាចង់លុបមែនទេ ?')"><i class="fas fa-eraser"></i></i></a>
 													</td>
 												</tr>
 										<?php
@@ -250,142 +264,22 @@
 
 					<!-- Start pagination -->
 					<?php
-
 					require_once 'pages/pagin/pagin.php';
 					?>
 					<!-- End pagination-->
 
-				</div><!--//tab-pane-->
-
-				<div class="tab-pane fade" id="create_property" role="tabpanel" aria-labelledby="create_property-tab">
-					<div class="app-card app-card-orders-table mb-5">
-						<div class="app-card-body">
-
-							<!-- Form create property -->
-							<div class="app-content pt-3 p-md-3 p-lg-4">
-								<div class="container-xl">
-									<h1 class="app-page-title">បំពេញព័ត៌មានប្រភេទនៃអចលនទ្រព្យ</h1>
-									<hr class="mb-4">
-									<div class="row g-4 settings-section">
-
-										<div class="col-12 col-md-12">
-											<div class="app-card app-card-settings shadow-sm p-4">
-
-												<div class="app-card-body">
-													<form class="settings-form">
-														<div class="mb-3">
-															<label for="txt_property_type_kh" class="form-label">ឈ្មោះប្រភេទអចលនទ្រព្យជាខ្មែរ <span style="color: red;">*</span></label>
-															<input type="text" class="form-control" name="txt_property_type_kh" id="txt_property_type_kh" value="" required>
-														</div>
-														<div class="mb-3">
-															<label for="txt_property_type_en" class="form-label">ឈ្មោះប្រភេទអចលនទ្រព្យជាអង់គ្លេស <span style="color: red;">*</span></label>
-															<input type="text" class="form-control" name="txt_property_type_en" id="txt_property_type_en" value="" required>
-														</div>
-														<div class="mb-3">
-															<label for="tar_property_desc" class="form-label">បរិយាយ</label>
-															<textarea class="form-control" rows="3" name="tar_property_desc" id="tar_property_desc" style="height: 70px;"></textarea>
-														</div>
-														<button type="submit" name="btnSave" class="btn app-btn-primary">រក្សាទុក</button>
-													</form>
-												</div><!--//app-card-body-->
-
-											</div><!--//app-card-->
-										</div>
-									</div><!--//row-->
-									<!-- <hr class="my-4"> -->
-
-								</div><!--//container-fluid-->
-							</div>
-							<!-- End of Form for create property -->
-
-
-
-						</div><!--//app-card-body-->
-					</div><!--//app-card-->
-				</div><!--//tab-pane-->
-
-				<div class="tab-pane fade" id="orders-pending" role="tabpanel" aria-labelledby="orders-pending-tab">
-					<div class="app-card app-card-orders-table mb-5">
-						<div class="app-card-body">
-
-
-							<div class="table-responsive">
-								<table class="table mb-0 text-left">
-									<thead>
-										<tr>
-											<th class="cell">Order</th>
-											<th class="cell">Product</th>
-											<th class="cell">Customer</th>
-											<th class="cell">Date</th>
-											<th class="cell">Status</th>
-											<th class="cell">Total</th>
-											<th class="cell"></th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td class="cell">#15345</td>
-											<td class="cell"><span class="truncate">Consectetur adipiscing elit</span></td>
-											<td class="cell">Dylan Ambrose</td>
-											<td class="cell"><span class="cell-data">16 Oct</span><span class="note">03:16 AM</span></td>
-											<td class="cell"><span class="badge bg-warning">Pending</span></td>
-											<td class="cell">$96.20</td>
-											<td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
-										</tr>
-									</tbody>
-								</table>
-							</div><!--//table-responsive-->
-						</div><!--//app-card-body-->
-					</div><!--//app-card-->
-				</div><!--//tab-pane-->
-				<div class="tab-pane fade" id="orders-cancelled" role="tabpanel" aria-labelledby="orders-cancelled-tab">
-					<div class="app-card app-card-orders-table mb-5">
-						<div class="app-card-body">
-							<div class="table-responsive">
-								<table class="table mb-0 text-left">
-									<thead>
-										<tr>
-											<th class="cell">Order</th>
-											<th class="cell">Product</th>
-											<th class="cell">Customer</th>
-											<th class="cell">Date</th>
-											<th class="cell">Status</th>
-											<th class="cell">Total</th>
-											<th class="cell"></th>
-										</tr>
-									</thead>
-									<tbody>
-
-										<tr>
-											<td class="cell">#15342</td>
-											<td class="cell"><span class="truncate">Justo feugiat neque</span></td>
-											<td class="cell">Reina Brooks</td>
-											<td class="cell"><span class="cell-data">12 Oct</span><span class="note">04:23 PM</span></td>
-											<td class="cell"><span class="badge bg-danger">Cancelled</span></td>
-											<td class="cell">$59.00</td>
-											<td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
-										</tr>
-
-									</tbody>
-								</table>
-							</div><!--//table-responsive-->
-						</div><!--//app-card-body-->
-					</div><!--//app-card-->
 				</div><!--//tab-pane-->
 			</div><!--//tab-content-->
 
 		</div><!--//container-fluid-->
 	</div><!--//app-content-->
 
-	<!-- Copyright -->
-	<?php include_once 'pages/copyright.php'; ?>
-
 </div><!--//app-wrapper-->
 
 <script type="text/javascript">
 	$(document).ready(function() {
-		$('#property_list-tab', '#create_property').click(function() {
-			window.location.href = "index.php?p=property";
+		$('#product_list-tab', '#create_product').click(function() {
+			window.location.href = "index.php?p=product";
 		})
 	})
 </script>

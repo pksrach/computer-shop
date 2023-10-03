@@ -26,3 +26,24 @@ function statusStyle($status)
             break;
     }
 }
+
+function productStatus($status)
+{
+    $style = '
+        style="
+            text-align:center;
+        "
+    ';
+
+    switch ($status) {
+        case 'Active':
+            echo '<span class="badge bg-success" ' . $style . '>' . $status . '</span>';
+            break;
+        case 'Deactive':
+            echo '<span class="badge bg-danger" ' . $style . '>' . $status . '</span>';
+            break;
+        default:
+            echo '<span class="badge bg-secondary" ' . $style . '>N/A</span>';
+            break;
+    }
+}

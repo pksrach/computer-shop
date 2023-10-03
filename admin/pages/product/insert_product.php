@@ -43,6 +43,7 @@
 				$category_id = $_POST['sel_category'];
 				$brand_id = $_POST['sel_brand'];
 				$unit_id = $_POST['sel_um'];
+				$status = $_POST['sel_status'];
 				// $status = $_POST['sel_status'];
 
 				// Files
@@ -61,56 +62,60 @@
 				if (trim($price) == '') {
 					$msg2 = $property_price_msg;
 				}
-				if ($filename == '') {
-					$msg3 = $property_img_msg;
-				} else {
-					// 2MB = 2097152
-					if ($file_size > 2097152) {
-						echo msgstyle("ទំហំ File ត្រូវតែតូចជាង 2MB", "info");
-					} else {
-						if (in_array($file_ext, $extensions) === false) {
-							echo msgstyle("extension not allowed, please choose a JPEG or PNG file.", "info");
-						} else {
-							$path_to_store_img = "assets/images/img_data_store_upload/" . $filename;
-							move_uploaded_file($filetmp, $path_to_store_img);
-							if (
-								trim($brand_id) != '' &&
-								trim($category_id) != '' &&
-								trim($unit_id) != '' &&
-								trim($product_name) != '' &&
-								trim($price) != '' &&
-								trim($status) != ''
-							) {
-								// Query insert
-								$sql = '
-									INSERT INTO tbl_product (
-										brand_id,
-										category_id,
-										product_name,
-										price,
-										unit_id,
-										attatchment_url,
-										description
-									)
-									VALUES(?,?,?,?,?,?,?,?)
-								';
 
-								$stmt = $conn->prepare($sql);
-								$stmt->bind_param("ississ", $brand_id, $category_id, $product_name,  $price, $unit_id, $filename, $description);
-								if ($stmt->execute()) {
-									echo msgstyle("បង្កើតព័ត៌មានផលិតផលថ្មីបានជោគជ័យ", "success");
-								} else {
-									echo msgstyle("បង្កើតព័ត៌មានផលិតផលថ្មីមិនបានជោគជ័យ", "danger");
-								}
-							}
-						}
+				// Query insert
+				$sql = '
+					INSERT INTO tbl_product (
+						brand_id,
+						category_id,
+						product_name,
+						price,
+						unit_id,
+						attatchment_url,
+						status,
+						description
+					)
+					VALUES(?,?,?,?,?,?,?,?)
+				';
+
+				// 2MB = 2097152
+				if ($file_size > 2097152) {
+					echo msgstyle("ទំហំ File ត្រូវតែតូចជាង 2MB", "info");
+				} else {
+					if (in_array($file_ext, $extensions) === false && $filename != '') {
+						echo msgstyle("extension not allowed, please choose a JPEG or PNG file.", "info");
+						return;
+					} else {
+						$path_to_store_img = "assets/images/img_data_store_upload/" . $filename;
+						move_uploaded_file($filetmp, $path_to_store_img);
 					}
 				}
-
-				// echo '<script type="text/javascript"> 
-				// 		window.location.replace("index.php?p=product&msg=200");
-				// 	 </script>
-				// ';
+				// Check if fields are not empty
+				if (
+					trim($brand_id) != '' &&
+					trim($category_id) != '' &&
+					trim($unit_id) != '' &&
+					trim($product_name) != '' &&
+					trim($price) != '' &&
+					trim($status) != ''
+				) {
+					// Check filename
+					if ($filename == '' || $filename == null) {
+						$filename = null;
+					}
+					// Execute query and save into database
+					$stmt = $conn->prepare($sql);
+					$stmt->bind_param("iisdisss", $brand_id, $category_id, $product_name, $price, $unit_id, $filename, $status, $description);
+					if ($stmt->execute()) {
+						echo msgstyle("បង្កើតព័ត៌មានផលិតផលថ្មីបានជោគជ័យ", "success");
+						echo '<script type="text/javascript"> 
+								window.location.replace("index.php?p=product&msg=201");
+							 </script>
+						';
+					} else {
+						echo msgstyle("បង្កើតព័ត៌មានផលិតផលថ្មីមិនបានជោគជ័យ", "danger");
+					}
+				}
 			}
 			?>
 			<!-- End of Insert -->
@@ -167,7 +172,7 @@
 
 														<div class="mb-3">
 															<label class="form-label">តម្លៃផលិតផល<span style="color: red;">*</span></label>
-															<input type="text" class="form-control" name="txt_product_price" id="txt_product_price" value="<?php echo $price; ?>">
+															<input type="number" class="form-control" name="txt_product_price" id="txt_product_price" value="<?php echo $price; ?>">
 														</div>
 
 														<!-- Select Um -->
@@ -189,14 +194,14 @@
 															<input type="file" class="form-control" name="img_property" id="img_property" value="">
 														</div>
 
-														<!-- <div class="mb-3">
+														<div class="mb-3">
 															<label class="form-label">ជ្រើសរើសស្ថានភាពអចលនទ្រព្យ<span style="color: red;">*</span></label>
 															<select class="form-select " name="sel_status" id="sel_status" required>
 																<option value="">---សូមជ្រើសរើស---</option>
 																<option selected value="Active">Active</option>
 																<option value="Deactive">Deactive</option>
 															</select>
-														</div> -->
+														</div>
 
 														<div class="mb-3">
 															<label class="form-label">បរិយាយ</label>

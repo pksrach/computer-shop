@@ -11,7 +11,7 @@
 
     <meta name="description" content="Portal - Bootstrap 5 Admin Dashboard Template For Developers">
     <meta name="author" content="Xiaoying Riley at 3rd Wave Media">
-    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="shortcut icon" href="assets/images/X-ComShop Logo.svg">
 
 
     <!-- jQuery-->
