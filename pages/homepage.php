@@ -93,19 +93,20 @@
                                 <?php
                                 $sql = "SELECT
                                 p.id,
-                                product__name,
-                                p.description,
-                                price,
-                                c.category_name,
-                                b.brand_name,
-                                u.unit_name,
                                 p.attatchment_url,
-                                p.`status` 
+                                b.brand_name,
+                                c.category_name,
+                                p.product_name,
+                                p.description,
+                                p.price,
+                                u.unit_name,
+                                u.rate,
+                                p.STATUS 
                             FROM
                                 tbl_product p
-                                INNER JOIN tbl_category c ON p.category_id = c.id
                                 INNER JOIN tbl_brand b ON p.brand_id = b.id
-                                INNER JOIN tbl_unit_measurement u ON p.unit_id=u.id;";
+                                INNER JOIN tbl_category c ON p.category_id = c.id
+                                INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id";
                                 $result = mysqli_query($conn, $sql);
                                 if ($result) {
 
@@ -114,16 +115,17 @@
                                 ?>
                                         <div class="product ">
                                             <div class="product-img">
-                                                <img src="./img/product01.png" alt="">
+                                                <!-- <img src="./img/product01.png" alt=""> -->
+                                                <?php echo '<img src="./admin/assets/images/img_data_store_upload/'.$row[1].'" alt="">'  ?>
                                                 <div class="product-label">
                                                     <span class="sale">-30%</span>
                                                     <span class="new">NEW</span>
                                                 </div>
                                             </div>
                                             <div class="product-body ">
-                                                <p class="product-category"><?= $row[4] ?></p>
-                                                <h3 class="product-name"><a href="#"><?= $row[1] ?></a></h3>
-                                                <h4 class="product-price"><?= $row[3] ?> <del class="product-old-price">$990.00</del></h4>
+                                                <p class="product-category"><?= $row[3] ?></p>
+                                                <h3 class="product-name"><a href="#"><?= $row[4] ?></a></h3>
+                                                <h4 class="product-price"><?= $row[6] ?> <del class="product-old-price">$990.00</del></h4>
                                                 <div class="product-rating">
                                                     <i class="fa fa-star"></i>
                                                     <i class="fa fa-star"></i>
@@ -131,11 +133,12 @@
                                                     <i class="fa fa-star"></i>
                                                     <i class="fa fa-star"></i>
                                                 </div>
-                                                <div class="product-btns">
+                                                <div><?= $row[5] ?></div>
+                                                <!-- <div class="product-btns">
                                                     <button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
                                                     <button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
                                                     <button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
-                                                </div>
+                                                </div> -->
                                             </div>
                                             <div class="add-to-cart">
                                                 <button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
