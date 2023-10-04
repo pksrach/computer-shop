@@ -11,7 +11,7 @@
 
     <meta name="description" content="Portal - Bootstrap 5 Admin Dashboard Template For Developers">
     <meta name="author" content="Xiaoying Riley at 3rd Wave Media">
-    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="shortcut icon" href="assets/images/X-ComShop Logo.svg">
 
 
     <!-- jQuery-->
@@ -149,7 +149,7 @@
             <div class="sidepanel-inner d-flex flex-column">
                 <a href="#" id="sidepanel-close" class="sidepanel-close d-xl-none">&times;</a>
                 <div class="app-branding">
-                    <a class="app-logo" href="index.php?pg=homepage"><img class="logo-icon me-2" src="assets/images/app-logo.svg" alt="logo"><span class="logo-text">ហាងលក់ Computer</span></a>
+                    <a class="app-logo" href="index.php?pg=homepage"><img class="logo-icon me-2" src="assets/images/X-ComShop Logo.svg" alt="logo"><span class="logo-text">X-ComShop</span></a>
 
                 </div><!--//app-branding-->
 
@@ -169,15 +169,12 @@
                         </li><!--//nav-item-->
 
 
+
+
                         <li class="nav-item has-submenu">
-                            <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
                             <a class="nav-link submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-11" aria-expanded="false" aria-controls="submenu-11">
                                 <span class="nav-icon">
-                                    <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
-                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-files" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M4 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H4z" />
-                                        <path d="M6 0h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1H4a2 2 0 0 1 2-2z" />
-                                    </svg>
+                                    <i class="fa-solid fa-cubes"></i>
                                 </span>
                                 <span class="nav-link-text">គ្រប់គ្រងផលិតផល</span>
                                 <span class="submenu-arrow">
@@ -188,13 +185,17 @@
                             </a><!--//nav-link-->
                             <div id="submenu-11" class="collapse submenu submenu-11" data-bs-parent="#menu-accordion">
                                 <ul class="submenu-list list-unstyled">
-                                    <li class="submenu-item"><a class="submenu-link" href="index.php?br=brand">ប្រេន</a></li>
-                                    <li class="submenu-item"><a class="submenu-link" href="index.php?pt=category">ប្រភេទ</a></li>
-                                    <li class="submenu-item"><a class="submenu-link" href="index.php?p=insert_property">បង្កើតផលិតផល</a></li>
-                                    <li class="submenu-item"><a class="submenu-link" href="index.php?p=property">ព័ត៌មានអចលនទ្រព្យ</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?br=brand"><i class="fa-solid fa-copyright"></i> ប្រេន</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?um=unit_measurement"><i class="fa-solid fa-weight-scale"></i> ខ្នាត</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?pt=category"><i class="fa-solid fa-layer-group"></i> ប្រភេទ</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?p=insert_product"><i class="fa-solid fa-plus"></i> បង្កើតផលិតផល</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?p=product"><i class="fa-brands fa-product-hunt"></i> ព័ត៌មានផលិតផល</a></li>
                                 </ul>
                             </div>
                         </li><!--//nav-item-->
+
+
+
                         <li class="nav-item has-submenu">
                             <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
                             <a class="nav-link submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-2" aria-expanded="false" aria-controls="submenu-2">
