@@ -8,7 +8,8 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
     <title>SS5-Project MidTerm</title>
-
+    
+     
     <!-- Google font -->
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,500,700" rel="stylesheet">
 
@@ -26,7 +27,9 @@
     <link rel="stylesheet" href="css/font-awesome.min.css">
 
     <!-- Custom stlylesheet -->
-    <link type="text/css" rel="stylesheet" href="css/style.css" />
+    <link type="text/css" rel="stylesheet" href="css/style.css" /><link rel="icon" type="image/x-icon" href="./img/logo/logo.png">
+
+    <link rel="icon" type="image/x-icon" href="/youtube_logo_icon_257017.ico" />
 
 </head>
 
@@ -60,7 +63,7 @@
                         <div class="header-logo">
                             <a href="#" class="logo">
                                 <!-- <img src="./img/logo.png" alt=""> -->
-                                <img src="./img/logo/logo.png" alt=""  style="width: 40%;margin-bottom: 0px;">
+                                <img src="./img/logo/logo.png" alt="" style="width: 40%;margin-bottom: 0px;">
                             </a>
                         </div>
                     </div>
