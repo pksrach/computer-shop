@@ -12,6 +12,7 @@
                         <div class="row g-2 justify-content-start justify-content-md-end align-items-center">
                             <div class="col-auto">
                                 <form class="table-search-form row gx-1 align-items-center">
+                                    <input type="hidden" name="br" value="brand" />
                                     <div class="col-auto">
                                         <input type="text" id="keyinputdata" name="keyinputdata" class="form-control search-orders" placeholder="ស្វែងរកឈ្មោះ">
                                     </div>
@@ -90,7 +91,7 @@
                                             }
                                             // End pagination
 
-                                            $sql_select = "SELECT * FROM tbl_brand";
+                                            $sql_select = "SELECT * FROM tbl_brand ";
 
                                             if ($keyinputdata == "") {
                                                 $sql = $sql_select . "LIMIT $current_page, $row_per_page;";
