@@ -2,7 +2,7 @@
 
     <div class="app-content pt-3 p-md-3 p-lg-4">
         <div class="container-xl">
-
+            <!-- Search -->
             <div class="row g-3 mb-4 align-items-center justify-content-between">
                 <div class="col-auto">
                     <h1 class="app-page-title mb-0">ប្រេននៃផលិតផល</h1>
@@ -13,24 +13,14 @@
                             <div class="col-auto">
                                 <form class="table-search-form row gx-1 align-items-center">
                                     <div class="col-auto">
-                                        <input type="text" id="search-orders" name="searchorders" class="form-control search-orders" placeholder="Search">
+                                        <input type="text" id="keyinputdata" name="keyinputdata" class="form-control search-orders" placeholder="ស្វែងរកឈ្មោះ">
                                     </div>
                                     <div class="col-auto">
-                                        <button type="submit" class="btn app-btn-secondary">Search</button>
+                                        <button type="submit" name="btnSearch" class="btn app-btn-secondary">ស្វែងរក</button>
                                     </div>
                                 </form>
 
                             </div><!--//col-->
-                            <div class="col-auto">
-
-                                <select class="form-select w-auto">
-                                    <option selected value="option-1">All</option>
-                                    <option value="option-2">This week</option>
-                                    <option value="option-3">This month</option>
-                                    <option value="option-4">Last 3 months</option>
-
-                                </select>
-                            </div>
 
                         </div><!--//row-->
                     </div><!--//table-utilities-->
@@ -82,29 +72,82 @@
                                     </thead>
                                     <tbody>
                                         <?php
-                                        $sql = "SELECT * FROM tbl_brand ORDER BY id DESC";
-                                        $result = mysqli_query($conn, $sql);
-                                        while ($row = mysqli_fetch_array($result)) {
-                                        ?>
-                                            <form method="get">
-                                                <input type="hidden" name="br" value="brand" id="">
-                                                <input type="hidden" name="txtid" id="" value="<?= $row['id'] ?>">
-                                                <tr>
-                                                    <td class="cell"><?= $row['id'] ?></td>
-                                                    <td class="cell"><?= $row['brand_name'] ?></td>
-                                                    <td class="cell"><?= $row['description'] ?></td>
-                                                    <!-- Button action -->
-                                                    <td class="cell">
-                                                        <!-- <a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a> -->
-                                                        <a class="btn btn-primary" href="#" data-toggle="modal" data-bs-toggle="modal" data-bs-target="#editModal<?= $row['id'] ?>"><i class="far fa-edit"></i></a>
-                                                        <button type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('តើអ្នកពិតជាចង់លុបវាមែនទេ ?')"><i class="fas fa-trash-alt"></i></button>
+                                        // searching data
+                                        if (isset($_GET['btnSearch'])) {
+                                            $keyinputdata = $_GET['keyinputdata'];
+                                            // Pagination when searching
+                                            $number_of_page = 0;
+                                            $s = "SELECT count(*) FROM tbl_brand";
+                                            $q = $conn->query($s);
+                                            $r = mysqli_fetch_row($q);
+                                            $row_per_page = 5;
+                                            $number_of_page = ceil($r[0] / $row_per_page); #Round numbers up to the nearest integer
+                                            if (!isset($_GET['pn'])) {
+                                                $current_page = 0;
+                                            } else {
+                                                $current_page = $_GET['pn'];
+                                                $current_page = ($current_page - 1) * $row_per_page;
+                                            }
+                                            // End pagination
 
-                                                    </td>
-                                                </tr>
-                                            </form>
+                                            $sql_select = "SELECT * FROM tbl_brand";
+
+                                            if ($keyinputdata == "") {
+                                                $sql = $sql_select . "LIMIT $current_page, $row_per_page;";
+                                            } else {
+                                                $sql = $sql_select . "
+                                                    WHERE
+                                                        brand_name LIKE '%" . $keyinputdata . "%'
+                                                    ORDER BY
+                                                        id DESC LIMIT $current_page, $row_per_page;";
+                                            }
+
+                                            $result = mysqli_query($conn, $sql);
+                                            $num_row = $result->num_rows;
+                                        } else {
+                                            // Load all data
+                                            // Pagination
+                                            $number_of_page = 0;
+                                            $s = "SELECT count(*) FROM tbl_brand";
+                                            $q = $conn->query($s);
+                                            $r = mysqli_fetch_row($q);
+                                            $row_per_page = 5;
+                                            $number_of_page = ceil($r[0] / $row_per_page); #Round numbers up to the nearest integer
+                                            if (!isset($_GET['pn'])) {
+                                                $current_page = 0;
+                                            } else {
+                                                $current_page = $_GET['pn'];
+                                                $current_page = ($current_page - 1) * $row_per_page;
+                                            }
+                                            // End pagination
+
+                                            $sql = "SELECT * FROM tbl_brand ORDER BY id DESC LIMIT $current_page, $row_per_page;";
+                                            $result = mysqli_query($conn, $sql);
+                                            $num_row = $result->num_rows;
+                                        }
+                                        if ($result->num_rows > 0) {
+                                            $i = 1;
+                                            while ($row = mysqli_fetch_array($result)) {
+                                        ?>
+                                                <form method="get">
+                                                    <input type="hidden" name="br" value="brand" id="">
+                                                    <input type="hidden" name="txtid" id="" value="<?= $row['id'] ?>">
+                                                    <tr>
+                                                        <td class="cell"><?= $row['id'] ?></td>
+                                                        <td class="cell"><?= $row['brand_name'] ?></td>
+                                                        <td class="cell"><?= $row['description'] ?></td>
+                                                        <!-- Button action -->
+                                                        <td class="cell">
+                                                            <!-- <a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a> -->
+                                                            <a class="btn btn-primary" href="#" data-toggle="modal" data-bs-toggle="modal" data-bs-target="#editModal<?= $row['id'] ?>"><i class="far fa-edit"></i></a>
+                                                            <button type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('តើអ្នកពិតជាចង់លុបវាមែនទេ ?')"><i class="fas fa-trash-alt"></i></button>
+
+                                                        </td>
+                                                    </tr>
+                                                </form>
 
                                         <?php
-                                            echo '                                        
+                                                echo '                                        
                                                 <!-- Modal -->
                                                 <div class="modal fade bd-example-modal-lg" id="editModal' . $row['id'] . '" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                     <div class="modal-dialog modal-lg" role="document">
@@ -138,6 +181,14 @@
                                                 </div>
                                                 </div>
                                                 ';
+                                                $i++;
+                                            }
+                                        } else {
+                                            echo '
+												<tr>
+													<td colspan="10" style="text-align: center; color: red; font-size: 18pt;">មិនមានទិន្នន័យទេ</td>
+												</tr>
+											';
                                         }
                                         ?>
                                     </tbody>
@@ -147,20 +198,11 @@
                         </div><!--//app-card-body-->
                     </div><!--//app-card-->
 
-                    <!-- Pagination -->
-                    <nav class="app-pagination">
-                        <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
-                            </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">Next</a>
-                            </li>
-                        </ul>
-                    </nav><!--//app-pagination-->
+                    <!-- Start pagination -->
+                    <?php
+                    require_once 'pages/pagin/pagin.php';
+                    ?>
+                    <!-- End pagination-->
 
                 </div><!--//tab-pane-->
 
