@@ -170,7 +170,7 @@
 
 
 
-
+                        <!-- Manage Product -->
                         <li class="nav-item has-submenu">
                             <a class="nav-link submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-11" aria-expanded="false" aria-controls="submenu-11">
                                 <span class="nav-icon">
@@ -178,9 +178,7 @@
                                 </span>
                                 <span class="nav-link-text">គ្រប់គ្រងផលិតផល</span>
                                 <span class="submenu-arrow">
-                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" />
-                                    </svg>
+                                    <i class="fa-solid fa-arrow-turn-down"></i>
                                 </span><!--//submenu-arrow-->
                             </a><!--//nav-link-->
                             <div id="submenu-11" class="collapse submenu submenu-11" data-bs-parent="#menu-accordion">
@@ -190,6 +188,26 @@
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?pt=category"><i class="fa-solid fa-layer-group"></i> ប្រភេទ</a></li>
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?p=insert_product"><i class="fa-solid fa-plus"></i> បង្កើតផលិតផល</a></li>
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?p=product"><i class="fa-brands fa-product-hunt"></i> ព័ត៌មានផលិតផល</a></li>
+                                </ul>
+                            </div>
+                        </li><!--//nav-item-->
+
+                        <!-- Manage Inventory -->
+                        <li class="nav-item has-submenu">
+                            <a class="nav-link submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-12" aria-expanded="false" aria-controls="submenu-12">
+                                <span class="nav-icon">
+                                    <i class="fa-solid fa-warehouse"></i>
+                                </span>
+                                <span class="nav-link-text">គ្រប់គ្រង ស្តុកផលិតផល</span>
+                                <span class="submenu-arrow">
+                                    <i class="fa-solid fa-arrow-turn-down"></i>
+                                </span><!--//submenu-arrow-->
+                            </a><!--//nav-link-->
+                            <div id="submenu-12" class="collapse submenu submenu-12" data-bs-parent="#menu-accordion">
+                                <ul class="submenu-list list-unstyled">
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?st=stock"><i class="fa-solid fa-clipboard"></i> ស្តុក</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?im=import_stock"><i class="fa-solid fa-file-import"></i> នាំចូល</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?pt=category"><i class="fa-solid fa-layer-group"></i> របាយការណ៏ នាចូល</a></li>
                                 </ul>
                             </div>
                         </li><!--//nav-item-->

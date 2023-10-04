@@ -13,7 +13,7 @@
 							<div class="col-auto">
 								<form method="get" class="table-search-form row gx-1 align-items-center">
 									<input type="hidden" name="p" value="product" />
-									<!-- Brand -->
+
 									<div class="col-auto">
 										<select class="form-select w-auto" name="key_brand" id="sel_brand">
 											<option value="">ជ្រើសរើសប្រេន</option>
@@ -42,7 +42,7 @@
 										<input type="text" id="keyinputdata" name="keyinputdata" class="form-control search-orders" placeholder="ស្វែងរកឈ្មោះផលិតផល">
 									</div>
 									<div class="col-auto">
-										<button type="submit" name="btnSearch" class="btn app-btn-secondary">ស្វែងរក</button>
+										<button type="submit" name="btnSearch" class="btn app-btn-secondary">Search</button>
 									</div>
 								</form>
 
