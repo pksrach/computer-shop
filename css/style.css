@@ -929,7 +929,10 @@ textarea.input {
   color: #D10024;
   font-size: 18px;
 }
-
+.product-decription{
+  color: #ff09ad;
+  font-size: 14px;
+}
 .product .product-body .product-price .product-old-price {
   font-size: 70%;
   font-weight: 400;

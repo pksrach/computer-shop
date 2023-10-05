@@ -53,17 +53,17 @@
         <!-- /TOP HEADER -->
 
         <!-- MAIN HEADER -->
-        <div id="header">
+        <div id="header" >
             <!-- container -->
             <div class="container">
                 <!-- row -->
                 <div class="row">
                     <!-- LOGO -->
-                    <div class="col-md-3">
+                    <div class="col-md-3 ">
                         <div class="header-logo">
-                            <a href="#" class="logo">
+                            <a href="/homepage.php" class="logo">
                                 <!-- <img src="./img/logo.png" alt=""> -->
-                                <img src="./img/logo/logo.png" alt="" style="width: 40%;margin-bottom: 0px;">
+                                <img src="./img/logo/logo.png" alt="" style="width: 25%;margin-top: 0px;  ">
                             </a>
                         </div>
                     </div>
@@ -71,7 +71,7 @@
 
                     <!-- SEARCH BAR -->
                     <div class="col-md-6">
-                        <div class="header-search">
+                        <div class="header-search" >
                             <form>
                                 <select class="input-select">
                                     <option value="0">All Categories</option>

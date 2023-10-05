@@ -113,10 +113,18 @@
 
                                     while ($row = mysqli_fetch_array($result)) {
                                 ?>
+
                                         <div class="product ">
                                             <div class="product-img">
                                                 <!-- <img src="./img/product01.png" alt=""> -->
-                                                <?php echo '<img src="./admin/assets/images/img_data_store_upload/'.$row[1].'" alt="">'  ?>
+                                                <?php
+                                                $defaultimage = "default.jpg";
+                                                $img = $row[1] ??$defaultimage;
+                                                echo '<img src="./admin/assets/images/img_data_store_upload/' . $img . '" alt="">'
+
+
+
+                                                ?>
                                                 <div class="product-label">
                                                     <span class="sale">-30%</span>
                                                     <span class="new">NEW</span>
@@ -133,15 +141,17 @@
                                                     <i class="fa fa-star"></i>
                                                     <i class="fa fa-star"></i>
                                                 </div>
-                                                <div><?= $row[5] ?></div>
-                                                <!-- <div class="product-btns">
+                                                <div style="color: black; font-size: 11px;font-weight: bold;"><?= $row[5] ?></div>
+                                                <div class="product-btns">
                                                     <button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
                                                     <button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
                                                     <button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
-                                                </div> -->
+                                                </div>
                                             </div>
                                             <div class="add-to-cart">
-                                                <button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+                                                <button class="add-to-cart-btn">
+                                                    <i class="fa fa-shopping-cart"></i>
+                                                    add to cart</button>
                                             </div>
                                         </div>
                                 <?php }
