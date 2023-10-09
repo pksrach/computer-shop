@@ -1,295 +1,237 @@
-<style>
-	.validation_msg {
-		color: red;
-		font-size: 14px;
-	}
-</style>
 <div class="app-wrapper">
 
 	<div class="app-content pt-3 p-md-3 p-lg-4">
 		<div class="container-xl">
-			<h1 class="app-page-title">បង្កើត ព័ត៌មាននៃផលិតផលថ្មី</h1>
+			<h1 class="app-page-title">នាំចូលផលិតផល</h1>
 			<hr class="mb-4">
 
 			<!-- Tap Click -->
 			<nav id="orders-table-tab" class="orders-table-tab app-nav-tabs nav shadow-sm flex-column flex-sm-row mb-4">
-				<a class="flex-sm-fill text-sm-center nav-link" id="create_product-tab" data-bs-toggle="tab" href="#create_product" role="tab" aria-controls="create_product" aria-selected="false">បង្កើតផលិតផលថ្មី</a>
+				<a class="flex-sm-fill text-sm-center nav-link" id="import_stock-tab" data-bs-toggle="tab" href="#import_stock" role="tab" aria-controls="import_stock" aria-selected="false">នាំចូលផលិតផល</a>
 			</nav>
 
-			<!-- Insert -->
 			<?php
-			// Message
-			$property_nm_msg = '<div class="validation_msg">សូមបញ្ចូលឈ្មោះផលិតផល</div>';
-			$property_price_msg = '<div class="validation_msg">សូមបញ្ចូលតម្លៃោះផលិតផល</div>';
-			$property_img_msg = '<div class="validation_msg">សូមជ្រើសរើសរូបភាពោះផលិតផល</div>';
-			$msg1 = $msg2 = $msg3 = '';
-
-			// Default fields values
-			$product_name = "";
-			$description = "";
-			$price = "";
-			$brand_id = "";
-			$category_id = "";
-			$unit_id = "";
-			$attatchment_url = "";
-			$status = "Active";
-
-
+			// Check if the Save button is clicked
 			if (isset($_POST['btnSave'])) {
-				// Fields
-				$product_name = $_POST['txt_product_name'];
-				$description = $_POST['tar_desc'];
-				$price = $_POST['txt_product_price'];
-				$category_id = $_POST['sel_category'];
-				$brand_id = $_POST['sel_brand'];
-				$unit_id = $_POST['sel_um'];
-				$status = $_POST['sel_status'];
-				// $status = $_POST['sel_status'];
-
-				// Files
-				$filename = $_FILES['img_property']['name'];
-				$file_size = $_FILES['img_property']['size'];
-				$filetmp = $_FILES['img_property']['tmp_name'];
-				$filetype = $_FILES['img_property']['type'];
-
-				$filename_bstr = explode(".", $filename);
-				$file_ext = strtolower(end($filename_bstr));
-				$extensions = array("jpeg", "jpg", "png");
-
-				if (trim($product_name) == '') {
-					$msg1 = $property_nm_msg;
-				}
-				if (trim($price) == '') {
-					$msg2 = $property_price_msg;
-				}
-
-				// Query insert
-				$sql = '
-					INSERT INTO tbl_product (
-						brand_id,
-						category_id,
-						product_name,
-						price,
-						unit_id,
-						attatchment_url,
-						status,
-						description
-					)
-					VALUES(?,?,?,?,?,?,?,?)
-				';
-
-				// 2MB = 2097152
-				if ($file_size > 2097152) {
-					echo msgstyle("ទំហំ File ត្រូវតែតូចជាង 2MB", "info");
-				} else {
-					if (in_array($file_ext, $extensions) === false && ($filename != '' || $filename != null)) {
-						echo msgstyle("extension not allowed, please choose a JPEG or PNG file.", "info");
-						return;
-					} else {
-						$genNewFileName = md5(time() . $filename) . '.' . $file_ext;
-						$path_to_store_img = "assets/images/img_data_store_upload/" . $genNewFileName;
-						move_uploaded_file($filetmp, $path_to_store_img);
-					}
-				}
-				// Check if fields are not empty
+				// Check if all required fields are set and not empty
 				if (
-					trim($brand_id) != '' &&
-					trim($category_id) != '' &&
-					trim($unit_id) != '' &&
-					trim($product_name) != '' &&
-					trim($price) != '' &&
-					trim($status) != ''
+					isset($_POST['txt_import_date']) &&
+					isset($_POST['sel_product_id']) &&
+					isset($_POST['txt_import_qty']) &&
+					isset($_POST['txt_import_cost'])
 				) {
-					// Check filename
-					if ($filename == '' || $filename == null) {
-						$filename = null;
-					}
-					// Execute query and save into database
-					$stmt = $conn->prepare($sql);
-					$stmt->bind_param("iisdisss", $brand_id, $category_id, $product_name, $price, $unit_id, $genNewFileName, $status, $description);
-					if ($stmt->execute()) {
-						echo msgstyle("បង្កើតព័ត៌មានផលិតផលថ្មីបានជោគជ័យ", "success");
-						echo '<script type="text/javascript"> 
-								window.location.replace("index.php?p=product&msg=201");
-							 </script>
-						';
+					// Retrieve the submitted data
+					$import_date = $_POST['txt_import_date'];
+					$product_info = explode('|', $_POST['sel_product_id']);
+					$product_id = $product_info[0];
+					$import_qty = $_POST['txt_import_qty'];
+					$import_cost = $_POST['txt_import_cost'];
+
+					// Get the current date and time in the DATETIME format
+					$currentDatetime = date("Y-m-d H:i:s");
+
+					// Insert data into tbl_import
+					$insertImportQuery = "INSERT INTO tbl_import (import_date, note, people_id) VALUES ('$currentDatetime', 'Note', 1)";
+					$resultImport = mysqli_query($conn, $insertImportQuery);
+
+					if ($resultImport) {
+						// Get the import_id of the newly inserted record
+						$import_id = mysqli_insert_id($conn);
+
+						// Insert data into tbl_import_detail with the valid import_id
+						$insertImportDetailQuery = "INSERT INTO tbl_import_detail (import_id, product_id, import_qty, cost) VALUES ('$import_id', '$product_id', '$import_qty', '$import_cost')";
+						$resultImportDetail = mysqli_query($conn, $insertImportDetailQuery);
+
+						if ($resultImportDetail) {
+							// Data successfully inserted into tbl_import_detail
+
+							// Update stock in tbl_stock or insert a new record if it doesn't exist
+							$updateStockQuery = "INSERT INTO tbl_stock (product_id, stock_qty) VALUES ('$product_id', $import_qty)
+                            ON DUPLICATE KEY UPDATE stock_qty = stock_qty + $import_qty";
+
+							$resultUpdateStock = mysqli_query($conn, $updateStockQuery);
+
+							if ($resultUpdateStock) {
+								echo "<script>alert('Data inserted successfully, stock updated.');</script>";
+							} else {
+								// Handle the case where the upsert operation fails
+								echo "<script>alert('Error updating stock.');</script>";
+							}
+						} else {
+							// Handle the case where insertion into tbl_import_detail fails
+							echo "<script>alert('Error inserting data into tbl_import_detail: " . mysqli_error($conn) . "');</script>";
+						}
 					} else {
-						echo msgstyle("បង្កើតព័ត៌មានផលិតផលថ្មីមិនបានជោគជ័យ", "danger");
+						// Handle the case where insertion into tbl_import fails
+						echo "<script>alert('Error inserting data into tbl_import: " . mysqli_error($conn) . "');</script>";
 					}
+				} else {
+					// Handle the case where not all required fields are filled in
+					echo "<script>alert('Please fill in all required fields.');</script>";
 				}
 			}
 			?>
-			<!-- End of Insert -->
 
+			<!-- Add data into table but not save into db yet -->
+			<?php
+			if (isset($_POST['btnAdd'])) {
+				if (
+					isset($_POST['txt_import_date']) &&
+					isset($_POST['sel_product_id']) &&
+					isset($_POST['txt_import_qty']) &&
+					isset($_POST['txt_import_cost'])
+				) {
+					$addedRows = [];
+					// Retrieve the submitted data
+					$import_dates = $_POST['txt_import_date'];
+					$product_ids = $_POST['sel_product_id'];
+					$import_qtys = $_POST['txt_import_qty'];
+					$import_costs = $_POST['txt_import_cost'];
+					// Iterate through the product rows
+					for ($i = 0; $i < count($product_ids); $i++) {
+						$import_date = $import_dates[$i];
+						$product_info = explode('|', $product_ids[$i]);
+						$product_id = $product_info[0];
+						$product_name = $product_info[1];
+						$import_qty = $import_qtys[$i];
+						$import_cost = $import_costs[$i];
+
+						// Create a row data array
+						$rowData = [
+							'product_id' => $product_id,
+							'product_name' => $product_name,
+							'import_qty' => $import_qty,
+							'import_cost' => $import_cost,
+						];
+
+						// Add the new row data to the session variable
+						$_SESSION['addedRows'][] = $rowData;
+					}
+					// Update the session variable
+					$_SESSION['addedRows'] = $addedRows;
+				}
+			}
+			// Clear the added rows by unsetting the session variable
+			if (isset($_POST['btnClear'])) {
+				unset($_SESSION['addedRows']);
+			}
+			?>
+
+			<!-- Clear the added rows by unsetting the session variable -->
+			<?php
+
+			if (isset($_POST['btnClear'])) {
+				echo "<script>alert('btnClear')</script>";
+				session_destroy();
+			}
+			?>
 			<div class="tab-content" id="orders-table-tab-content">
-				<div class="tab-pane fade show active" id="create_product" role="tabpanel" aria-labelledby="create_product-tab">
-
-
+				<div class="tab-pane fade show active" id="import_stock" role="tabpanel" aria-labelledby="import_stock-tab">
 					<div class="app-card app-card-orders-table mb-5">
 						<div class="app-card-body">
-
-
-							<!-- Form create property -->
+							<!-- Form -->
 							<div class="app-content pt-3 p-md-3 p-lg-4">
 								<div class="container-xl">
 									<div class="row g-4 settings-section">
 										<div class="col-12 col-md-12">
 											<div class="app-card app-card-settings shadow-sm p-4">
 												<div class="app-card-body">
+													<div class="col-md-12">
+														<label class="form-label">ថ្ងៃនាំចូល<span style="color: red;">*</span></label>
+														<input type="date" class="form-control" name="txt_import_date" id="txt_import_date">
+													</div>
 
-													<form method="POST" enctype="multipart/form-data" class="settings-form" ?>
-														<!-- Select Brand -->
-														<div class="mb-3">
-															<label class="form-label">ជ្រើសរើសប្រេនផលិតផល<span style="color: red;">*</span></label>
-															<select class="form-select" name='sel_brand' id='sel_brand' required>
-																<option value="">---សូមជ្រើសរើស---</option>
-																<?php
-																$sql = mysqli_query($conn, "SELECT * FROM tbl_brand");
-																while ($row = mysqli_fetch_assoc($sql)) {
-																	echo "<option value='" . $row['id'] . "'>" . $row['brand_name'] . "</option>";
-																}
-																?>
-															</select>
+													<!-- Header -->
+													<div class="col-md-12" style="display: flex; padding: 5px;">
+														<div class="col-md-5" style="display: flex; padding: 5px;">
+															<label class="form-label">ជ្រើសរើសផលិតផលនាំចូល<span style="color: red;">*</span></label>
+
+														</div>
+														<div class="col-md-2" style="display: flex; padding: 5px;">
+															<label class="form-label">ចំនួននាំចូល<span style="color: red;">*</span></label>
+														</div>
+														<div class="col-md-2" style="display: flex; padding: 5px;">
+															<label class="form-label">ថ្លៃដើម<span style="color: red;">*</span></label>
+														</div>
+														<div class="col-md-2" style="display: flex; padding: 5px;">
+															<label class="form-label">សរុបថ្លៃដើម<span style="color: red;">*</span></label>
+														</div>
+													</div>
+													<!-- End of Header -->
+													<form method="POST" enctype="multipart/form-data" class="row g-3" id="import-form">
+														<div id="product-rows">
+															<div class="product-row col-md-12" style="display: flex; padding: 5px;">
+																<!-- Select product -->
+																<div class="col-md-5" style="display: flex; padding: 5px;">
+																	<select class="form-select" name='sel_product_id' id='sel_product_id' required>
+																		<option value="">---ជ្រើសរើសផលិតផលនាំចូល---</option>
+																		<?php
+																		$sql = mysqli_query($conn, "SELECT *
+																			FROM tbl_product p 
+																				INNER JOIN tbl_brand b ON p.brand_id = b.id
+																				INNER JOIN tbl_category c ON p.category_id = c.id
+																				INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id
+																			WHERE p.status = 'Active'");
+																		while ($row = mysqli_fetch_assoc($sql)) {
+																			echo "<option value='" . $row['id'] . "|" . $row['product_name'] . "'>" . $row['product_name'] . " || " . $row['brand_name'] . " || " . $row['unit_name'] . "</option>";
+																		}
+																		?>
+																	</select>
+																</div>
+
+																<div class="col-md-2" style="display: flex; padding: 5px;">
+																	<input type="number" class="form-control" name="txt_import_qty" id="txt_import_qty" required>
+																</div>
+
+																<div class="col-md-2" style="display: flex; padding: 5px;">
+																	<input type="text" class="form-control" name="txt_import_cost" id="txt_import_cost" required>
+																</div>
+
+																<div class="col-md-2" style="display: flex; padding: 5px;">
+																	<input type="text" class="form-control" name="txt_amount" id="txt_amount">
+																</div>
+
+																<!-- Remove button -->
+																<div class="col-1" style="display: flex; padding: 5px;">
+																	<a href="#" class="btn btn-danger" onclick="removeRow(this)"><i class="fas fa-eraser"></i></a>
+																</div>
+
+															</div>
 														</div>
 
-														<!-- Select Category -->
-														<div class="mb-3">
-															<label class="form-label">ជ្រើសរើសប្រភេទផលិតផល<span style="color: red;">*</span></label>
-															<select class="form-select" name='sel_category' id='sel_category' required>
-																<option value="">---សូមជ្រើសរើស---</option>
-																<?php
-																$sql = mysqli_query($conn, "SELECT * FROM tbl_category");
-																while ($row = mysqli_fetch_assoc($sql)) {
-																	echo "<option value='" . $row['id'] . "'>" . $row['category_name'] . "</option>";
-																}
-																?>
-															</select>
+														<div class="col-md-12">
+															<label class="form-label">ថ្ងៃនាំចូល<span style="color: red;">*</span></label>
+															<input type="date" class="form-control" name="txt_import_date" id="txt_import_date">
 														</div>
 
-														<div class="mb-3">
-															<label class="form-label">ឈ្មោះផលិតផល<span style="color: red;">*</span></label>
-															<input type="text" class="form-control" name="txt_product_name" id="txt_product_name" value="<?php echo $product_name; ?>">
+														<!-- Button add -->
+														<div style="justify-content: space-between; display: inline-flex;">
+															<div class="col-6 " style="padding: 5px;">
+																<button type="submit" name="btnAdd" class="col-12 btn app-btn-primary" onclick="addProductRow()">បញ្ចូល</button>
+
+															</div>
+															<!-- Button clear all -->
+															<!-- <div class="col-6 " style="padding: 5px;">
+																<button type="button" name="btnClear" class="col-12 btn btn-danger" onclick="confirmClear()">សម្អាត</button>
+															</div> -->
+															<div class="col-6" style="padding: 5px;">
+																<button type="button" name="btnClear" class="col-12 btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmClearModal">សម្អាត</button>
+															</div>
 														</div>
 
-														<div class="mb-3">
-															<label class="form-label">តម្លៃផលិតផល<span style="color: red;">*</span></label>
-															<input type="text" class="form-control" name="txt_product_price" id="txt_product_price" value="<?php echo $price; ?>">
-														</div>
-
-														<!-- Select Um -->
-														<div class="mb-3">
-															<label class="form-label">ជ្រើសរើសខ្នាតផលិតផល<span style="color: red;">*</span></label>
-															<select class="form-select" name='sel_um' id='sel_um' required>
-																<option value="">---សូមជ្រើសរើស---</option>
-																<?php
-																$sql = mysqli_query($conn, "SELECT * FROM tbl_unit_measurement");
-																while ($row = mysqli_fetch_assoc($sql)) {
-																	echo "<option value='" . $row['id'] . "'>" . $row['unit_name'] . "</option>";
-																}
-																?>
-															</select>
-														</div>
-
-														<div class="mb-3">
-															<label class="form-label">រូបភាពផលិតផល</label>
-															<input type="file" class="form-control" name="img_property" id="img_property" value="">
-														</div>
-
-														<div class="mb-3">
-															<label class="form-label">ជ្រើសរើសស្ថានភាពអចលនទ្រព្យ<span style="color: red;">*</span></label>
-															<select class="form-select " name="sel_status" id="sel_status" required>
-																<option value="">---សូមជ្រើសរើស---</option>
-																<option selected value="Active">Active</option>
-																<option value="Deactive">Deactive</option>
-															</select>
-														</div>
-
-														<div class="mb-3">
-															<label class="form-label">បរិយាយ</label>
-															<textarea class="form-control" rows="3" name="tar_desc" id="tar_desc" style="height: 200px;"></textarea>
-														</div>
-
+														<!-- Button save  -->
 														<button type="submit" name="btnSave" class="btn app-btn-primary">រក្សាទុក</button>
 													</form>
 
-												</div><!--//app-card-body-->
-											</div><!--//app-card-->
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>
 							</div>
-							<!-- End of Form for create property -->
+							<!-- End of Form -->
 
 
-						</div><!--//app-card-body-->
-					</div><!--//app-card-->
-				</div><!--//tab-pane-->
-
-				<div class="tab-pane fade" id="orders-pending" role="tabpanel" aria-labelledby="orders-pending-tab">
-					<div class="app-card app-card-orders-table mb-5">
-						<div class="app-card-body">
-
-
-							<div class="table-responsive">
-								<table class="table mb-0 text-left">
-									<thead>
-										<tr>
-											<th class="cell">Order</th>
-											<th class="cell">Product</th>
-											<th class="cell">Customer</th>
-											<th class="cell">Date</th>
-											<th class="cell">Status</th>
-											<th class="cell">Total</th>
-											<th class="cell"></th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td class="cell">#15345</td>
-											<td class="cell"><span class="truncate">Consectetur adipiscing elit</span></td>
-											<td class="cell">Dylan Ambrose</td>
-											<td class="cell"><span class="cell-data">16 Oct</span><span class="note">03:16 AM</span></td>
-											<td class="cell"><span class="badge bg-warning">Pending</span></td>
-											<td class="cell">$96.20</td>
-											<td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
-										</tr>
-									</tbody>
-								</table>
-							</div><!--//table-responsive-->
-						</div><!--//app-card-body-->
-					</div><!--//app-card-->
-				</div><!--//tab-pane-->
-				<div class="tab-pane fade" id="orders-cancelled" role="tabpanel" aria-labelledby="orders-cancelled-tab">
-					<div class="app-card app-card-orders-table mb-5">
-						<div class="app-card-body">
-							<div class="table-responsive">
-								<table class="table mb-0 text-left">
-									<thead>
-										<tr>
-											<th class="cell">Order</th>
-											<th class="cell">Product</th>
-											<th class="cell">Customer</th>
-											<th class="cell">Date</th>
-											<th class="cell">Status</th>
-											<th class="cell">Total</th>
-											<th class="cell"></th>
-										</tr>
-									</thead>
-									<tbody>
-
-										<tr>
-											<td class="cell">#15342</td>
-											<td class="cell"><span class="truncate">Justo feugiat neque</span></td>
-											<td class="cell">Reina Brooks</td>
-											<td class="cell"><span class="cell-data">12 Oct</span><span class="note">04:23 PM</span></td>
-											<td class="cell"><span class="badge bg-danger">Cancelled</span></td>
-											<td class="cell">$59.00</td>
-											<td class="cell"><a class="btn-sm app-btn-secondary" href="#">View</a></td>
-										</tr>
-
-									</tbody>
-								</table>
-							</div><!--//table-responsive-->
 						</div><!--//app-card-body-->
 					</div><!--//app-card-->
 				</div><!--//tab-pane-->
@@ -299,7 +241,85 @@
 	</div><!--//app-content-->
 
 </div><!--//app-wrapper-->
+<div class="modal fade" id="confirmClearModal" tabindex="-1" aria-labelledby="confirmClearModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="confirmClearModalLabel">Confirm Clear</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				តើអ្នកពិតជាចង់លុបទាំងអស់មែនទេ?
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+				<button type="button" class="btn btn-danger" id="confirmClearButton">Clear All</button>
+			</div>
+		</div>
+	</div>
+</div>
+
 
 <!-- javascrip validation links -->
-<script src="assets/js/validation-text-area.js"></script>
+
+<!-- <script src="assets/js/validation-text-area.js"></script> -->
 <script src="assets/js/validation-input-price.js"></script>
+
+<script>
+	function confirmClear() {
+		// Disable the Clear button to prevent rapid clicks
+		var clearButton = document.querySelector('[name="btnClear"]');
+		clearButton.disabled = true;
+
+		// Show a confirmation dialog
+		var confirmation = confirm("តើអ្នកពិតជាចង់លុបមែនទេ ?");
+
+		// Enable the Clear button again
+		clearButton.disabled = false;
+
+		// If the user confirms, remove all rows
+		if (confirmation) {
+			var productRows = document.querySelectorAll('.product-row');
+			productRows.forEach(function(row) {
+				row.remove();
+			});
+		}
+	}
+
+
+	function addProductRow() {
+		// Check if there are existing rows
+		const productRows = document.querySelectorAll('.product-row');
+
+		if (productRows.length === 0) {
+			// If no rows exist, clone the initial product row and append it to the product-rows div
+			const productRow = document.querySelector('.product-row');
+			const newRow = productRow.cloneNode(true);
+			document.getElementById('product-rows').appendChild(newRow);
+		} else {
+			// If rows exist, clone the last row and append it to the product-rows div
+			const lastRow = productRows[productRows.length - 1];
+			const newRow = lastRow.cloneNode(true);
+			document.getElementById('product-rows').appendChild(newRow);
+		}
+	}
+
+	function removeRow(button) {
+		// Find the parent row and remove it
+		const row = button.closest('.product-row');
+		row.remove();
+	}
+
+	// When the modal confirmation button is clicked
+	document.getElementById('confirmClearButton').addEventListener('click', function() {
+		// Remove all rows
+		var productRows = document.querySelectorAll('.product-row');
+		productRows.forEach(function(row) {
+			row.remove();
+		});
+
+		// Close the modal using Bootstrap's method
+		var modal = new bootstrap.Modal(document.getElementById('confirmClearModal'));
+		modal.hide();
+	});
+</script>
