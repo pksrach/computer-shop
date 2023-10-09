@@ -36,8 +36,8 @@ include_once '../config_db/config_db.php';
 					<h2 class="auth-heading text-center mb-5">LOG IN TO ADMIN DASHBOARD</h2>
 					<?php
 						if(isset($_POST['login'])){
-							$username = $_POST['txtusername'];
-							$password = $_POST['txtpassword'];
+							$username = $conn->real_escape_string(trim($_POST['txtusername']));
+							$password = $conn->real_escape_string(trim($_POST['txtpassword']));
 							$sql = "select * from tbl_user where user_name = '$username' and user_pwd = '".md5($password)."'";
 							$result = $conn->query($sql);
 							// echo $sql;

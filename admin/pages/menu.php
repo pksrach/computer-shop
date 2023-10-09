@@ -48,7 +48,7 @@
 
                         <div class="app-utilities col-auto">
                             <div class="app-utility-item app-notifications-dropdown dropdown">
-
+                                <a href="../admin/logout.php" class="btn btn-danger text-white px-2">Log Out</a>
                                 <a href="../index.php">GO <i class="fa-solid fa-arrow-right"></i></a>
 
                                 <div class="dropdown-menu p-0" aria-labelledby="notifications-dropdown-toggle">
