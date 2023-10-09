@@ -32,20 +32,20 @@ include_once '../config_db/config_db.php';
 	    <div class="col-12 col-md-7 col-lg-6 auth-main-col text-center p-5">
 		    <div class="d-flex flex-column align-content-end">
 			    <div class="app-auth-body mx-auto">	
-				    <div class="app-auth-branding mb-4"><a class="app-logo" href="index.html"><img class="logo-icon me-2" src="assets/images/app-logo.svg" alt="logo"></a></div>
+				    <div class="app-auth-branding mb-4"><a class="app-logo" href="index.php"><img class="logo-icon me-2" src="assets/images/app-logo.svg" alt="logo"></a></div>
 					<h2 class="auth-heading text-center mb-5">LOG IN TO ADMIN DASHBOARD</h2>
 					<?php
 						if(isset($_POST['login'])){
 							$username = $conn->real_escape_string(trim($_POST['txtusername']));
 							$password = $conn->real_escape_string(trim($_POST['txtpassword']));
-							$sql = "select * from tbl_user where user_name = '$username' and user_pwd = '".md5($password)."'";
+							$sql = "select * from tbl_user where username = '$username' and password = '".md5($password)."'";
 							$result = $conn->query($sql);
 							// echo $sql;
 							// echo mysqli_num_rows($result);
 							if(mysqli_num_rows($result) > 0){
 								$row = mysqli_fetch_array($result);
 								$_SESSION['user_login'] = $username;
-								$_SESSION['user_role'] = $row['role_id'];
+								$_SESSION['user_role'] = $row['role'];
 								header("location: index.php");
 							}
 							else{
