@@ -186,24 +186,13 @@
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?br=brand"><i class="fa-solid fa-copyright"></i> ប្រេន</a></li>
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?um=unit_measurement"><i class="fa-solid fa-weight-scale"></i> ខ្នាត</a></li>
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?pt=category"><i class="fa-solid fa-layer-group"></i> ប្រភេទ</a></li>
-                                    <?php
-                                            if($_SESSION['user_role']<=2){
-                                    ?>
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?p=insert_product"><i class="fa-solid fa-plus"></i> បង្កើតផលិតផល</a></li>
-                                    <?php
-                                        }
-                                    ?>
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?p=product"><i class="fa-brands fa-product-hunt"></i> ព័ត៌មានផលិតផល</a></li>
                                 </ul>
                             </div>
                         </li><!--//nav-item-->
 
                         <!-- Manage Inventory -->
-                        <?php
-                        if($_SESSION['user_role']<=1){
-
-                        
-                        ?>
                         <li class="nav-item has-submenu">
                             <a class="nav-link submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-12" aria-expanded="false" aria-controls="submenu-12">
                                 <span class="nav-icon">
@@ -222,9 +211,6 @@
                                 </ul>
                             </div>
                         </li><!--//nav-item-->
-                        <?php
-                            }
-                        ?>
 
 
 
