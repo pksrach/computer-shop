@@ -31,7 +31,7 @@
 					$currentDatetime = date("Y-m-d H:i:s");
 
 					// Insert data into tbl_import
-					$insertImportQuery = "INSERT INTO tbl_import (import_date, note, people_id) VALUES ('$currentDatetime', 'Note', 1)";
+					$insertImportQuery = "INSERT INTO tbl_import (import_date, note, people_id) VALUES ('$currentDatetime', 'Note', 5)";
 					$resultImport = mysqli_query($conn, $insertImportQuery);
 
 					if ($resultImport) {
@@ -39,14 +39,14 @@
 						$import_id = mysqli_insert_id($conn);
 
 						// Insert data into tbl_import_detail with the valid import_id
-						$insertImportDetailQuery = "INSERT INTO tbl_import_detail (import_id, product_id, import_qty, cost) VALUES ('$import_id', '$product_id', '$import_qty', '$import_cost')";
+						$insertImportDetailQuery = "INSERT INTO tbl_import_detail (import_id, product_id, import_qty, cost) VALUES ($import_id, $product_id, '$import_qty', '$import_cost')";
 						$resultImportDetail = mysqli_query($conn, $insertImportDetailQuery);
 
 						if ($resultImportDetail) {
 							// Data successfully inserted into tbl_import_detail
 
 							// Update stock in tbl_stock or insert a new record if it doesn't exist
-							$updateStockQuery = "INSERT INTO tbl_stock (product_id, stock_qty) VALUES ('$product_id', $import_qty)
+							$updateStockQuery = "INSERT INTO tbl_stock (product_id, stock_qty) VALUES ($product_id, $import_qty)
                             ON DUPLICATE KEY UPDATE stock_qty = stock_qty + $import_qty";
 
 							$resultUpdateStock = mysqli_query($conn, $updateStockQuery);
