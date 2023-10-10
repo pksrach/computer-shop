@@ -12,7 +12,7 @@
 						<div class="row g-2 justify-content-start justify-content-md-end align-items-center">
 							<div class="col-auto">
 								<form method="get" class="table-search-form row gx-1 align-items-center">
-									<input type="hidden" name="p" value="product" />
+									<input type="hidden" name="st" value="stock" />
 
 									<div class="col-auto">
 										<select class="form-select w-auto" name="key_brand" id="sel_brand">
@@ -83,15 +83,13 @@
 									<thead>
 										<tr>
 											<th class="cell">#</th>
-											<th class="cell" style="text-align: center;">រូបភាព</th>
-											<th class="cell" style="text-align: center;">ឈ្មោះប្រេន</th>
-											<th class="cell" style="text-align: center;">ប្រភេទ</th>
+											<th class="cell" style="text-align: center;">ប្រភេទផលិតផល</th>
+											<th class="cell" style="text-align: center;">ប្រេនផលិតផល</th>
 											<th class="cell" style="text-align: center;">ឈ្មោះផលិតផល</th>
-											<th class="cell" style="text-align: center;">បរិយាយ</th>
-											<th class="cell" style="text-align: center;">តម្លៃផលិតផល</th>
-											<th class="cell" style="text-align: center;">ខ្នាតផលិតផល</th>
-											<th class="cell" style="text-align: center;">បរិមាណខ្នាត</th>
-											<th class="cell" style="text-align: center;">ស្ថានភាព</th>
+											<th class="cell" style="text-align: center;">ចំនួនស្តុក</th>
+											<th class="cell" style="text-align: center;">ការធានា</th>
+											<th class="cell" style="text-align: center;">លេខស៊េរី</th>
+											<th class="cell" style="text-align: center;">ការប្រើប្រាស់</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -108,11 +106,11 @@
 											// Pagination when searching
 											$number_of_page = 0;
 											$s = "SELECT count(*) 
-												FROM
-												  tbl_product p
-												  INNER JOIN tbl_brand b ON p.brand_id = b.id
-												  INNER JOIN tbl_category c ON p.category_id = c.id
-												  INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id
+												FROM tbl_stock s
+												INNER JOIN tbl_product p ON s.product_id = p.id
+												LEFT JOIN tbl_unit_measurement um ON p.unit_id = um.id
+												LEFT JOIN tbl_category c on p.category_id = c.id
+												LEFT JOIN tbl_brand b on p.brand_id = b.id
 											";
 											$q = $conn->query($s);
 											$r = mysqli_fetch_row($q);
@@ -126,49 +124,51 @@
 											}
 											// End pagination
 
-											$sql_select = "SELECT
-												p.id,
-												p.attatchment_url,
-												b.brand_name,
+											$sql_select = "SELECT 
+												s.id,
 												c.category_name,
+												b.brand_name,
 												p.product_name,
-												p.description,
-												p.price,
-												u.unit_name,
-												u.rate,
-												p.status
-											FROM
-												tbl_product p
-												INNER JOIN tbl_brand b ON p.brand_id = b.id
-												INNER JOIN tbl_category c ON p.category_id = c.id
-												INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id
+												um.unit_name,
+												s.stock_qty,
+												s.warranty,
+												s.serial_number, 
+												s.condition_type
+												FROM tbl_stock s
+												INNER JOIN tbl_product p ON s.product_id = p.id
+												LEFT JOIN tbl_unit_measurement um ON p.unit_id = um.id
+												LEFT JOIN tbl_category c on p.category_id = c.id
+												LEFT JOIN tbl_brand b on p.brand_id = b.id
 											";
 											if ($keycategory == "" && $keybrand == "" && $keyinputdata == "") {
-												$sql = $sql_select . "LIMIT $current_page, $row_per_page;";
+												$sql = $sql_select . "WHERE p.`status` = 'Active' ORDER BY s.id DESC " . "LIMIT $current_page, $row_per_page;";
 											}
 
 											if ($keycategory) {
 												$sql = $sql_select . "
 												WHERE
 													p.category_id = '$keycategory'
+													AND p.`status` = 'Active' 
 												ORDER BY
-													p.id DESC LIMIT $current_page, $row_per_page;";
+													S.id DESC LIMIT $current_page, $row_per_page;";
 											}
 
 											if ($keybrand) {
 												$sql = $sql_select . "
 												WHERE
 													p.brand_id = '$keybrand'
+													AND p.`status` = 'Active'
 												ORDER BY
-													p.id DESC LIMIT $current_page, $row_per_page;";
+													S.id DESC LIMIT $current_page, $row_per_page;";
 											}
 
 											if ($keyinputdata) {
 												$sql = $sql_select . "
 												WHERE
 													p.product_name LIKE '%" . $keyinputdata . "%'
+													AND p.`status` = 'Active'
 												ORDER BY
-													p.id DESC LIMIT $current_page, $row_per_page;";
+													s.id DESC LIMIT $current_page, $row_per_page;";
 											}
 
 											$result = mysqli_query($conn, $sql);
@@ -180,11 +180,11 @@
 											#pagination when first load
 											$number_of_page = 0;
 											$s = "SELECT count(*) 
-												FROM
-												  tbl_product p
-												  INNER JOIN tbl_brand b ON p.brand_id = b.id
-												  INNER JOIN tbl_category c ON p.category_id = c.id
-												  INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id
+												FROM tbl_stock s
+												INNER JOIN tbl_product p ON s.product_id = p.id
+												LEFT JOIN tbl_unit_measurement um ON p.unit_id = um.id
+												LEFT JOIN tbl_category c on p.category_id = c.id
+												LEFT JOIN tbl_brand b on p.brand_id = b.id
 											";
 											$q = $conn->query($s);
 											$r = mysqli_fetch_row($q);
@@ -199,23 +199,23 @@
 											// End pagination
 
 											$sql = "SELECT
-													p.id,
-													p.attatchment_url,
-													b.brand_name,
-													c.category_name,
-													p.product_name,
-													p.description,
-													p.price,
-													u.unit_name,
-													u.rate,
-													p.status
-												FROM
-													tbl_product p
-													INNER JOIN tbl_brand b ON p.brand_id = b.id
-													INNER JOIN tbl_category c ON p.category_id = c.id
-													INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id
+												s.id,
+												c.category_name,
+												b.brand_name,
+												p.product_name,
+												um.unit_name,
+												s.stock_qty,
+												s.warranty,
+												s.serial_number, 
+												s.condition_type
+												FROM tbl_stock s
+												INNER JOIN tbl_product p ON s.product_id = p.id
+												LEFT JOIN tbl_unit_measurement um ON p.unit_id = um.id
+												LEFT JOIN tbl_category c on p.category_id = c.id
+												LEFT JOIN tbl_brand b on p.brand_id = b.id
+												WHERE p.`status` = 'Active'
 												ORDER BY
-													p.id DESC
+													s.id DESC
 												LIMIT $current_page, $row_per_page;
 											";
 											$result = mysqli_query($conn, $sql);
@@ -228,19 +228,17 @@
 										?>
 												<tr>
 													<td class="cell"><?= $rowNumber++ ?></td>
-													<td class="cell" style="text-align: center;"><img src="<?= $row['attatchment_url'] ? "assets/images/img_data_store_upload/" . $row['attatchment_url'] : 'assets/images/default_product.jpg' ?>" width="50px" height="50px"></td>
-													<td class="cell" style="text-align: center;"><?= $row['brand_name'] ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['category_name'] ?></td>
-													<td class="cell" style="text-align: left;"><?= $row['product_name'] ?></td>
-													<td class="cell" style="text-align: left;"><?= $row['description'] ?></td>
-													<td class="cell" style="text-align: right;">$<?= $row['price'] ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['unit_name'] ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['rate'] ?></td>
-													<td class="cell" style="text-align: center;"><?= productStatus($row['status']) ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['category_name'] ? $row['category_name'] : "N/A" ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['brand_name'] ? $row['brand_name'] : "N/A" ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['product_name'] ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['stock_qty'] ?> <?= $row['unit_name'] ? $row['unit_name'] : "N/A" ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['warranty'] ? $row['warranty'] : "N/A" ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['serial_number'] ? $row['serial_number'] : "N/A" ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['condition_type'] ? $row['condition_type'] : "N/A" ?></td>
 
 													<td class="cell">
-														<a class="btn btn-primary" href="index.php?p=update_product&proid=<?= $row['id'] ?>"><i class="far fa-edit"></i></a>
-														<a href="pages/product/del_product.php?id=<?= $row['id'] ?>" type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('តើអ្នកពិតជាចង់លុបមែនទេ ?')"><i class="fas fa-eraser"></i></i></a>
+														<a class="btn btn-primary" href="index.php?p=update_stock&proid=<?= $row['id'] ?>"><i class="far fa-edit"></i></a>
+														<a href="pages/product/del_stock.php?id=<?= $row['id'] ?>" type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('តើអ្នកពិតជាចង់លុបមែនទេ ?')"><i class="fas fa-eraser"></i></i></a>
 													</td>
 												</tr>
 										<?php

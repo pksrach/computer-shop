@@ -17,9 +17,9 @@ include_once "pages/menu.php";
 if (isset($_GET['pg'])) {
     include "pages/" . $_GET['pg'] . ".php";
 } elseif (isset($_GET['im'])) {
-    include "pages/import_stock/" . $_GET['im'] . ".php";
+    include "pages/inventory/" . $_GET['im'] . ".php";
 } elseif (isset($_GET['st'])) {
-    include "pages/stock/" . $_GET['st'] . ".php";
+    include "pages/inventory/" . $_GET['st'] . ".php";
 } elseif (isset($_GET['um'])) {
     include "pages/unit_measurement/" . $_GET['um'] . ".php";
 } elseif (isset($_GET['br'])) {
