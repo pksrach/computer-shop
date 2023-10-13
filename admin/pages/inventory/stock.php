@@ -51,6 +51,7 @@
 						</div><!--//row-->
 					</div><!--//table-utilities-->
 				</div><!--//col-auto-->
+				
 			</div><!--//row-->
 
 			<!-- Tab -->
