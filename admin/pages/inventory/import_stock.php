@@ -66,85 +66,64 @@
 			?>
 
 			<?php
-			// Check if the Save button is clicked
+			// Establish a database connection ($conn) - missing in your code
+
 			if (isset($_POST['btnSave'])) {
-				echo "<script>alert('start import');</script>";
+				$tableRowsJSON = $_POST['tableRows'];
+				$tableRows = json_decode($tableRowsJSON, true);
 
-				// Check if the session variable exists and is an array
-				if (isset($_SESSION['addedRows']) || is_array($_SESSION['addedRows'])) {
-					echo "<script>alert('addedRows having');</script>";
-					// Get the current date and time in the DATETIME format
-					$currentDatetime = date("Y-m-d H:i:s");
+				mysqli_begin_transaction($conn);
 
-					// Initialize a variable to track the success of the transaction
-					$transactionSuccess = true;
+				try {
+					$insertImportSQL = "INSERT INTO tbl_import (import_date, note, people_id) VALUES (?, ?, ?)";
+					$stmt = mysqli_prepare($conn, $insertImportSQL);
 
-					// Start the transaction
-					mysqli_begin_transaction($conn);
+					$import_date = date("Y-m-d");  // Replace with actual import date
+					$note = "Demo note";
+					$people_id = 5;  // Replace with actual people_id
 
-					foreach ($_SESSION['addedRows'] as $rowData) {
-						// Check if all required fields are set
-						if (
-							isset($rowData['import_date']) &&
-							isset($rowData['product_id']) &&
-							isset($rowData['import_qty']) &&
-							isset($rowData['import_cost'])
-						) {
-							// Retrieve data from the session
-							$import_date = $rowData['import_date'];
-							$product_id = $rowData['product_id'];
-							$import_qty = $rowData['import_qty'];
-							$import_cost = $rowData['import_cost'];
+					mysqli_stmt_bind_param($stmt, "ssi", $import_date, $note, $people_id);
+					mysqli_stmt_execute($stmt);
 
-							// Insert data into tbl_import
-							$insertImportQuery = "INSERT INTO tbl_import (import_date, note, people_id) VALUES ('$currentDatetime', 'Note demo', 5)";
-							$resultImport = mysqli_query($conn, $insertImportQuery);
+					$import_id = mysqli_insert_id($conn);
 
-							if (!$resultImport) {
-								$transactionSuccess = false;
-								break; // Exit the loop if an insertion fails
-							}
+					foreach ($tableRows as $rowData) {
+						$productInfo = explode("|", $rowData['product_id']);
+						$product_id = $productInfo[0];
+						$import_qty = $rowData['import_qty'];
+						$cost = $rowData['import_cost'];
+						$warranty = $rowData['warranty'];
+						$serial_number = $rowData['serial_number'];
+						$condition_type = $rowData['condition_type'];
 
-							// Get the import_id of the newly inserted record
-							$import_id = mysqli_insert_id($conn);
+						// Insert or update stock quantity based on product_id
+						$insertStockSQL = "INSERT INTO tbl_stock (product_id, stock_qty, warranty, serial_number, condition_type)
+							VALUES (?, ?, ?, ?, ?)
+							ON DUPLICATE KEY UPDATE stock_qty = stock_qty + VALUES(stock_qty)";
+						$stmtStock = mysqli_prepare($conn, $insertStockSQL);
+						mysqli_stmt_bind_param($stmtStock, "iisss", $product_id, $import_qty, $warranty, $serial_number, $condition_type);
+						mysqli_stmt_execute($stmtStock);
 
-							// Insert data into tbl_import_detail with the valid import_id
-							$insertImportDetailQuery = "INSERT INTO tbl_import_detail (import_id, product_id, import_qty, cost) VALUES ($import_id, $product_id, $import_qty, $import_cost)";
-							$resultImportDetail = mysqli_query($conn, $insertImportDetailQuery);
-
-							if (!$resultImportDetail) {
-								$transactionSuccess = false;
-								break; // Exit the loop if an insertion fails
-							}
-
-							// Update stock in tbl_stock or insert a new record if it doesn't exist
-							$updateStockQuery = "INSERT INTO tbl_stock (product_id, stock_qty) VALUES ($product_id, $import_qty)
-							ON DUPLICATE KEY UPDATE stock_qty = stock_qty + $import_qty";
-
-							$resultUpdateStock = mysqli_query($conn, $updateStockQuery);
-
-							if (!$resultUpdateStock) {
-								$transactionSuccess = false;
-								break; // Exit the loop if an insertion fails
-							}
-						} else {
-							$transactionSuccess = false;
-							break; // Exit the loop if required fields are missing for a specific row
-						}
+						// Insert into import details
+						$insertImportDetailSQL = "INSERT INTO tbl_import_detail (import_id, product_id, import_qty, cost)
+							VALUES (?, ?, ?, ?)";
+						$stmtImportDetail = mysqli_prepare($conn, $insertImportDetailSQL);
+						mysqli_stmt_bind_param($stmtImportDetail, "iiid", $import_id, $product_id, $import_qty, $cost);
+						mysqli_stmt_execute($stmtImportDetail);
 					}
 
-					// Commit or rollback the transaction based on success
-					if ($transactionSuccess) {
-						mysqli_commit($conn);
-						echo "<script>alert('Transaction successfully committed.');</script>";
-					} else {
-						mysqli_rollback($conn);
-						echo "<script>alert('Transaction rolled back due to errors.');</script>";
-					}
+					mysqli_commit($conn);
+					echo "Data saved successfully!";
+					// Clear the session data
+					unset($_SESSION['addedRows']);
+				} catch (mysqli_sql_exception $e) {
+					mysqli_rollback($conn);
+					echo "Error: " . $e->getMessage();
 				}
-				echo "<script>alert('end import');</script>";
 			}
+
 			?>
+
 
 			<div class="tab-content" id="orders-table-tab-content">
 				<div class="tab-pane fade show active" id="import_stock" role="tabpanel" aria-labelledby="import_stock-tab">
@@ -167,7 +146,7 @@
 													</div>
 
 													<!-- Form -->
-													<form method="POST" enctype="multipart/form-data" class="row g-3" ?>
+													<form method="POST" enctype="multipart/form-data" class="row g-3" onsubmit="return validateForm()">
 
 														<!-- Select product -->
 														<div class="col-md-3">
@@ -175,14 +154,14 @@
 															<select class="form-select" name='sel_product_id' id='sel_product_id' required>
 																<option value="">---ជ្រើសរើសផលិតផលនាំចូល---</option>
 																<?php
-																$sql = mysqli_query($conn, "SELECT *
+																$sql = mysqli_query($conn, "SELECT p.*
 																			FROM tbl_product p 
 																				INNER JOIN tbl_brand b ON p.brand_id = b.id
 																				INNER JOIN tbl_category c ON p.category_id = c.id
 																				INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id
 																			WHERE p.status = 'Active'");
 																while ($row = mysqli_fetch_assoc($sql)) {
-																	echo "<option value='" . $row['id'] . "|" . $row['product_name'] . "'>" . $row['product_name'] . " || " . $row['brand_name'] . " || " . $row['unit_name'] . "</option>";
+																	echo "<option value='" . $row['id'] . "|" . $row['product_name'] . "'>" . $row['id'] . "||" . $row['product_name'] . " || " . $row['brand_name'] . " || " . $row['unit_name'] . "</option>";
 																}
 																?>
 															</select>
@@ -228,8 +207,6 @@
 																	<tr>
 																		<th class="cell">#</th>
 																		<th class="cell" style="text-align: center;">ផលិតផល</th>
-																		<!-- <th class="cell" style="text-align: center;">ប្រភេទ</th>
-																		<th class="cell" style="text-align: center;">ប្រេន</th> -->
 																		<th class="cell" style="text-align: center;">ថ្លៃដើម</th>
 																		<th class="cell" style="text-align: center;">ចំនួននាំចូល</th>
 																		<th class="cell" style="text-align: center;">ការធានា</th>
@@ -244,7 +221,6 @@
 																	if (isset($_POST['rowData'])) {
 																		// Process the data
 																		$data = json_decode($_POST['rowData'], true);
-																		// Rest of your processing logic
 																	}
 
 																	if (
@@ -255,6 +231,7 @@
 																		isset($data['serial']) &&
 																		isset($data['condition'])
 																	) {
+																		echo "product: " . $data['product'] . "<br>";
 																		// Process the data and create the table row HTML
 																		$newRowHTML = '<tr>';
 																		$newRowHTML .= '<td class="cell">' . $data['rowNumber '] . '</td>';
@@ -271,6 +248,9 @@
 																</tbody>
 															</table>
 														</div>
+														<!-- Hidden input field to store table rows data as JSON -->
+														<input type="hidden" name="tableRows" id="tableRows" value="[]">
+
 														<!-- Button-->
 														<div style="justify-content: space-between; display: inline-flex;">
 															<!-- Button clear all -->
@@ -281,7 +261,7 @@
 															</div>
 														</div>
 													</form>
-
+													<!-- End of Form -->
 												</div>
 											</div>
 										</div>
@@ -318,52 +298,10 @@
 	</div>
 </div>
 
-
-<!-- javascrip validation links -->
-
 <!-- <script src="assets/js/validation-text-area.js"></script> -->
 <script src="assets/js/validation-input-price.js"></script>
 
 <script>
-	function confirmClear() {
-		// Disable the Clear button to prevent rapid clicks
-		var clearButton = document.querySelector('[name="btnClear"]');
-		clearButton.disabled = true;
-
-		// Show a confirmation dialog
-		var confirmation = confirm("តើអ្នកពិតជាចង់លុបមែនទេ ?");
-
-		// Enable the Clear button again
-		clearButton.disabled = false;
-
-		// If the user confirms, remove all rows
-		if (confirmation) {
-			var productRows = document.querySelectorAll('.product-row');
-			productRows.forEach(function(row) {
-				row.remove();
-			});
-		}
-	}
-
-	function removeRow(button) {
-		// Find the parent row and remove it
-		const row = button.closest('.product-row');
-		row.remove();
-	}
-
-	// When the modal confirmation button is clicked
-	document.getElementById('confirmClearButton').addEventListener('click', function() {
-		// Remove all rows
-		var productRows = document.querySelectorAll('.product-row');
-		productRows.forEach(function(row) {
-			row.remove();
-		});
-
-		// Close the modal using Bootstrap's method
-		var modal = new bootstrap.Modal(document.getElementById('confirmClearModal'));
-		modal.hide();
-	});
-
 	let rowNumber = 0; // Initialize rowNumber as 1
 
 	function addTableRow() {
@@ -374,6 +312,25 @@
 		const warranty = document.getElementById('txt_warranty');
 		const serialNumber = document.getElementById('txt_serial_number');
 		const conditionType = document.getElementById('sel_condition_type');
+
+		// Create an object to store product data for the current row
+		const rowData = {
+			product_id: productDropdown.value,
+			import_qty: importQty.value,
+			import_cost: importCost.value,
+			warranty: warranty.value,
+			serial_number: serialNumber.value,
+			condition_type: conditionType.value,
+		};
+
+		// Get the table rows data
+		let tableRows = JSON.parse(document.getElementById('tableRows').value);
+
+		// Add the current row data to the table rows data
+		tableRows.push(rowData);
+
+		// Update the hidden input field with the updated table rows data
+		document.getElementById('tableRows').value = JSON.stringify(tableRows);
 
 		// Check if any of the required fields are empty
 		if (
@@ -399,6 +356,11 @@
 		const productCell = document.createElement('td');
 		productCell.textContent = productDropdown.options[productDropdown.selectedIndex].text;
 		newRow.appendChild(productCell);
+		console.log("productDropdown: ", productDropdown.options[productDropdown.selectedIndex].text);
+
+		// Get the selected value
+		const selectedValue = productDropdown.value;
+		console.log('Selected Value: ' + selectedValue);
 
 		const qtyCell = document.createElement('td');
 		qtyCell.textContent = importQty.value;
