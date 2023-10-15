@@ -72,6 +72,11 @@
 				$tableRowsJSON = $_POST['tableRows'];
 				$tableRows = json_decode($tableRowsJSON, true);
 
+				if (empty($tableRows)) {
+					echo "<script>alert('Please add at least one product to the table.');</script>";
+					return;
+				}
+
 				mysqli_begin_transaction($conn);
 
 				try {
@@ -96,17 +101,36 @@
 						$serial_number = $rowData['serial_number'];
 						$condition_type = $rowData['condition_type'];
 
-						// Insert or update stock quantity based on product_id
-						$insertStockSQL = "INSERT INTO tbl_stock (product_id, stock_qty, warranty, serial_number, condition_type)
-							VALUES (?, ?, ?, ?, ?)
-							ON DUPLICATE KEY UPDATE stock_qty = stock_qty + VALUES(stock_qty)";
-						$stmtStock = mysqli_prepare($conn, $insertStockSQL);
-						mysqli_stmt_bind_param($stmtStock, "iisss", $product_id, $import_qty, $warranty, $serial_number, $condition_type);
-						mysqli_stmt_execute($stmtStock);
+						// Check if a record with the same product ID exists in the tbl_stock table
+						$checkStockSQL = "SELECT * FROM tbl_stock WHERE product_id = ?";
+						$stmtCheckStock = mysqli_prepare($conn, $checkStockSQL);
+						mysqli_stmt_bind_param($stmtCheckStock, "i", $product_id);
+						mysqli_stmt_execute($stmtCheckStock);
+
+						$result = mysqli_stmt_get_result($stmtCheckStock);
+
+						if (mysqli_num_rows($result) > 0) {
+							// Update the SQL statement with five placeholders
+							$updateStockSQL = "UPDATE tbl_stock 
+							SET stock_qty = stock_qty + ?, 
+								cost = (cost * stock_qty + ? * ?) / (stock_qty + ?) 
+							WHERE product_id = ?";
+							$stmtUpdateStock = mysqli_prepare($conn, $updateStockSQL);
+							// Bind the five variables to the placeholders
+							mysqli_stmt_bind_param($stmtUpdateStock, "ddddd", $import_qty, $cost, $import_qty, $import_qty, $product_id);
+							mysqli_stmt_execute($stmtUpdateStock);
+						} else {
+							// No record with the same product ID exists, insert a new record
+							$insertStockSQL = "INSERT INTO tbl_stock (product_id, stock_qty, warranty, serial_number, condition_type, cost)
+											   VALUES (?, ?, ?, ?, ?, ?)";
+							$stmtStock = mysqli_prepare($conn, $insertStockSQL);
+							mysqli_stmt_bind_param($stmtStock, "iisssd", $product_id, $import_qty, $warranty, $serial_number, $condition_type, $cost);
+							mysqli_stmt_execute($stmtStock);
+						}
 
 						// Insert into import details
 						$insertImportDetailSQL = "INSERT INTO tbl_import_detail (import_id, product_id, import_qty, cost)
-							VALUES (?, ?, ?, ?)";
+												 VALUES (?, ?, ?, ?)";
 						$stmtImportDetail = mysqli_prepare($conn, $insertImportDetailSQL);
 						mysqli_stmt_bind_param($stmtImportDetail, "iiid", $import_id, $product_id, $import_qty, $cost);
 						mysqli_stmt_execute($stmtImportDetail);
@@ -146,12 +170,12 @@
 													</div>
 
 													<!-- Form -->
-													<form method="POST" enctype="multipart/form-data" class="row g-3" onsubmit="return validateForm()">
+													<form method="POST" enctype="multipart/form-data" class="row g-3">
 
 														<!-- Select product -->
 														<div class="col-md-3">
 															<label class="form-label">ជ្រើសរើសផលិតផលនាំចូល<span style="color: red;">*</span></label>
-															<select class="form-select" name='sel_product_id' id='sel_product_id' required>
+															<select class="form-select" name='sel_product_id' id='sel_product_id'>
 																<option value="">---ជ្រើសរើសផលិតផលនាំចូល---</option>
 																<?php
 																$sql = mysqli_query($conn, "SELECT p.*
@@ -169,12 +193,12 @@
 
 														<div class="col-md-1">
 															<label class="form-label">ចំនួននាំចូល<span style="color: red;">*</span></label>
-															<input type="number" class="form-control" name="txt_import_qty" id="txt_import_qty" required>
+															<input type="number" class="form-control" name="txt_import_qty" id="txt_import_qty">
 														</div>
 
 														<div class="col-md-1">
 															<label class="form-label">ថ្លៃដើម<span style="color: red;">*</span></label>
-															<input type="text" class="form-control" name="txt_import_cost" id="txt_import_cost" required>
+															<input type="text" class="form-control" name="txt_import_cost" id="txt_import_cost">
 														</div>
 														<div class="col-md-2">
 															<label class="form-label">ការធានា</label>
@@ -193,7 +217,7 @@
 														</div>
 														<div class="col-1 " style="padding: 5px; text-align:center;">
 															<label class="form-label">សកម្មភាព</label>
-															<button type="submit" name="btnAdd" class="col-12 btn btn-info" onclick="addTableRow()">បញ្ចូល</button>
+															<button type="button" name="btnAdd" class="col-12 btn btn-info" onclick="addTableRow()">បញ្ចូល</button>
 														</div>
 
 														<!-- Remove button -->
@@ -293,6 +317,25 @@
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 				<button type="button" class="btn btn-danger" id="confirmClearButton">Clear All</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="warning_exception" tabindex="-1" aria-labelledby="warningException" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="warningException">Warning</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				...
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary">Save changes</button>
 			</div>
 		</div>
 	</div>
