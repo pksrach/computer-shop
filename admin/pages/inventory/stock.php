@@ -51,7 +51,7 @@
 						</div><!--//row-->
 					</div><!--//table-utilities-->
 				</div><!--//col-auto-->
-				
+
 			</div><!--//row-->
 
 			<!-- Tab -->
@@ -88,6 +88,7 @@
 											<th class="cell" style="text-align: center;">ប្រេនផលិតផល</th>
 											<th class="cell" style="text-align: center;">ឈ្មោះផលិតផល</th>
 											<th class="cell" style="text-align: center;">ចំនួនស្តុក</th>
+											<th class="cell" style="text-align: center;">ថ្លៃដើម</th>
 											<th class="cell" style="text-align: center;">ការធានា</th>
 											<th class="cell" style="text-align: center;">លេខស៊េរី</th>
 											<th class="cell" style="text-align: center;">ការប្រើប្រាស់</th>
@@ -134,7 +135,8 @@
 												s.stock_qty,
 												s.warranty,
 												s.serial_number, 
-												s.condition_type
+												s.condition_type,
+												s.cost
 												FROM tbl_stock s
 												INNER JOIN tbl_product p ON s.product_id = p.id
 												LEFT JOIN tbl_unit_measurement um ON p.unit_id = um.id
@@ -208,7 +210,8 @@
 												s.stock_qty,
 												s.warranty,
 												s.serial_number, 
-												s.condition_type
+												s.condition_type,
+												s.cost
 												FROM tbl_stock s
 												INNER JOIN tbl_product p ON s.product_id = p.id
 												LEFT JOIN tbl_unit_measurement um ON p.unit_id = um.id
@@ -233,13 +236,14 @@
 													<td class="cell" style="text-align: center;"><?= $row['brand_name'] ? $row['brand_name'] : "N/A" ?></td>
 													<td class="cell" style="text-align: center;"><?= $row['product_name'] ?></td>
 													<td class="cell" style="text-align: center;"><?= $row['stock_qty'] ?> <?= $row['unit_name'] ? $row['unit_name'] : "N/A" ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['warranty'] ? $row['warranty'] : "N/A" ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['cost'] ? $row['cost'] : "0" ?></td>
+													<td class="cell" style="text-align: center;"><?php if ($row['warranty'] && $row['warranty'] !== '0000-00-00 00:00:00') echo  date('Y-m-d', strtotime($row['warranty']));
+																									else echo "N/A"  ?></td>
 													<td class="cell" style="text-align: center;"><?= $row['serial_number'] ? $row['serial_number'] : "N/A" ?></td>
 													<td class="cell" style="text-align: center;"><?= $row['condition_type'] ? $row['condition_type'] : "N/A" ?></td>
 
 													<td class="cell">
-														<a class="btn btn-primary" href="index.php?p=update_stock&proid=<?= $row['id'] ?>"><i class="far fa-edit"></i></a>
-														<a href="pages/product/del_stock.php?id=<?= $row['id'] ?>" type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('តើអ្នកពិតជាចង់លុបមែនទេ ?')"><i class="fas fa-eraser"></i></i></a>
+														<a href="pages/inventory/del_stock.php?id=<?= $row['id'] ?>" type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('តើអ្នកពិតជាចង់លុបមែនទេ ?')"><i class="fas fa-eraser"></i></i></a>
 													</td>
 												</tr>
 										<?php
