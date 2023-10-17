@@ -14,7 +14,6 @@
 			<?php
 			if (isset($_POST['btnAdd'])) {
 				if (
-					isset($_POST['txt_import_date']) &&
 					isset($_POST['sel_product_id']) &&
 					isset($_POST['txt_import_qty']) &&
 					isset($_POST['txt_import_cost'])
@@ -27,7 +26,6 @@
 					echo "<script>alert('count: $count');</script>";
 
 					// Retrieve the submitted data
-					$import_date = $_POST['txt_import_date'];
 					$product_ids = $_POST['sel_product_id'];
 					$import_qtys = $_POST['txt_import_qty'];
 					$import_costs = $_POST['txt_import_cost'];
@@ -83,9 +81,9 @@
 					$insertImportSQL = "INSERT INTO tbl_import (import_date, note, people_id) VALUES (?, ?, ?)";
 					$stmt = mysqli_prepare($conn, $insertImportSQL);
 
-					$import_date = date("Y-m-d");  // Replace with actual import date
-					$note = "Demo note";
-					$people_id = 5;  // Replace with actual people_id
+					$import_date = $_POST['txt_import_date'];
+					$note = $_POST['txt_note'];
+					$people_id = $_SESSION['user_people_id'];
 
 					mysqli_stmt_bind_param($stmt, "ssi", $import_date, $note, $people_id);
 					mysqli_stmt_execute($stmt);
@@ -109,6 +107,7 @@
 
 						$result = mysqli_stmt_get_result($stmtCheckStock);
 
+						// Stock
 						if (mysqli_num_rows($result) > 0) {
 							// Update the SQL statement with five placeholders
 							$updateStockSQL = "UPDATE tbl_stock 
@@ -117,7 +116,7 @@
 							WHERE product_id = ?";
 							$stmtUpdateStock = mysqli_prepare($conn, $updateStockSQL);
 							// Bind the five variables to the placeholders
-							mysqli_stmt_bind_param($stmtUpdateStock, "ddddd", $import_qty, $cost, $import_qty, $import_qty, $product_id);
+							mysqli_stmt_bind_param($stmtUpdateStock, "ddddi", $import_qty, $cost, $import_qty, $import_qty, $product_id);
 							mysqli_stmt_execute($stmtUpdateStock);
 						} else {
 							// No record with the same product ID exists, insert a new record
@@ -127,17 +126,27 @@
 							mysqli_stmt_bind_param($stmtStock, "iisssd", $product_id, $import_qty, $warranty, $serial_number, $condition_type, $cost);
 							mysqli_stmt_execute($stmtStock);
 						}
+					}
+					// End loop of stock
 
-						// Insert into import details
-						$insertImportDetailSQL = "INSERT INTO tbl_import_detail (import_id, product_id, import_qty, cost)
-												 VALUES (?, ?, ?, ?)";
-						$stmtImportDetail = mysqli_prepare($conn, $insertImportDetailSQL);
-						mysqli_stmt_bind_param($stmtImportDetail, "iiid", $import_id, $product_id, $import_qty, $cost);
-						mysqli_stmt_execute($stmtImportDetail);
+					echo "import_id: $import_id<br>";
+					// Insert into import details
+					$insertImportDetailSQL = "INSERT INTO tbl_import_detail (import_id, product_id, import_qty, cost)
+											VALUES (?, ?, ?, ?)";
+					$stmtImportDetail = mysqli_prepare($conn, $insertImportDetailSQL);
+					mysqli_stmt_bind_param($stmtImportDetail, "iiid", $import_id, $product_id, $import_qty, $cost);
+					mysqli_stmt_execute($stmtImportDetail);
+
+					// Execute the import detail query and check for errors
+					if (!mysqli_stmt_execute($stmtImportDetail)) {
+						throw new Exception("Error executing import detail query: " . mysqli_stmt_error($stmtImportDetail));
 					}
 
 					mysqli_commit($conn);
-					echo "Data saved successfully!";
+
+					// Set a session variable to indicate success
+					$_SESSION['save_success'] = true;
+
 					// Clear the session data
 					unset($_SESSION['addedRows']);
 				} catch (mysqli_sql_exception $e) {
@@ -145,7 +154,6 @@
 					echo "Error: " . $e->getMessage();
 				}
 			}
-
 			?>
 
 
@@ -160,17 +168,18 @@
 										<div class="col-12 col-md-12">
 											<div class="app-card app-card-settings shadow-sm p-4">
 												<div class="app-card-body">
-													<div class="col-md-6">
-														<label class="form-label">ថ្ងៃនាំចូល<span style="color: red;">*</span></label>
-														<input type="date" class="form-control" name="txt_import_date" id="txt_import_date">
-													</div>
-													<div class="mb-3">
-														<label class="form-label">បរិយាយ</label>
-														<textarea class="form-control" rows="3" name="txt_note" id="txt_note" style="height: 100px;"></textarea>
-													</div>
 
 													<!-- Form -->
 													<form method="POST" enctype="multipart/form-data" class="row g-3">
+														<!-- Import date -->
+														<div class="col-md-6">
+															<label class="form-label">ថ្ងៃនាំចូល<span style="color: red;">*</span></label>
+															<input type="date" class="form-control" name="txt_import_date" id="txt_import_date">
+														</div>
+														<div class="mb-3">
+															<label class="form-label">បរិយាយ</label>
+															<textarea class="form-control" rows="3" name="txt_note" id="txt_note" style="height: 100px;"></textarea>
+														</div>
 
 														<!-- Select product -->
 														<div class="col-md-3">
@@ -178,7 +187,7 @@
 															<select class="form-select" name='sel_product_id' id='sel_product_id'>
 																<option value="">---ជ្រើសរើសផលិតផលនាំចូល---</option>
 																<?php
-																$sql = mysqli_query($conn, "SELECT p.*
+																$sql = mysqli_query($conn, "SELECT p.*, b.brand_name, c.category_name, u.unit_name
 																			FROM tbl_product p 
 																				INNER JOIN tbl_brand b ON p.brand_id = b.id
 																				INNER JOIN tbl_category c ON p.category_id = c.id
@@ -331,11 +340,26 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				...
+				មានបញ្ហាក្នុងការបញ្ចូលទិន្នន័យសូមពិនិត្យម្តងទៀត!
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 				<button type="button" class="btn btn-primary">Save changes</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal Succes -->
+<div class="modal fade" id="succes_modal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="successModalLabel">ព័តមាន</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				ទិន្នន័យត្រូវបានរក្សាទុកដោយជោគជ័យ
 			</div>
 		</div>
 	</div>
@@ -442,4 +466,15 @@
 		conditionType.selectedIndex = 0; // Reset the select to its default option
 		productDropdown.selectedIndex = 0; // Reset the select to its default option
 	}
+
+	$(document).ready(function() {
+		<?php
+		// Check if the session variable is set and show the modal if it is
+		if (isset($_SESSION['save_success']) && $_SESSION['save_success'] === true) {
+			echo "$('#succes_modal').modal('show');";
+			// Reset the session variable to prevent the modal from showing on page refresh
+			$_SESSION['save_success'] = false;
+		}
+		?>
+	});
 </script>

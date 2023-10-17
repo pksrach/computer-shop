@@ -46,6 +46,7 @@ include_once '../config_db/config_db.php';
 								$row = mysqli_fetch_array($result);
 								$_SESSION['user_login'] = $username;
 								$_SESSION['user_role'] = $row['role'];
+								$_SESSION['user_people_id'] = $row['id'];
 								header("location: index.php");
 							}
 							else{
