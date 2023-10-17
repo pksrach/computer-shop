@@ -10,6 +10,108 @@
 				<a class="flex-sm-fill text-sm-center nav-link" id="import_stock-tab" data-bs-toggle="tab" href="#import_stock" role="tab" aria-controls="import_stock" aria-selected="false">នាំចូលផលិតផល</a>
 			</nav>
 
+			<?php
+			// Establish a database connection ($conn) - missing in your code
+
+			if (isset($_POST['btnSave'])) {
+				$tableRowsJSON = $_POST['tableRows'];
+				$tableRows = json_decode($tableRowsJSON, true);
+
+				if (empty($tableRows)) {
+					echo "<script>alert('Please add at least one product to the table.');</script>";
+					return;
+				}
+
+				mysqli_begin_transaction($conn);
+
+				try {
+					$insertImportSQL = "INSERT INTO tbl_import (import_date, note, people_id) VALUES (?, ?, ?)";
+					$stmt = mysqli_prepare($conn, $insertImportSQL);
+
+					$import_date = $_POST['txt_import_date'];
+					$note = $_POST['txt_note'];
+					$people_id = $_SESSION['user_people_id'];
+
+					// Check field import_date if do not assign value or value is 0000-00-00 00:00:00 need to show alert and do not refresh page
+
+
+					mysqli_stmt_bind_param($stmt, "ssi", $import_date, $note, $people_id);
+					mysqli_stmt_execute($stmt);
+
+					$import_id = mysqli_insert_id($conn);
+					echo "import_id: $import_id";
+
+					// Prepare the import detail statement outside the loop
+					$insertImportDetailSQL = "INSERT INTO tbl_import_detail (import_id, product_id, import_qty, cost)
+											VALUES (?, ?, ?, ?)";
+					$stmtImportDetail = mysqli_prepare($conn, $insertImportDetailSQL);
+
+					foreach ($tableRows as $rowData) {
+						$productInfo = explode("|", $rowData['product_id']);
+						$product_id = $productInfo[0];
+						$import_qty = $rowData['import_qty'];
+						$cost = $rowData['import_cost'];
+						$warranty = $rowData['warranty'];
+						$serial_number = $rowData['serial_number'];
+						$condition_type = $rowData['condition_type'];
+
+						echo "<script>console.log('product_id: $product_id');</script>";
+
+						// Bind the variables to the placeholders
+						mysqli_stmt_bind_param($stmtImportDetail, "iiid", $import_id, $product_id, $import_qty, $cost);
+
+						// Execute the import detail query
+						if (!mysqli_stmt_execute($stmtImportDetail)) {
+							throw new Exception("Error executing import detail query: " . mysqli_stmt_error($stmtImportDetail));
+						}
+
+						// Check if a record with the same product ID exists in the tbl_stock table
+						$checkStockSQL = "SELECT * FROM tbl_stock WHERE product_id = ?";
+						$stmtCheckStock = mysqli_prepare($conn, $checkStockSQL);
+						mysqli_stmt_bind_param($stmtCheckStock, "i", $product_id);
+						mysqli_stmt_execute($stmtCheckStock);
+
+						$result = mysqli_stmt_get_result($stmtCheckStock);
+
+						// Stock
+						if (mysqli_num_rows($result) > 0) {
+							// Update the SQL statement with five placeholders
+							$updateStockSQL = "UPDATE tbl_stock 
+							SET stock_qty = stock_qty + ?, 
+								cost = (cost * stock_qty + ? * ?) / (stock_qty + ?) 
+							WHERE product_id = ?";
+							$stmtUpdateStock = mysqli_prepare($conn, $updateStockSQL);
+							// Bind the five variables to the placeholders
+							mysqli_stmt_bind_param($stmtUpdateStock, "ddddi", $import_qty, $cost, $import_qty, $import_qty, $product_id);
+							mysqli_stmt_execute($stmtUpdateStock);
+						} else {
+							// No record with the same product ID exists, insert a new record
+							$insertStockSQL = "INSERT INTO tbl_stock (product_id, stock_qty, warranty, serial_number, condition_type, cost)
+											   VALUES (?, ?, ?, ?, ?, ?)";
+							$stmtStock = mysqli_prepare($conn, $insertStockSQL);
+							mysqli_stmt_bind_param($stmtStock, "iisssd", $product_id, $import_qty, $warranty, $serial_number, $condition_type, $cost);
+							mysqli_stmt_execute($stmtStock);
+						}
+					}
+					// End loop
+
+					// Close the import detail statement (optional)
+					mysqli_stmt_close($stmtImportDetail);
+
+					mysqli_commit($conn);
+
+					// Set a session variable to indicate success
+					$_SESSION['save_success'] = true;
+
+					// Clear the session data
+					unset($_SESSION['addedRows']);
+				} catch (mysqli_sql_exception $e) {
+					mysqli_rollback($conn);
+					echo "Error: " . $e->getMessage();
+				}
+			}
+			?>
+
 			<!-- Add data into table but not save into db yet -->
 			<?php
 			if (isset($_POST['btnAdd'])) {
@@ -63,100 +165,6 @@
 			}
 			?>
 
-			<?php
-			// Establish a database connection ($conn) - missing in your code
-
-			if (isset($_POST['btnSave'])) {
-				$tableRowsJSON = $_POST['tableRows'];
-				$tableRows = json_decode($tableRowsJSON, true);
-
-				if (empty($tableRows)) {
-					echo "<script>alert('Please add at least one product to the table.');</script>";
-					return;
-				}
-
-				mysqli_begin_transaction($conn);
-
-				try {
-					$insertImportSQL = "INSERT INTO tbl_import (import_date, note, people_id) VALUES (?, ?, ?)";
-					$stmt = mysqli_prepare($conn, $insertImportSQL);
-
-					$import_date = $_POST['txt_import_date'];
-					$note = $_POST['txt_note'];
-					$people_id = $_SESSION['user_people_id'];
-
-					mysqli_stmt_bind_param($stmt, "ssi", $import_date, $note, $people_id);
-					mysqli_stmt_execute($stmt);
-
-					$import_id = mysqli_insert_id($conn);
-
-					foreach ($tableRows as $rowData) {
-						$productInfo = explode("|", $rowData['product_id']);
-						$product_id = $productInfo[0];
-						$import_qty = $rowData['import_qty'];
-						$cost = $rowData['import_cost'];
-						$warranty = $rowData['warranty'];
-						$serial_number = $rowData['serial_number'];
-						$condition_type = $rowData['condition_type'];
-
-						// Check if a record with the same product ID exists in the tbl_stock table
-						$checkStockSQL = "SELECT * FROM tbl_stock WHERE product_id = ?";
-						$stmtCheckStock = mysqli_prepare($conn, $checkStockSQL);
-						mysqli_stmt_bind_param($stmtCheckStock, "i", $product_id);
-						mysqli_stmt_execute($stmtCheckStock);
-
-						$result = mysqli_stmt_get_result($stmtCheckStock);
-
-						// Stock
-						if (mysqli_num_rows($result) > 0) {
-							// Update the SQL statement with five placeholders
-							$updateStockSQL = "UPDATE tbl_stock 
-							SET stock_qty = stock_qty + ?, 
-								cost = (cost * stock_qty + ? * ?) / (stock_qty + ?) 
-							WHERE product_id = ?";
-							$stmtUpdateStock = mysqli_prepare($conn, $updateStockSQL);
-							// Bind the five variables to the placeholders
-							mysqli_stmt_bind_param($stmtUpdateStock, "ddddi", $import_qty, $cost, $import_qty, $import_qty, $product_id);
-							mysqli_stmt_execute($stmtUpdateStock);
-						} else {
-							// No record with the same product ID exists, insert a new record
-							$insertStockSQL = "INSERT INTO tbl_stock (product_id, stock_qty, warranty, serial_number, condition_type, cost)
-											   VALUES (?, ?, ?, ?, ?, ?)";
-							$stmtStock = mysqli_prepare($conn, $insertStockSQL);
-							mysqli_stmt_bind_param($stmtStock, "iisssd", $product_id, $import_qty, $warranty, $serial_number, $condition_type, $cost);
-							mysqli_stmt_execute($stmtStock);
-						}
-					}
-					// End loop of stock
-
-					echo "import_id: $import_id<br>";
-					// Insert into import details
-					$insertImportDetailSQL = "INSERT INTO tbl_import_detail (import_id, product_id, import_qty, cost)
-											VALUES (?, ?, ?, ?)";
-					$stmtImportDetail = mysqli_prepare($conn, $insertImportDetailSQL);
-					mysqli_stmt_bind_param($stmtImportDetail, "iiid", $import_id, $product_id, $import_qty, $cost);
-					mysqli_stmt_execute($stmtImportDetail);
-
-					// Execute the import detail query and check for errors
-					if (!mysqli_stmt_execute($stmtImportDetail)) {
-						throw new Exception("Error executing import detail query: " . mysqli_stmt_error($stmtImportDetail));
-					}
-
-					mysqli_commit($conn);
-
-					// Set a session variable to indicate success
-					$_SESSION['save_success'] = true;
-
-					// Clear the session data
-					unset($_SESSION['addedRows']);
-				} catch (mysqli_sql_exception $e) {
-					mysqli_rollback($conn);
-					echo "Error: " . $e->getMessage();
-				}
-			}
-			?>
-
-
 			<div class="tab-content" id="orders-table-tab-content">
 				<div class="tab-pane fade show active" id="import_stock" role="tabpanel" aria-labelledby="import_stock-tab">
 					<div class="app-card app-card-orders-table mb-5">
@@ -170,7 +178,7 @@
 												<div class="app-card-body">
 
 													<!-- Form -->
-													<form method="POST" enctype="multipart/form-data" class="row g-3">
+													<form method="POST" enctype="multipart/form-data" class="row g-3" onsubmit="return validateForm()">
 														<!-- Import date -->
 														<div class="col-md-6">
 															<label class="form-label">ថ្ងៃនាំចូល<span style="color: red;">*</span></label>
@@ -336,15 +344,11 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="warningException">Warning</h5>
+				<h5 class="modal-title" id="warningException">បំរាម <i class="fa-solid fa-triangle-exclamation" style="color: #ffc800;"></i></h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
-			<div class="modal-body">
-				មានបញ្ហាក្នុងការបញ្ចូលទិន្នន័យសូមពិនិត្យម្តងទៀត!
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-				<button type="button" class="btn btn-primary">Save changes</button>
+			<div class="modal-body" id="modalMessage">
+				<!-- Dynamic message will be inserted here -->
 			</div>
 		</div>
 	</div>
@@ -355,7 +359,7 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h5 class="modal-title" id="successModalLabel">ព័តមាន</h5>
+				<h5 class="modal-title" id="successModalLabel">ព័តមាន <i class="fa-solid fa-square-check" style="color: #00e02d;"></i></h5>
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
@@ -405,7 +409,9 @@
 			importQty.value === '' ||
 			importCost.value === ''
 		) {
-			alert('Please fill in all required fields (Product, Quantity, and Cost) before adding to the table.');
+			var message = "សូមបញ្ចូលព័តមាន មុនពេលបន្ថែមទៅតារាង";
+			setModalMessage(message);
+			$('#warning_exception').modal('show');
 			return;
 		}
 
@@ -477,4 +483,22 @@
 		}
 		?>
 	});
+
+	function validateForm() {
+		var importDate = document.getElementById("txt_import_date").value;
+
+		if (importDate.trim() === '' || importDate === '0000-00-00') {
+			var message = "សូមបញ្ចូលថ្ងៃនាំចូល និងផលិផលមុនពេលរក្សាទុក";
+			setModalMessage(message);
+			$('#warning_exception').modal('show'); // Show the Bootstrap modal
+			return false; // Prevent form submission
+		}
+
+		return true; // Allow form submission
+	}
+
+	function setModalMessage(message) {
+		var modalMessage = document.getElementById("modalMessage");
+		modalMessage.textContent = message;
+	}
 </script>
