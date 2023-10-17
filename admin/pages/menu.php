@@ -201,9 +201,9 @@
                             </a><!--//nav-link-->
                             <div id="submenu-12" class="collapse submenu submenu-12" data-bs-parent="#menu-accordion">
                                 <ul class="submenu-list list-unstyled">
-                                    <li class="submenu-item"><a class="submenu-link" href="index.php?st=stock"><i class="fa-solid fa-clipboard"></i> ស្តុក</a></li>
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?im=import_stock"><i class="fa-solid fa-file-import"></i> នាំចូល</a></li>
-                                    <li class="submenu-item"><a class="submenu-link" href="index.php?pt=category"><i class="fa-solid fa-layer-group"></i> របាយការណ៏ នាចូល</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?st=stock"><i class="fa-solid fa-clipboard"></i> ស្តុក</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?imh=import_history"><i class="fa-solid fa-layer-group"></i> របាយការណ៏ នាចូល</a></li>
                                 </ul>
                             </div>
                         </li><!--//nav-item-->

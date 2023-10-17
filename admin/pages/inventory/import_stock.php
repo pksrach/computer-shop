@@ -11,8 +11,6 @@
 			</nav>
 
 			<?php
-			// Establish a database connection ($conn) - missing in your code
-
 			if (isset($_POST['btnSave'])) {
 				$tableRowsJSON = $_POST['tableRows'];
 				$tableRows = json_decode($tableRowsJSON, true);
@@ -37,6 +35,9 @@
 
 					mysqli_stmt_bind_param($stmt, "ssi", $import_date, $note, $people_id);
 					mysqli_stmt_execute($stmt);
+					if (!mysqli_stmt_execute($stmt)) {
+						throw new Exception("Error executing import query: " . mysqli_stmt_error($stmt));
+					}
 
 					$import_id = mysqli_insert_id($conn);
 					echo "import_id: $import_id";

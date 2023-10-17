@@ -3,7 +3,7 @@ session_start();
 date_default_timezone_set("Asia/Phnom_Penh");
 include_once '../config_db/config_db.php';
 
-if(!isset($_SESSION['user_login'])){
+if (!isset($_SESSION['user_login'])) {
     header("location: login.php");
 }
 ?>
@@ -16,6 +16,8 @@ include_once "pages/menu.php";
 <?php
 if (isset($_GET['pg'])) {
     include "pages/" . $_GET['pg'] . ".php";
+} elseif (isset($_GET['imh'])) {
+    include "pages/inventory/" . $_GET['imh'] . ".php";
 } elseif (isset($_GET['im'])) {
     include "pages/inventory/" . $_GET['im'] . ".php";
 } elseif (isset($_GET['st'])) {
