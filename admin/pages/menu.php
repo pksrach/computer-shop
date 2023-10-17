@@ -48,7 +48,6 @@
 
                         <div class="app-utilities col-auto">
                             <div class="app-utility-item app-notifications-dropdown dropdown">
-                                <a href="../admin/logout.php" class="btn btn-danger text-white px-2">Log Out</a>
                                 <a href="../index.php">GO <i class="fa-solid fa-arrow-right"></i></a>
 
                                 <div class="dropdown-menu p-0" aria-labelledby="notifications-dropdown-toggle">
@@ -159,10 +158,7 @@
                             <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
                             <a class="nav-link active" href="index.php?pg=homepage">
                                 <span class="nav-icon">
-                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-house-door" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M7.646 1.146a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 .146.354v7a.5.5 0 0 1-.5.5H9.5a.5.5 0 0 1-.5-.5v-4H7v4a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5v-7a.5.5 0 0 1 .146-.354l6-6zM2.5 7.707V14H6v-4a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 .5.5v4h3.5V7.707L8 2.207l-5.5 5.5z" />
-                                        <path fill-rule="evenodd" d="M13 2.5V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z" />
-                                    </svg>
+                                    <i class="fa-solid fa-gauge fa-xl"></i>
                                 </span>
                                 <span class="nav-link-text">ផ្ទាំង Dashboard</span>
                             </a><!--//nav-link-->
@@ -174,7 +170,7 @@
                         <li class="nav-item has-submenu">
                             <a class="nav-link submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-11" aria-expanded="false" aria-controls="submenu-11">
                                 <span class="nav-icon">
-                                    <i class="fa-solid fa-cubes"></i>
+                                    <i class="fa-solid fa-boxes-stacked fa-lg"></i>
                                 </span>
                                 <span class="nav-link-text">គ្រប់គ្រងផលិតផល</span>
                                 <span class="submenu-arrow">
@@ -196,7 +192,7 @@
                         <li class="nav-item has-submenu">
                             <a class="nav-link submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-12" aria-expanded="false" aria-controls="submenu-12">
                                 <span class="nav-icon">
-                                    <i class="fa-solid fa-warehouse"></i>
+                                    <i class="fa-solid fa-warehouse fa-lg"></i>
                                 </span>
                                 <span class="nav-link-text">គ្រប់គ្រង ស្តុកផលិតផល</span>
                                 <span class="submenu-arrow">
@@ -379,26 +375,11 @@
                             </li><!--//nav-item-->
                             <li class="nav-item">
                                 <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
-                                <a class="nav-link" href="https://themes.3rdwavemedia.com/bootstrap-templates/admin-dashboard/portal-free-bootstrap-admin-dashboard-template-for-developers/">
+                                <a class="nav-link" href="../admin/logout.php" class="btn btn-danger text-white px-2">
                                     <span class="nav-icon">
-                                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd" d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z" />
-                                            <path fill-rule="evenodd" d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
-                                        </svg>
+                                        <i class="fa-solid fa-right-from-bracket fa-xl"></i>
                                     </span>
-                                    <span class="nav-link-text">Download</span>
-                                </a><!--//nav-link-->
-                            </li><!--//nav-item-->
-                            <li class="nav-item">
-                                <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
-                                <a class="nav-link" href="https://themes.3rdwavemedia.com/bootstrap-templates/admin-dashboard/portal-free-bootstrap-admin-dashboard-template-for-developers/">
-                                    <span class="nav-icon">
-                                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-file-person" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                            <path fill-rule="evenodd" d="M12 1H4a1 1 0 0 0-1 1v10.755S4 11 8 11s5 1.755 5 1.755V2a1 1 0 0 0-1-1zM4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H4z" />
-                                            <path fill-rule="evenodd" d="M8 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />
-                                        </svg>
-                                    </span>
-                                    <span class="nav-link-text">License</span>
+                                    <span class="nav-link-text">ចាក់ចេញ</span>
                                 </a><!--//nav-link-->
                             </li><!--//nav-item-->
                         </ul><!--//footer-menu-->
