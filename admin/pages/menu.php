@@ -28,7 +28,7 @@
 </head>
 
 <body class="app">
-    <header class="app-header fixed-top">
+    <header class="app-header fixed-top" id="menu-container">
         <div class="app-header-inner">
             <div class="container-fluid py-2">
                 <div class="app-header-content">
@@ -152,6 +152,7 @@
 
                 </div><!--//app-branding-->
 
+                <!-- Menu -->
                 <nav id="app-nav-main" class="app-nav app-nav-main flex-grow-1">
                     <ul class="app-menu list-unstyled accordion" id="menu-accordion">
                         <li class="nav-item">
@@ -164,7 +165,15 @@
                             </a><!--//nav-link-->
                         </li><!--//nav-item-->
 
-
+                        <!-- Cashier -->
+                        <li class="nav-item" id="cashier-menu">
+                            <a class="nav-link" href="index.php?ch=cashier">
+                                <span class="nav-icon">
+                                    <i class="fa-solid fa-cart-shopping fa-xl"></i>
+                                </span>
+                                <span class="nav-link-text">ផ្ទាំងលក់</span>
+                            </a>
+                        </li>
 
                         <!-- Manage Product -->
                         <li class="nav-item has-submenu">
@@ -233,21 +242,6 @@
                                 </ul>
                             </div>
                         </li>
-
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.php?pg=charts">
-                                <span class="nav-icon">
-                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-bar-chart-line" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2zm1 12h2V2h-2v12zm-3 0V7H7v7h2zm-5 0v-3H2v3h2z" />
-                                    </svg>
-                                </span>
-                                <span class="nav-link-text">Charts</span>
-                            </a>
-                        </li>
-
-
-
 
 
                         <li class="nav-item">
