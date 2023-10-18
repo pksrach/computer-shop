@@ -1,5 +1,8 @@
 <?php
 session_start();
+// console 
+echo "<script>console.log('user_login:" . $_SESSION['user_login'] . "')</script>";
+echo "<script>console.log('user_people_id:" . $_SESSION['user_people_id'] . "')</script>";
 date_default_timezone_set("Asia/Phnom_Penh");
 include_once '../config_db/config_db.php';
 

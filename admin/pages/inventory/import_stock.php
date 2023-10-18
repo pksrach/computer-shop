@@ -1,3 +1,7 @@
+<?php
+// Clear the session data
+unset($_SESSION['addedRows']);
+?>
 <div class="app-wrapper">
 
 	<div class="app-content pt-3 p-md-3 p-lg-4">
@@ -430,7 +434,6 @@
 		const productCell = document.createElement('td');
 		productCell.textContent = productDropdown.options[productDropdown.selectedIndex].text;
 		newRow.appendChild(productCell);
-		console.log("productDropdown: ", productDropdown.options[productDropdown.selectedIndex].text);
 
 		// Get the selected value
 		const selectedValue = productDropdown.value;
