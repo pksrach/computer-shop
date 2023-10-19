@@ -18,6 +18,8 @@ include_once "pages/menu.php";
 <?php
 if (isset($_GET['pg'])) {
     include "pages/" . $_GET['pg'] . ".php";
+} elseif (isset($_GET['pay'])) {
+    include "pages/PaymentMethod/" . $_GET['pay'] . ".php";
 } elseif (isset($_GET['ch'])) {
     include "pages/cashier/" . $_GET['ch'] . ".php";
 } elseif (isset($_GET['imh'])) {
