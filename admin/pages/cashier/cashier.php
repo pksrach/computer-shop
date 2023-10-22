@@ -174,11 +174,9 @@
  						<option value="">ជ្រើសរើសប្រភេទទូទាត់</option>
  						<?php
 							$sql = mysqli_query($conn, "SELECT * FROM tbl_payment_method WHERE status = 1");
-							echo "<script>console.log($sql)</script>";
 							while ($row = mysqli_fetch_assoc($sql)) {
 								echo "<option value='" . $row['id'] . "'>" . $row['payment_name'] . ")</option>";
 							}
-							echo $sql;
 							?>
  					</select>
  				</div>
