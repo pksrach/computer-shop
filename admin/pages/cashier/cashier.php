@@ -126,59 +126,73 @@
  		<div style="height: 100px;">
  			<div class="d-flex justify-content-center align-items-center h-100"> <!-- Use d-flex and justify-content-center classes -->
  				<button type="button" id="paymentButton" name="btnSave" class="col-12 btn btn-success h-60">
- 					<h4>Payment</h4>
+ 					<h4>គិតប្រាក់</h4>
  				</button>
  			</div>
  		</div>
-
-
-
  	</div><!--//app-content-->
 
  </div><!--//app-wrapper-->
 
- <!-- Modal checkout payment -->
- <div class="modal-dialog modal-dialog-scrollable fade">
- 	<div class="modal-content">
- 		<div class="modal-header">
- 			<h5 class="modal-title">Payment</h5>
- 			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
- 		</div>
- 		<div class="modal-body">
- 			<!-- Payment Method Dropdown -->
- 			<div class="mb-3">
- 				<label for="paymentMethod" class="form-label">Payment Method</label>
- 				<select class="form-select" id="paymentMethod">
- 					<!-- You will populate this dropdown with options fetched from the database -->
- 				</select>
- 			</div>
+ <!-- ==================================================================================================== -->
 
- 			<!-- Total Amount Display -->
- 			<div class="mb-3">
- 				<label for="totalAmount" class="form-label">Total Amount</label>
- 				<input type="text" class="form-control" id="totalAmount" readonly>
+ <!-- Modal Checkout -->
+ <div class="modal fade" id="checkout_modal" tabindex="-1" aria-labelledby="checkout_modal" aria-hidden="true">
+ 	<div class="modal-dialog">
+ 		<div class="modal-content">
+ 			<div class="modal-header">
+ 				<h5 class="modal-title">ផ្ទាំងគិតប្រាក់</h5>
+ 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
  			</div>
+ 			<div class="modal-body">
+ 				<!-- Total Amount Display -->
+ 				<div class="mb-3">
+ 					<label for="totalAmount" class="form-label">Total Amount</label>
+ 					<input type="text" class="form-control" id="totalAmount" readonly>
+ 				</div>
 
- 			<!-- Cash Received Input -->
- 			<div class="mb-3">
- 				<label for="cashReceived" class="form-label">Cash Received</label>
- 				<input type="number" class="form-control" id="cashReceived">
- 			</div>
+ 				<!-- Discount Input -->
+ 				<div class="mb-2">
+ 					<label for="discount" class="form-label">Discount</label>
+ 					<input type="number" class="form-control" id="discountInput" placeholder="Enter discount %">
+ 				</div>
 
- 			<!-- Cash Return Display -->
- 			<div class="mb-3">
- 				<label for="cashReturn" class="form-label">Cash Return</label>
- 				<input type="text" class="form-control" id="cashReturn" readonly>
+ 				<!-- Grand Total Display -->
+ 				<div class="mb-3">
+ 					<label for="grandTotal" class="form-label">Grand Total</label>
+ 					<input type="text" class="form-control" id="grandTotal" readonly>
+ 				</div>
+
+ 				<!-- Cash Received Input -->
+ 				<div class="mb-3">
+ 					<label for="cashReceived" class="form-label">Cash Received<span style="color: red;">*</span></label>
+ 					<input type="number" class="form-control" id="cashReceived" placeholder="Enter cash received">
+ 				</div>
+
+ 				<!-- Payment Method Dropdown -->
+ 				<div class="mb-3">
+ 					<label for="paymentMethod" class="form-label">Payment Method<span style="color: red;">*</span></label>
+ 					<select class="form-select" id="paymentMethod">
+ 						<option value="">ជ្រើសរើសប្រភេទទូទាត់</option>
+ 						<?php
+							$sql = mysqli_query($conn, "SELECT * FROM tbl_payment_method WHERE status = 1");
+							while ($row = mysqli_fetch_assoc($sql)) {
+								echo "<option value='" . $row['id'] . "'>" . $row['payment_name'] . ")</option>";
+							}
+							?>
+ 					</select>
+ 				</div>
  			</div>
- 		</div>
- 		<div class="modal-footer">
- 			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
- 			<button type="button" class="btn btn-primary" id="checkoutBtn">Checkout</button>
+ 			<div class="modal-footer">
+ 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">បិទ</button>
+ 				<button type="button" class="btn btn-primary" id="checkoutBtn">ទូទាត់</button>
+ 			</div>
  		</div>
  	</div>
  </div>
 
- <!-- Modal -->
+
+ <!-- Modal Warning -->
  <div class="modal fade" id="warning_exception" tabindex="-1" aria-labelledby="warningException" aria-hidden="true">
  	<div class="modal-dialog">
  		<div class="modal-content">
@@ -213,44 +227,46 @@
  	// Initialize a counter for row numbers
  	var rowNum = 1;
 
+ 	var shoppingCart = {};
+
  	// Function to handle the click event for adding a product
  	function addProductToTable(productName, price, qty, maxQty) {
- 		// Assuming you have a table with the id 'cartTable'
  		var table = document.getElementById('cartTable');
+ 		var row;
 
- 		// Check if the product already exists in the table
- 		for (var i = 1; i < table.rows.length; i++) {
- 			if (table.rows[i].cells[1].textContent === productName) {
- 				var rowQtyInput = table.rows[i].cells[2].querySelector('input');
- 				var rowQty = parseInt(rowQtyInput.value);
- 				if (rowQty < maxQty) {
- 					rowQtyInput.value = rowQty + 1;
- 					updateQty(rowQtyInput);
+ 		// Check if the product is already in the shopping cart
+ 		if (shoppingCart[productName]) {
+ 			row = shoppingCart[productName];
+ 			var qtyInput = row.cells[2].querySelector('input');
+ 			if (qtyInput) { // Check if the input element exists
+ 				var currentQty = parseInt(qtyInput.value);
+ 				if (currentQty < maxQty) {
+ 					qtyInput.value = currentQty + 1;
+ 					updateQty(qtyInput, maxQty); // Pass maxQty as an argument
  				}
- 				return; // Product already exists, no need to add a new row
  			}
+ 		} else {
+ 			row = table.insertRow();
+ 			shoppingCart[productName] = row;
+
+ 			// Insert cells for row number, product name, price, quantity, amount, and a delete button
+ 			var cell0 = row.insertCell(0);
+ 			var cell1 = row.insertCell(1);
+ 			var cell2 = row.insertCell(2);
+ 			var cell3 = row.insertCell(3);
+ 			var cell4 = row.insertCell(4);
+ 			var cell5 = row.insertCell(5);
+
+ 			cell0.textContent = rowNum; // Set the row number
+ 			cell1.innerHTML = productName;
+ 			cell2.innerHTML = formatCurrency(price);
+ 			cell3.innerHTML = '<input type="number" min="1" max="' + maxQty + '" value="1" oninput="updateQty(this, ' + maxQty + ')">'; // Pass maxQty as an argument
+ 			cell4.textContent = formatCurrency(price.toFixed(2)); // Display the calculated amount
+ 			cell5.innerHTML = '<button class="btn btn-danger" type="button" onclick="removeProduct(this)"><i class="fas fa-eraser"></button>';
+
+ 			// Increment the row number counter
+ 			rowNum++;
  		}
-
- 		// Create a new row for the table
- 		var row = table.insertRow();
-
- 		// Insert cells for row number, product name, price, quantity, amount, and a delete button
- 		var cell0 = row.insertCell(0);
- 		var cell1 = row.insertCell(1);
- 		var cell2 = row.insertCell(2);
- 		var cell3 = row.insertCell(3);
- 		var cell4 = row.insertCell(4);
- 		var cell5 = row.insertCell(5);
-
- 		cell0.textContent = rowNum; // Set the row number
- 		cell1.innerHTML = productName;
- 		cell2.innerHTML = formatCurrency(price);
- 		cell3.innerHTML = '<input type="number" min="1" max="' + maxQty + '" value="' + qty + '" oninput="updateQty(this)">';
- 		cell4.textContent = formatCurrency((price * qty).toFixed(2)); // Display the calculated amount
- 		cell5.innerHTML = '<button class="btn btn-danger" type="button" onclick="removeProduct(this)"><i class="fas fa-eraser"></button>';
-
- 		// Increment the row number counter
- 		rowNum++;
  	}
 
  	// Function to format a number as currency
@@ -266,6 +282,10 @@
  		var row = button.parentNode.parentNode;
  		row.parentNode.removeChild(row);
 
+ 		// Remove value from shopping cart
+ 		delete shoppingCart[row.cells[1].textContent];
+
+
  		// Decrement the row number counter
  		rowNum--;
  		// Update row numbers after removal
@@ -273,9 +293,9 @@
  	}
 
  	// Function to update the quantity and calculate the amount
- 	function updateQty(input) {
+ 	function updateQty(input, maxQty) {
  		var row = input.parentNode.parentNode;
- 		var price = parseFloat(row.cells[2].textContent);
+ 		var price = parseFloat(row.cells[2].textContent.replace('$', '').replace(',', ''));
  		var qty = parseInt(input.value);
 
  		// Validate that qty does not exceed maxQty
@@ -284,7 +304,7 @@
  			qty = maxQty; // Update qty to maxQty
  		}
 
- 		var amount = (price * qty).toFixed(2);
+ 		var amount = (price * qty).toFixed(2); // Calculate the amount
  		row.cells[4].textContent = formatCurrency(amount); // Update the amount cell
  	}
 
@@ -330,43 +350,91 @@
  			var modal = new bootstrap.Modal(warningModal);
  			modal.show();
  		} else {
- 			// Proceed with the payment logic here
- 			// You can add your payment logic or redirect to a payment page.
+ 			// Show the payment modal
+ 			var paymentModal = document.getElementById('checkout_modal');
+ 			var modal = new bootstrap.Modal(paymentModal);
+ 			modal.show();
  		}
  	});
 
- 	// Event listener for the "Save" button
- 	document.getElementById('btnSave').addEventListener('click', function() {
- 		// Show the modal
- 		var checkoutModal = new bootstrap.Modal(document.getElementById('paymentModal'));
- 		checkoutModal.show();
- 	});
+ 	// Function to calculate and update the total amount
+ 	var totalAmount = 0;
 
- 	document.querySelector('#checkoutBtn').addEventListener('click', function() {
- 		// Get values from the input fields
- 		const paymentMethodId = document.querySelector('#paymentMethod').value;
- 		const cashReceived = parseFloat(document.querySelector('#cashReceived').value);
- 		const totalAmount = parseFloat(document.querySelector('#totalAmount').value);
+ 	function calculateTotalAmount() {
+ 		var table = document.getElementById('cartTable');
+ 		// Reset the total amount to 0
+ 		totalAmount = 0;
 
- 		// Validate cash received
- 		if (isNaN(cashReceived) || cashReceived < totalAmount) {
- 			// Display an error message if cash received is insufficient
- 			alert('Cash received is insufficient. Please enter a valid amount.');
- 			return;
+ 		// Iterate through the table rows, skipping the header row
+ 		for (var i = 1; i < table.rows.length; i++) {
+ 			var amountCell = table.rows[i].cells[4];
+ 			var amount = parseFloat(amountCell.textContent.replace('$', '').replace(',', '')); // Parse the amount
+ 			totalAmount += amount;
  		}
 
- 		// Perform the checkout process
- 		// You should use AJAX or a server-side script to save the data to the database using a transaction
- 		// After saving the sale, decrease stock quantities accordingly
+ 		// Update the "Total Amount" field in the modal
+ 		document.getElementById('totalAmount').value = formatCurrency(totalAmount.toFixed(2));
+ 		var discountInput = document.getElementById('discountInput');
+ 		var grandTotal = document.getElementById('grandTotal').value
+ 		if (grandTotal == '' || grandTotal == 0) {
+ 			document.getElementById('grandTotal').value = formatCurrency(totalAmount.toFixed(2));
+ 		} else if (grandTotal != totalAmount && discountInput.value == '') {
+ 			document.getElementById('grandTotal').value = formatCurrency(totalAmount.toFixed(2));
+ 		} else {
+ 			var calculateDiscount = totalAmount * (discountInput.value / 100);
+ 			document.getElementById('grandTotal').value = formatCurrency(calculateDiscount.toFixed(2));
+ 		}
+ 	}
 
- 		// Close the modal
- 		var checkoutModal = new bootstrap.Modal(document.getElementById('paymentModal'));
- 		checkoutModal.hide();
+ 	// Add an event listener to the "Payment" or "Save" button
+ 	document.querySelector('button[name="btnSave"]').addEventListener('click', calculateTotalAmount);
+ 	document.getElementById('paymentButton').addEventListener('click', calculateTotalAmount);
+
+ 	// Select the discount input field
+ 	var discountInput = document.getElementById('discountInput');
+ 	var grandTotal = totalAmount;
+
+ 	// Add an event listener to the discount input field
+ 	discountInput.addEventListener('input', function() {
+ 		// Get the discount value from the input field
+ 		var discountValue = parseFloat(discountInput.value) || 0;
+
+ 		// Check if the discount value exceeds 100
+ 		if (discountValue > 100) {
+ 			// If it does, set it to 100
+ 			discountValue = 100;
+ 			discountInput.value = discountValue;
+ 		}
+
+ 		// Get the total amount value
+ 		var _totalAmount = totalAmount || 0;
+
+ 		// Get the discount value from the input field
+ 		var discountValue = parseFloat(discountInput.value) || 0;
+
+ 		// Calculate the Grand Total
+ 		grandTotal = _totalAmount - (_totalAmount * (discountValue / 100));
+
+ 		// Update the Grand Total field
+ 		document.getElementById('grandTotal').value = formatCurrency(grandTotal.toFixed(2)); // Format to two decimal places
  	});
 
- 	// Event listener to show the modal
- 	document.getElementById('paymentButton').addEventListener('click', function() {
- 		var paymentModal = new bootstrap.Modal(document.querySelector('.modal-dialog.modal-dialog-scrollable'));
- 		paymentModal.show();
+ 	var cashReceivedInput = document.getElementById('cashReceived');
+
+ 	cashReceivedInput.addEventListener('input', function() {
+ 		var cashReceivedValue = parseFloat(cashReceivedInput.value) || 0;
+ 		var grandTotalValue = parseFloat(grandTotal) || 0;
+
+ 		if (cashReceivedValue < grandTotalValue) {
+ 			// If Cash Received is less than Grand Total, change the input field's border color to red
+ 			cashReceivedInput.style.borderColor = 'red';
+ 		} else {
+ 			// Otherwise, reset the input field's border color
+ 			cashReceivedInput.style.borderColor = '';
+
+ 			// Calculate the change
+ 			var change = cashReceivedValue - grandTotalValue;
+
+ 		}
  	});
  </script>
