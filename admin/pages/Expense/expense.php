@@ -5,14 +5,14 @@
 			<!-- Search -->
 			<div class="row g-3 mb-4 align-items-center justify-content-between">
 				<div class="col-auto">
-					<h1 class="app-page-title mb-0">របាយការណ៍នាំចូល</h1>
+					<h1 class="app-page-title mb-0">របាយការណ៍ចំណាយ</h1>
 				</div>
 				<div class="col-auto">
 					<div class="page-utilities">
 						<div class="row g-2 justify-content-start justify-content-md-end align-items-center">
 							<div class="col-auto">
 								<form method="get" class="table-search-form row gx-1 align-items-center">
-									<input type="hidden" name="imh" value="import_history" />
+									<input type="hidden" name="exp" value="expense" />
 
 									<!-- Start date -->
 									<label class="col-auto">ចាប់ពីថ្ងៃ</label>
@@ -25,9 +25,6 @@
 										<input type="date" id="keyenddate" name="keyenddate" class="form-control search-orders">
 									</div>
 
-									<div class="col-auto">
-										<input type="text" id="keyinputdata" name="keyinputdata" class="form-control search-orders" placeholder="ស្វែងរកឈ្មោះផលិតផល">
-									</div>
 									<div class="col-auto">
 										<button type="submit" name="btnSearch" class="btn app-btn-secondary">Search</button>
 									</div>
@@ -86,24 +83,19 @@
 
 										// searching data
 										if (isset($_GET['btnSearch'])) {
-											$keyinputdata = $_GET['keyinputdata'];
 											$keystartdate = $_GET['keystartdate'];
 											$keyenddate = $_GET['keyenddate'];
 
-											echo "<script>console.log('keyinputdata:$keyinputdata')</script>";
 											echo "<script>console.log('keystartdate:$keystartdate')</script>";
 											echo "<script>console.log('keyenddate:$keyenddate')</script>";
 
 											// Pagination when searching
 											$number_of_page = 0;
 											$s = "SELECT count(*) 
-												FROM tbl_import_detail impd 
-												INNER JOIN  tbl_import imp ON impd.import_id = imp.id 
-												INNER JOIN tbl_people pp ON imp.people_id = pp.id 
-												INNER JOIN tbl_product p ON impd.product_id = p.id 
-												INNER JOIN tbl_unit_measurement um ON p.unit_id = um.id
-												INNER JOIN tbl_category c on p.category_id = c.id
-												INNER JOIN tbl_brand b on p.brand_id = b.id
+												FROM tbl_expense_details expd
+												INNER JOIN tbl_expense exp ON expd.exp_id = exp.id
+												INNER JOIN tbl_expense_type expt ON expd.exp_type_id = expt.id
+												INNER JOIN tbl_people pp ON exp.people_id = pp.id
 											";
 											$q = $conn->query($s);
 											$r = mysqli_fetch_row($q);
@@ -117,62 +109,43 @@
 											}
 											// End pagination
 
-											$sql_select = "SELECT  
-												impd.import_id,
-												imp.import_date,
-												c.category_name,
-												b.brand_name,
-												p.product_name,
-												impd.import_qty,
-												um.unit_name,
-												impd.cost,
-												pp.name as staff
-
-												FROM tbl_import_detail impd 
-												INNER JOIN  tbl_import imp ON impd.import_id = imp.id 
-												INNER JOIN tbl_people pp ON imp.people_id = pp.id 
-												INNER JOIN tbl_product p ON impd.product_id = p.id 
-												INNER JOIN tbl_unit_measurement um ON p.unit_id = um.id
-												INNER JOIN tbl_category c on p.category_id = c.id
-												INNER JOIN tbl_brand b on p.brand_id = b.id
+											$sql_select = "SELECT 
+												expd.exp_id, 
+												exp.exp_date,
+												expt.`name` AS exp_type,
+												expd.amount,
+												expd.note,
+												pp.`name` AS staff
+												FROM tbl_expense_details expd
+												INNER JOIN tbl_expense exp ON expd.exp_id = exp.id
+												INNER JOIN tbl_expense_type expt ON expd.exp_type_id = expt.id
+												INNER JOIN tbl_people pp ON exp.people_id = pp.id
 											";
-											if ($keystartdate == "" && $keyenddate == "" && $keyinputdata == "") {
-												$sql = $sql_select . "ORDER BY impd.id DESC " . "LIMIT $current_page, $row_per_page;";
+											if ($keystartdate == "" && $keyenddate == "") {
+												$sql = $sql_select . "ORDER BY expd.id DESC " . "LIMIT $current_page, $row_per_page;";
 											}
 
 											if ($keystartdate && $keyenddate) {
+												echo "<script>console.log('Jol start and end')</script>";
 												$sql = $sql_select . "
 												WHERE
-													DATE(imp.import_date) BETWEEN '$keystartdate' AND '$keyenddate'
+													DATE(exp.exp_date) BETWEEN '$keystartdate' AND '$keyenddate'
 												ORDER BY
-													impd.id DESC LIMIT $current_page, $row_per_page;";
-											} else if ($keystartdate && $keyenddate && $keyinputdata != "") {
-												$sql = $sql_select . "
-												WHERE
-													DATE(imp.import_date) BETWEEN '$keystartdate' AND '$keyenddate'
-													AND p.product_name LIKE '%" . $keyinputdata . "%'
-												ORDER BY
-													impd.id DESC LIMIT $current_page, $row_per_page;";
+													expd.id DESC LIMIT $current_page, $row_per_page;";
 											} else if ($keystartdate) {
+												echo "<script>console.log('Jol start')</script>";
 												$sql = $sql_select . "
 												WHERE
-													DATE(imp.import_date) BETWEEN '$keystartdate' AND DATE(NOW())
+													DATE(exp.exp_date) BETWEEN '$keystartdate' AND DATE(NOW())
 												ORDER BY
-													impd.id DESC LIMIT $current_page, $row_per_page;";
+													expd.id DESC LIMIT $current_page, $row_per_page;";
 											} else if ($keyenddate) {
+												echo "<script>console.log('Jol end')</script>";
 												$sql = $sql_select . "
 												WHERE
-													DATE(imp.import_date) BETWEEN DATE(NOW()) AND '$keyenddate'
+													DATE(exp.exp_date) BETWEEN DATE(NOW()) AND '$keyenddate'
 												ORDER BY
-													impd.id DESC LIMIT $current_page, $row_per_page;";
-											}
-
-											if ($keyinputdata) {
-												$sql = $sql_select . "
-												WHERE
-													p.product_name LIKE '%" . $keyinputdata . "%'
-												ORDER BY
-													impd.id DESC LIMIT $current_page, $row_per_page;";
+													expd.id DESC LIMIT $current_page, $row_per_page;";
 											}
 
 											$result = mysqli_query($conn, $sql);
@@ -184,13 +157,10 @@
 											#pagination when first load
 											$number_of_page = 0;
 											$s = "SELECT count(*) 
-												FROM tbl_import_detail impd 
-												INNER JOIN  tbl_import imp ON impd.import_id = imp.id 
-												INNER JOIN tbl_people pp ON imp.people_id = pp.id 
-												INNER JOIN tbl_product p ON impd.product_id = p.id 
-												INNER JOIN tbl_unit_measurement um ON p.unit_id = um.id
-												INNER JOIN tbl_category c on p.category_id = c.id
-												INNER JOIN tbl_brand b on p.brand_id = b.id
+												FROM tbl_expense_details expd
+												INNER JOIN tbl_expense exp ON expd.exp_id = exp.id
+												INNER JOIN tbl_expense_type expt ON expd.exp_type_id = expt.id
+												INNER JOIN tbl_people pp ON exp.people_id = pp.id
 											";
 											$q = $conn->query($s);
 											$r = mysqli_fetch_row($q);
@@ -205,25 +175,18 @@
 											// End pagination
 
 											$sql = "SELECT 
-												impd.import_id,
-												imp.import_date,
-												c.category_name,
-												b.brand_name,
-												p.product_name,
-												impd.import_qty,
-												um.unit_name,
-												impd.cost,
-												pp.name as staff
-
-												FROM tbl_import_detail impd 
-												INNER JOIN tbl_import imp ON impd.import_id = imp.id 
-												INNER JOIN tbl_people pp ON imp.people_id = pp.id 
-												INNER JOIN tbl_product p ON impd.product_id = p.id 
-												INNER JOIN tbl_unit_measurement um ON p.unit_id = um.id
-												INNER JOIN tbl_category c on p.category_id = c.id
-												INNER JOIN tbl_brand b on p.brand_id = b.id
+												expd.exp_id, 
+												exp.exp_date,
+												expt.`name`AS exp_type,
+												expd.amount,
+												expd.note,
+												pp.`name` AS staff
+												FROM tbl_expense_details expd
+												INNER JOIN tbl_expense exp ON expd.exp_id = exp.id
+												INNER JOIN tbl_expense_type expt ON expd.exp_type_id = expt.id
+												INNER JOIN tbl_people pp ON exp.people_id = pp.id
 												ORDER BY
-													impd.id DESC
+													expd.id DESC
 												LIMIT $current_page, $row_per_page;
 											";
 											$result = mysqli_query($conn, $sql);
@@ -236,12 +199,10 @@
 										?>
 												<tr>
 													<td class="cell"><?= $rowNumber++ ?></td>
-													<td class="cell" style="text-align: center;"><?= date('Y-m-d', strtotime($row['import_date'])) ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['category_name'] ? $row['category_name'] : "N/A" ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['brand_name'] ? $row['brand_name'] : "N/A" ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['product_name'] ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['import_qty'] ?> <?= $row['unit_name'] ? $row['unit_name'] : "N/A" ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['cost'] ? $row['cost'] : "0" ?></td>
+													<td class="cell" style="text-align: center;"><?= date('Y-m-d', strtotime($row['exp_date'])) ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['exp_type'] ? $row['exp_type'] : "N/A" ?></td>
+													<td class="cell" style="text-align: center;">$<?= $row['amount'] ? $row['amount'] : "N/A" ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['note'] ?></td>
 													<td class="cell" style="text-align: center;"><?= $row['staff'] ? $row['staff'] : "N/A" ?></td>
 												</tr>
 										<?php

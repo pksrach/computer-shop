@@ -134,6 +134,8 @@
 
  </div><!--//app-wrapper-->
 
+ <!-- ==================================================================================================== -->
+
  <!-- Modal Checkout -->
  <div class="modal fade" id="checkout_modal" tabindex="-1" aria-labelledby="checkout_modal" aria-hidden="true">
  	<div class="modal-dialog">

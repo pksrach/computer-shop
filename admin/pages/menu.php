@@ -236,11 +236,13 @@
                                 <span class="nav-link-text">គ្រប់គ្រងចំណាយ</span>
                                 <span class="submenu-arrow">
                                     <i class="fa-solid fa-arrow-turn-down"></i>
-                                </span><!--//submenu-arrow-->
-                            </a><!--//nav-link-->
+                                </span>
+                            </a>
                             <div id="submenu-13" class="collapse submenu submenu-13" data-bs-parent="#menu-accordion">
                                 <ul class="submenu-list list-unstyled">
                                     <li class="submenu-item"><a class="submenu-link" href="index.php?expt=expense_type"><i class="fa-solid fa-file-pen"></i> ប្រភេទ ចំណាយ</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?cexp=create_expense"><i class="fa-solid fa-file-circle-plus"></i> បង្កើត ការចំណាយ</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?exp=expense"><i class="fa-solid fa-file"></i> របាយការណ៍ ការចំណាយ</a></li>
                                 </ul>
                             </div>
                         </li>
