@@ -5,7 +5,7 @@
 
             <div class="row g-3 mb-4 align-items-center justify-content-between">
                 <div class="col-auto">
-                    <h1 class="app-page-title mb-0">អ្នកប្រើប្រាស់</h1>
+                    <h1 class="app-page-title mb-0">បុគ្គលិក</h1>
                 </div>
                 <div class="col-auto">
                     <div class="page-utilities">
@@ -30,8 +30,8 @@
 
 
             <nav id="orders-table-tab" class="orders-table-tab app-nav-tabs nav shadow-sm flex-column flex-sm-row mb-4">
-                <a class="flex-sm-fill text-sm-center nav-link active" id="brand_list-tab" data-bs-toggle="tab" href="#brand_list" role="tab" aria-controls="orders-all" aria-selected="true">អ្នកប្រើ</a>
-                <a class="flex-sm-fill text-sm-center nav-link" id="create_brand_list-tab" data-bs-toggle="tab" href="#create_brand" role="tab" aria-controls="orders-paid" aria-selected="false">បង្កើតអ្នកប្រើ</a>
+                <a class="flex-sm-fill text-sm-center nav-link active" id="brand_list-tab" data-bs-toggle="tab" href="#brand_list" role="tab" aria-controls="orders-all" aria-selected="true">បញ្ជីបគ្គលិក</a>
+                <a class="flex-sm-fill text-sm-center nav-link" id="create_brand_list-tab" data-bs-toggle="tab" href="#create_brand" role="tab" aria-controls="orders-paid" aria-selected="false">បង្កើតបុគ្គលិក</a>
             </nav>
 
             <?php
@@ -224,7 +224,7 @@
                     <div class="app-card app-card-orders-table mb-5">
                         <div class="app-card-body">
                             <div class="container-xl">
-                                <h1 class="app-page-title">បំពេញព័ត៌អ្នកប្រើប្រាស់</h1>
+                                <h1 class="app-page-title">បំពេញព័ត៌មានខ្នាត</h1>
                                 <!-- <hr class="my-4"> -->
                                 <div class="row">
 

@@ -5,37 +5,24 @@
 			<!-- Search -->
 			<div class="row g-3 mb-4 align-items-center justify-content-between">
 				<div class="col-auto">
-					<h1 class="app-page-title mb-0">ព័ត៌មាន ផលិតផល</h1>
+					<h1 class="app-page-title mb-0">របាយការណ៍នាំចូល</h1>
 				</div>
 				<div class="col-auto">
 					<div class="page-utilities">
 						<div class="row g-2 justify-content-start justify-content-md-end align-items-center">
 							<div class="col-auto">
 								<form method="get" class="table-search-form row gx-1 align-items-center">
-									<input type="hidden" name="st" value="stock" />
+									<input type="hidden" name="imh" value="import_history" />
 
+									<!-- Start date -->
+									<label class="col-auto">ចាប់ពីថ្ងៃ</label>
 									<div class="col-auto">
-										<select class="form-select w-auto" name="key_brand" id="sel_brand">
-											<option value="">ជ្រើសរើសប្រេន</option>
-											<?php
-											$sql = mysqli_query($conn, "SELECT * FROM tbl_brand");
-											while ($row = mysqli_fetch_assoc($sql)) {
-												echo "<option value='" . $row['id'] . "'>" . $row['brand_name'] . "</option>";
-											}
-											?>
-										</select>
+										<input type="date" id="keystartdate" name="keystartdate" class="form-control search-orders">
 									</div>
-
+									<!-- End date -->
+									<label class="col-auto">ដល់ថ្ងៃ</label>
 									<div class="col-auto">
-										<select class="form-select w-auto" name='key_category' id='sel_category'>
-											<option value="">ជ្រើសរើសប្រភេទ</option>
-											<?php
-											$sql = mysqli_query($conn, "SELECT * FROM tbl_category");
-											while ($row = mysqli_fetch_assoc($sql)) {
-												echo "<option value='" . $row['id'] . "'>" . $row['category_name'] . "</option>";
-											}
-											?>
-										</select>
+										<input type="date" id="keyenddate" name="keyenddate" class="form-control search-orders">
 									</div>
 
 									<div class="col-auto">
@@ -84,14 +71,13 @@
 									<thead>
 										<tr>
 											<th class="cell">#</th>
+											<th class="cell" style="text-align: center;">ថ្ងៃនាំចូល</th>
 											<th class="cell" style="text-align: center;">ប្រភេទផលិតផល</th>
 											<th class="cell" style="text-align: center;">ប្រេនផលិតផល</th>
 											<th class="cell" style="text-align: center;">ឈ្មោះផលិតផល</th>
-											<th class="cell" style="text-align: center;">ចំនួនស្តុក</th>
+											<th class="cell" style="text-align: center;">ចំនួននាំចូល</th>
 											<th class="cell" style="text-align: center;">ថ្លៃដើម</th>
-											<th class="cell" style="text-align: center;">ការធានា</th>
-											<th class="cell" style="text-align: center;">លេខស៊េរី</th>
-											<th class="cell" style="text-align: center;">ការប្រើប្រាស់</th>
+											<th class="cell" style="text-align: center;">បុគ្គលិក</th>
 										</tr>
 									</thead>
 									<tbody>
@@ -100,22 +86,28 @@
 
 										// searching data
 										if (isset($_GET['btnSearch'])) {
-											$keycategory = $_GET['key_category'];
-											$keybrand = $_GET['key_brand'];
 											$keyinputdata = $_GET['keyinputdata'];
+											$keystartdate = $_GET['keystartdate'];
+											$keyenddate = $_GET['keyenddate'];
+
+											echo "<script>console.log('keyinputdata:$keyinputdata')</script>";
+											echo "<script>console.log('keystartdate:$keystartdate')</script>";
+											echo "<script>console.log('keyenddate:$keyenddate')</script>";
 
 											// Pagination when searching
 											$number_of_page = 0;
 											$s = "SELECT count(*) 
-												FROM tbl_stock s
-												INNER JOIN tbl_product p ON s.product_id = p.id
-												LEFT JOIN tbl_unit_measurement um ON p.unit_id = um.id
-												LEFT JOIN tbl_category c on p.category_id = c.id
-												LEFT JOIN tbl_brand b on p.brand_id = b.id
+												FROM tbl_import_detail impd 
+												INNER JOIN  tbl_import imp ON impd.import_id = imp.id 
+												INNER JOIN tbl_people pp ON imp.people_id = pp.id 
+												INNER JOIN tbl_product p ON impd.product_id = p.id 
+												INNER JOIN tbl_unit_measurement um ON p.unit_id = um.id
+												INNER JOIN tbl_category c on p.category_id = c.id
+												INNER JOIN tbl_brand b on p.brand_id = b.id
 											";
 											$q = $conn->query($s);
 											$r = mysqli_fetch_row($q);
-											$row_per_page = 5;
+											$row_per_page = 10;
 											$number_of_page = ceil($r[0] / $row_per_page); #Round numbers up to the nearest integer
 											if (!isset($_GET['pn'])) {
 												$current_page = 0;
@@ -125,52 +117,65 @@
 											}
 											// End pagination
 
-											$sql_select = "SELECT 
-												s.id,
+											$sql_select = "SELECT  
+												impd.import_id,
+												imp.import_date,
 												c.category_name,
 												b.brand_name,
 												p.product_name,
+												impd.import_qty,
 												um.unit_name,
-												s.stock_qty,
-												s.warranty,
-												s.serial_number, 
-												s.condition_type,
-												s.cost
-												FROM tbl_stock s
-												INNER JOIN tbl_product p ON s.product_id = p.id
-												LEFT JOIN tbl_unit_measurement um ON p.unit_id = um.id
-												LEFT JOIN tbl_category c on p.category_id = c.id
-												LEFT JOIN tbl_brand b on p.brand_id = b.id
+												impd.cost,
+												pp.name as staff
+
+												FROM tbl_import_detail impd 
+												INNER JOIN  tbl_import imp ON impd.import_id = imp.id 
+												INNER JOIN tbl_people pp ON imp.people_id = pp.id 
+												INNER JOIN tbl_product p ON impd.product_id = p.id 
+												INNER JOIN tbl_unit_measurement um ON p.unit_id = um.id
+												INNER JOIN tbl_category c on p.category_id = c.id
+												INNER JOIN tbl_brand b on p.brand_id = b.id
 											";
-											if ($keycategory == "" && $keybrand == "" && $keyinputdata == "") {
-												$sql = $sql_select . "WHERE p.`status` = 'Active' ORDER BY s.id DESC " . "LIMIT $current_page, $row_per_page;";
+											if ($keystartdate == "" && $keyenddate == "" && $keyinputdata == "") {
+												$sql = $sql_select . "ORDER BY impd.id DESC " . "LIMIT $current_page, $row_per_page;";
 											}
 
-											if ($keycategory) {
+											if ($keystartdate && $keyenddate) {
 												$sql = $sql_select . "
 												WHERE
-													p.category_id = '$keycategory'
-													AND p.`status` = 'Active' 
+													DATE(imp.import_date) BETWEEN '$keystartdate' AND '$keyenddate'
 												ORDER BY
-													S.id DESC LIMIT $current_page, $row_per_page;";
+													impd.id DESC LIMIT $current_page, $row_per_page;";
+											} else if ($keystartdate && $keyenddate && $keyinputdata != "") {
+												$sql = $sql_select . "
+												WHERE
+													DATE(imp.import_date) BETWEEN '$keystartdate' AND '$keyenddate'
+													AND p.product_name LIKE '%" . $keyinputdata . "%'
+												ORDER BY
+													impd.id DESC LIMIT $current_page, $row_per_page;";
 											}
 
-											if ($keybrand) {
+
+											if ($keystartdate) {
 												$sql = $sql_select . "
 												WHERE
-													p.brand_id = '$keybrand'
-													AND p.`status` = 'Active'
+													DATE(imp.import_date) BETWEEN '$keystartdate' AND DATE(NOW())
 												ORDER BY
-													S.id DESC LIMIT $current_page, $row_per_page;";
+													impd.id DESC LIMIT $current_page, $row_per_page;";
+											} else if ($keyenddate) {
+												$sql = $sql_select . "
+												WHERE
+													DATE(imp.import_date) BETWEEN DATE(NOW()) AND '$keyenddate'
+												ORDER BY
+													impd.id DESC LIMIT $current_page, $row_per_page;";
 											}
 
 											if ($keyinputdata) {
 												$sql = $sql_select . "
 												WHERE
 													p.product_name LIKE '%" . $keyinputdata . "%'
-													AND p.`status` = 'Active'
 												ORDER BY
-													s.id DESC LIMIT $current_page, $row_per_page;";
+													impd.id DESC LIMIT $current_page, $row_per_page;";
 											}
 
 											$result = mysqli_query($conn, $sql);
@@ -182,15 +187,17 @@
 											#pagination when first load
 											$number_of_page = 0;
 											$s = "SELECT count(*) 
-												FROM tbl_stock s
-												INNER JOIN tbl_product p ON s.product_id = p.id
-												LEFT JOIN tbl_unit_measurement um ON p.unit_id = um.id
-												LEFT JOIN tbl_category c on p.category_id = c.id
-												LEFT JOIN tbl_brand b on p.brand_id = b.id
+												FROM tbl_import_detail impd 
+												INNER JOIN  tbl_import imp ON impd.import_id = imp.id 
+												INNER JOIN tbl_people pp ON imp.people_id = pp.id 
+												INNER JOIN tbl_product p ON impd.product_id = p.id 
+												INNER JOIN tbl_unit_measurement um ON p.unit_id = um.id
+												INNER JOIN tbl_category c on p.category_id = c.id
+												INNER JOIN tbl_brand b on p.brand_id = b.id
 											";
 											$q = $conn->query($s);
 											$r = mysqli_fetch_row($q);
-											$row_per_page = 5;
+											$row_per_page = 10;
 											$number_of_page = ceil($r[0] / $row_per_page); #Round numbers up to the nearest integer
 											if (!isset($_GET['pn'])) {
 												$current_page = 0;
@@ -200,25 +207,26 @@
 											}
 											// End pagination
 
-											$sql = "SELECT
-												s.id,
+											$sql = "SELECT 
+												impd.import_id,
+												imp.import_date,
 												c.category_name,
 												b.brand_name,
 												p.product_name,
+												impd.import_qty,
 												um.unit_name,
-												s.stock_qty,
-												s.warranty,
-												s.serial_number, 
-												s.condition_type,
-												s.cost
-												FROM tbl_stock s
-												INNER JOIN tbl_product p ON s.product_id = p.id
-												LEFT JOIN tbl_unit_measurement um ON p.unit_id = um.id
-												LEFT JOIN tbl_category c on p.category_id = c.id
-												LEFT JOIN tbl_brand b on p.brand_id = b.id
-												WHERE p.`status` = 'Active'
+												impd.cost,
+												pp.name as staff
+
+												FROM tbl_import_detail impd 
+												INNER JOIN tbl_import imp ON impd.import_id = imp.id 
+												INNER JOIN tbl_people pp ON imp.people_id = pp.id 
+												INNER JOIN tbl_product p ON impd.product_id = p.id 
+												INNER JOIN tbl_unit_measurement um ON p.unit_id = um.id
+												INNER JOIN tbl_category c on p.category_id = c.id
+												INNER JOIN tbl_brand b on p.brand_id = b.id
 												ORDER BY
-													s.id DESC
+													impd.id DESC
 												LIMIT $current_page, $row_per_page;
 											";
 											$result = mysqli_query($conn, $sql);
@@ -231,19 +239,13 @@
 										?>
 												<tr>
 													<td class="cell"><?= $rowNumber++ ?></td>
+													<td class="cell" style="text-align: center;"><?= date('Y-m-d', strtotime($row['import_date'])) ?></td>
 													<td class="cell" style="text-align: center;"><?= $row['category_name'] ? $row['category_name'] : "N/A" ?></td>
 													<td class="cell" style="text-align: center;"><?= $row['brand_name'] ? $row['brand_name'] : "N/A" ?></td>
 													<td class="cell" style="text-align: center;"><?= $row['product_name'] ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['stock_qty'] ?> <?= $row['unit_name'] ? $row['unit_name'] : "N/A" ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['import_qty'] ?> <?= $row['unit_name'] ? $row['unit_name'] : "N/A" ?></td>
 													<td class="cell" style="text-align: center;"><?= $row['cost'] ? $row['cost'] : "0" ?></td>
-													<td class="cell" style="text-align: center;"><?php if ($row['warranty'] && $row['warranty'] !== '0000-00-00 00:00:00') echo  date('Y-m-d', strtotime($row['warranty']));
-																									else echo "N/A"  ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['serial_number'] ? $row['serial_number'] : "N/A" ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['condition_type'] ? $row['condition_type'] : "N/A" ?></td>
-
-													<td class="cell">
-														<a href="pages/inventory/del_stock.php?id=<?= $row['id'] ?>" type="submit" name="btnDelete" class="btn btn-danger" onclick="return confirm('តើអ្នកពិតជាចង់លុបមែនទេ ?')"><i class="fas fa-eraser"></i></i></a>
-													</td>
+													<td class="cell" style="text-align: center;"><?= $row['staff'] ? $row['staff'] : "N/A" ?></td>
 												</tr>
 										<?php
 												$i++;
