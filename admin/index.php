@@ -1,7 +1,7 @@
 <?php
 session_start();
 // console log
-// echo "<script>console.log('user_people_id:" . $_SESSION['user_p eople_id'] . "')</script>";
+echo "<script>console.log('user_people_id:" . $_SESSION['user_people_id'] . "')</script>";
 date_default_timezone_set("Asia/Phnom_Penh");
 include_once '../config_db/config_db.php';
 
