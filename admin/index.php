@@ -1,7 +1,7 @@
 <?php
 session_start();
 // console log
-echo "<script>console.log('user_people_id:" . $_SESSION['user_people_id'] . "')</script>";
+// echo "<script>console.log('user_people_id:" . $_SESSION['user_p eople_id'] . "')</script>";
 date_default_timezone_set("Asia/Phnom_Penh");
 include_once '../config_db/config_db.php';
 
@@ -44,6 +44,8 @@ if (isset($_GET['pg'])) {
     include "pages/product/" . $_GET['p'] . ".php";
 } elseif (isset($_GET['agency'])) {
     include "pages/agency/" . $_GET['agency'] . ".php";
+} elseif (isset($_GET['pe'])) {
+    include "pages/people/" . $_GET['pe'] . ".php";
 } else {
     include_once 'pages/homepage.php';
 }

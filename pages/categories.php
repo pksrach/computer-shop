@@ -179,7 +179,8 @@
 					INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id;";
 					$result = mysqli_query($conn, $sql);
 					if ($result) {
-						while ($row=mysqli_fetch_array($result)) {
+						while ($row = mysqli_fetch_array($result)) {
+							$defaultimage = "default.jpg";
 
 					?>
 
@@ -188,7 +189,11 @@
 							<div class="col-md-4 col-xs-6">
 								<div class="product">
 									<div class="product-img">
-										<img src="./img/product01.png" alt="">
+										<?php
+
+										$img = $row[1] ?? $defaultimage;
+										echo '<img src="./admin/assets/images/img_data_store_upload/' . $img . '" alt="">'
+										?>
 										<div class="product-label">
 											<span class="sale">-30%</span>
 											<span class="new">NEW</span>
@@ -211,9 +216,9 @@
 											<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
 										</div>
 									</div>
-									<div class="add-to-cart">
+									<!-- <div class="add-to-cart">
 										<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
-									</div>
+									</div> -->
 								</div>
 							</div>
 							<!-- /product -->
