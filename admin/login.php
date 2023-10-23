@@ -48,12 +48,7 @@ include_once '../config_db/config_db.php';
 							$_SESSION['user_login'] = $username;
 							$_SESSION['user_role'] = $row['role'];
 
-							// get people id from tbl_people
-							$sql_people = "SELECT pp.* FROM tbl_people pp INNER JOIN tbl_user u ON pp.user_id = u.id WHERE u.id = '" . $row['id'] . "'";
-							// Set session people id
-							$result_people = $conn->query($sql_people);
-							$row_people = mysqli_fetch_array($result_people);
-							$_SESSION['user_people_id'] = $row_people['id'];
+							$_SESSION['user_people_id'] = $row['people_id'];
 
 							header("location: index.php");
 						} else {
