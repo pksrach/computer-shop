@@ -68,12 +68,10 @@
 									<thead>
 										<tr>
 											<th class="cell">#</th>
-											<th class="cell" style="text-align: center;">ថ្ងៃនាំចូល</th>
-											<th class="cell" style="text-align: center;">ប្រភេទផលិតផល</th>
-											<th class="cell" style="text-align: center;">ប្រេនផលិតផល</th>
-											<th class="cell" style="text-align: center;">ឈ្មោះផលិតផល</th>
-											<th class="cell" style="text-align: center;">ចំនួននាំចូល</th>
-											<th class="cell" style="text-align: center;">ថ្លៃដើម</th>
+											<th class="cell" style="text-align: center;">កាលបរិច្ឆេទ</th>
+											<th class="cell" style="text-align: center;">ប្រភេទចំណាយ</th>
+											<th class="cell" style="text-align: center;">ថ្លៃចំណាយ</th>
+											<th class="cell" style="text-align: center;">បរិយាយ</th>
 											<th class="cell" style="text-align: center;">បុគ្គលិក</th>
 										</tr>
 									</thead>
