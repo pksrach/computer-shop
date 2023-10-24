@@ -5,16 +5,16 @@
 
             <div class="row g-3 mb-4 align-items-center justify-content-between">
                 <div class="col-auto">
-                    <h1 class="app-page-title mb-0">ទូទាត</h1>
+                    <h1 class="app-page-title mb-0">អតិថិជន</h1>
                 </div>
                 <div class="col-auto">
                     <div class="page-utilities">
                         <div class="row g-2 justify-content-start justify-content-md-end align-items-center">
                             <div class="col-auto">
                                 <form class="table-search-form row gx-1 align-items-center">
-                                <input type="hidden" name="pay" value="payment" />
+                                    <input type="hidden" name="c" value="customer" />
                                     <div class="col-auto">
-                                        <input type="text" id="keyinputdata" name="keyinputdata" class="form-control search-orders" placeholder="ស្វែងរកឈ្មោះ">
+                                        <input type="text" id="keyinputdata" name="keyinputdata" class="form-control search-orders" placeholder="ស្វែងរកលេខទូរស័ព្ទ">
                                     </div>
                                     <div class="col-auto">
                                         <button type="submit" name="btnSearch" class="btn app-btn-secondary">ស្វែងរក</button>
@@ -39,15 +39,16 @@
             // update
             if (isset($_POST['btnUpdte'])) {
                 $id = $_POST['u_id'];
-                $payment_name = $_POST['txt_payment_name'];
-                $txt_type = $_POST['txt_type'];
+                $customer_name = $_POST['txt_customer_name'];
+                $gender = $_POST['txt_gender'];
+                $phone_number = $_POST['txt_phone_number'];
 
-                if (trim($payment_name) != '') {
+                if (trim($customer_name) != '') {
                     $sql = "
-                                UPDATE tbl_payment_method
-                                SET payment_name=' $payment_name', type='$txt_type'
-                                WHERE id=$id      
-                        ";
+                        UPDATE tbl_customer
+                        SET name='$customer_name', gender='$gender', phone_number='$phone_number'
+                        WHERE id=$id      
+                    ";
                     // echo $sql;
                     if (mysqli_query($conn, $sql)) {
                         echo msgstyle('Data Update sucess!', 'success');
@@ -68,7 +69,8 @@
                                         <tr>
                                             <th class="cell">លេខសម្គាល់#</th>
                                             <th class="cell">ឈ្មោះ</th>
-                                            <th class="cell">ប្រភេទ</th>
+                                            <th class="cell">ភេទ</th>
+                                            <th class="cell">លេខទូរស័ព្ទ</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -78,10 +80,10 @@
                                             $keyinputdata = $_GET['keyinputdata'];
                                             // Pagination when searching
                                             $number_of_page = 0;
-                                            $s = "SELECT count(*) FROM tbl_payment_method";
+                                            $s = "SELECT count(*) FROM tbl_customer";
                                             $q = $conn->query($s);
                                             $r = mysqli_fetch_row($q);
-                                            $row_per_page = 5;
+                                            $row_per_page = 10;
                                             $number_of_page = ceil($r[0] / $row_per_page); #Round numbers up to the nearest integer
                                             if (!isset($_GET['pn'])) {
                                                 $current_page = 0;
@@ -91,14 +93,14 @@
                                             }
                                             // End pagination
 
-                                            $sql_select = "SELECT * FROM tbl_payment_method ";
+                                            $sql_select = "SELECT * FROM tbl_customer ";
 
                                             if ($keyinputdata == "") {
                                                 $sql = $sql_select . "LIMIT $current_page, $row_per_page;";
                                             } else {
                                                 $sql = $sql_select . "
                                                     WHERE
-                                                        payment_name LIKE '%" . $keyinputdata . "%'
+                                                        phone_number LIKE '%" . $keyinputdata . "%'
                                                     ORDER BY
                                                         id DESC LIMIT $current_page, $row_per_page;";
                                             }
@@ -109,10 +111,10 @@
                                             // Load all data
                                             // Pagination
                                             $number_of_page = 0;
-                                            $s = "SELECT count(*) FROM tbl_payment_method";
+                                            $s = "SELECT count(*) FROM tbl_customer";
                                             $q = $conn->query($s);
                                             $r = mysqli_fetch_row($q);
-                                            $row_per_page = 5;
+                                            $row_per_page = 10;
                                             $number_of_page = ceil($r[0] / $row_per_page); #Round numbers up to the nearest integer
                                             if (!isset($_GET['pn'])) {
                                                 $current_page = 0;
@@ -121,7 +123,7 @@
                                                 $current_page = ($current_page - 1) * $row_per_page;
                                             }
                                             // End pagination
-                                            $sql = "SELECT * FROM tbl_payment_method ORDER BY id DESC LIMIT $current_page, $row_per_page;";
+                                            $sql = "SELECT * FROM tbl_customer ORDER BY id DESC LIMIT $current_page, $row_per_page;";
                                             $result = mysqli_query($conn, $sql);
                                             $num_row = $result->num_rows;
                                         }
@@ -131,12 +133,13 @@
                                             while ($row = mysqli_fetch_array($result)) {
                                         ?>
                                                 <form method="get">
-                                                    <input type="hidden" name="pay" value="payment" id="">
+                                                    <input type="hidden" name="c" value="customer" id="">
                                                     <input type="hidden" name="txtid" id="" value="<?= $row['id'] ?>">
                                                     <tr>
                                                         <td class="cell"><?= $row['id'] ?></td>
-                                                        <td class="cell"><?= $row['payment_name'] ?></td>
-                                                        <td class="cell"><?= $row['type'] ?></td>
+                                                        <td class="cell"><?= $row['name'] ?></td>
+                                                        <td class="cell"><?= $row['gender'] ?></td>
+                                                        <td class="cell"><?= $row['phone_number'] ?></td>
                                                         <!-- Button action -->
                                                         <td class="cell">
                                                             <!-- <a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a> -->
@@ -155,7 +158,7 @@
                                                         <div class="modal-content">
                                                     
                                                             <div class="modal-header">
-                                                                <h5 class="modal-title" id="exampleModalLabel">កែប្រែប្រភេទ</h5>
+                                                                <h5 class="modal-title" id="exampleModalLabel">កែប្រែព័ត៌មាន</h5>
                                                             </div>
                                                         <div class="modal-body">
                                                         
@@ -163,15 +166,19 @@
                                                             <form class="settings-form" method="POST" ">
                                                                 <input type="hidden" name="u_id" id="" value="' . $row['id'] . '">
                                                                 <div class="mb-3">
-                                                                    <label for="lbl_category_name" class="form-label" >ឈ្មោះប្រភេទ<span style="color: red"> *</span></label>
-                                                                    <input type="text" name="txt_payment_name" class="form-control" id="txt_payment_name" value="' . $row['payment_name'] . '" required>
+                                                                    <label for="lbl_category_name" class="form-label" >ឈ្មោះ<span style="color: red"> *</span></label>
+                                                                    <input type="text" name="txt_customer_name" class="form-control" id="txt_customer_name" value="' . $row['name'] . '" required>
                                                                 </div>
                                                                 <div class="mb-3">
-                                                                    <label class="form-label">ប្រភេទ</label>
-                                                                    <select class="form-select " name="txt_type" id="txt_type">
-                                                                        <option selected value="Cash">Cash</option>
-                                                                        <option value="Bank">Bank</option>
+                                                                    <label class="form-label">ភេទ</label>
+                                                                    <select class="form-select " name="txt_gender" id="txt_gender">
+                                                                        <option selected value="Male">Male</option>
+                                                                        <option value="Female">Female</option>
                                                                     </select>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="lbl_phone" class="form-label" >លេខទូរស័ព្ទ<span style="color: red"> *</span></label>
+                                                                    <input type="text" name="txt_phone_number" class="form-control" id="txt_phone_number" value="' . $row['phone_number'] . '" required>
                                                                 </div>
                                                                 <button type="submit" name="btnUpdte" class="btn app-btn-primary" >កែប្រែ</button>
                                                             </form>
@@ -212,16 +219,17 @@
                     <?php
                     // insert
                     if (isset($_POST['btnSave'])) {
-                        $payment_name = $_POST['txt_payment_name'];
-                        $type = $_POST['txt_type'];
+                        $customer_name = $_POST['txt_customer_name'];
+                        $gender = $_POST['txt_gender'];
+                        $phone_number = $_POST['txt_phone_number'];
                         // validate empty data
-                        if (trim($payment_name) == '') {
-                            msgstyle('សូមបញ្ចូលឈ្មោះប្រភេទផលិតផល', 'danger');
+                        if (trim($customer_name) == '' || trim($phone_number) == '') {
+                            msgstyle('សូមបញ្ចូលឈ្មោះនិងលេខទូរស័ព្ទ', 'danger');
                             return;
                         }
 
                         $sql = "
-                            INSERT INTO tbl_payment_method (payment_name, type, status) VALUES('$payment_name', '$type', true);
+                            INSERT INTO tbl_customer (name, gender, phone_number) VALUES('$customer_name', '$gender', '$phone_number');
                         ";
                         if (mysqli_query($conn, $sql)) {
                             // echo"Data inserting successfully";
@@ -240,7 +248,7 @@
                     // delete
                     if (isset($_GET['btnDelete'])) {
                         $id = $_GET['txtid'];
-                        $sql = mysqli_query($conn, "DELETE FROM tbl_payment_method WHERE id=$id");
+                        $sql = mysqli_query($conn, "DELETE FROM tbl_customer WHERE id=$id");
                         if ($sql) {
                             echo msgstyle('Data Delete sucess!', 'success');
                             include 'refresh_page.php';
@@ -264,17 +272,23 @@
                                                 <form class="settings-form" method="POST" action="<?php $_SERVER['PHP_SELF']; ?>">
 
                                                     <div class="mb-3">
-                                                        <label for="txt_payment_name" class="form-label">ឈ្មោះ<span style="color: red"> *</span></label>
-                                                        <input type="text" name="txt_payment_name" class="form-control" id="txt_payment_name" value="" required>
+                                                        <label for="txt_customer_name" class="form-label">ឈ្មោះ<span style="color: red"> *</span></label>
+                                                        <input type="text" name="txt_customer_name" class="form-control" id="txt_customer_name" value="">
                                                     </div>
 
                                                     <div class="mb-3">
-                                                        <label class="form-label">ប្រភេទ</label>
+                                                        <label class="form-label">ភេទ</label>
                                                         <select class="form-select " name="txt_type" id="txt_type">
-                                                            <option selected value="Cash">Cash</option>
-                                                            <option value="Bank">Bank</option>
+                                                            <option selected value="Male">Male</option>
+                                                            <option value="Female">Female</option>
                                                         </select>
                                                     </div>
+
+                                                    <div class="mb-3">
+                                                        <label for="txt_phone_number" class="form-label">លេខទូរស័ព្ទ<span style="color: red"> *</span></label>
+                                                        <input type="text" name="txt_phone_number" class="form-control" id="txt_phone_number" value="" required>
+                                                    </div>
+
                                                     <button id="btnSave" type="submit" name="btnSave" class="btn app-btn-primary">រក្សាទុក</button>
                                                 </form>
                                             </div><!--//app-card-body-->
@@ -296,7 +310,7 @@
                 $(document).ready(function() {
                     $("#category_list-tab").click(function() {
                         // alert('Test click tap');
-                        window.location.href = "index.php?pay=payment";
+                        window.location.href = "index.php?c=customer";
                     });
                 });
             </script>
