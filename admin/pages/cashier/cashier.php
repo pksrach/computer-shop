@@ -136,6 +136,25 @@
 
  <!-- ==================================================================================================== -->
 
+ <?php
+	if (isset($_POST['checkoutBtn'])) {
+		$total = $_POST['totalAmount'];
+		$discount = $_POST['discountInput'];
+		$grandTotal = $_POST['grandTotal'];
+		$cashReceived = $_POST['cashReceived'];
+		$paymentMethod = $_POST['paymentMethod'];
+
+		// Console log
+		echo "<script>console.log('Total: " . $total . "');</script>";
+		echo "<script>console.log('Discount: " . $discount . "');</script>";
+		echo "<script>console.log('Grand Total: " . $grandTotal . "');</script>";
+		echo "<script>console.log('Cash Received: " . $cashReceived . "');</script>";
+		echo "<script>console.log('Payment Method: " . $paymentMethod . "');</script>";
+		echo "<script>console.log('Hello kon papa');</script>";
+	}
+
+	?>
+
  <!-- Modal Checkout -->
  <div class="modal fade" id="checkout_modal" tabindex="-1" aria-labelledby="checkout_modal" aria-hidden="true">
  	<div class="modal-dialog">
@@ -145,47 +164,56 @@
  				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
  			</div>
  			<div class="modal-body">
- 				<!-- Total Amount Display -->
- 				<div class="mb-3">
- 					<label for="totalAmount" class="form-label">Total Amount</label>
- 					<input type="text" class="form-control" id="totalAmount" readonly>
- 				</div>
+ 				<form method="post" enctype="multipart/form-data" class="row g-3">
 
- 				<!-- Discount Input -->
- 				<div class="mb-2">
- 					<label for="discount" class="form-label">Discount</label>
- 					<input type="number" class="form-control" id="discountInput" placeholder="Enter discount %">
- 				</div>
+ 					<!-- Total Amount Display -->
+ 					<div class="mb-3">
+ 						<label for="totalAmount" class="form-label">Total Amount</label>
+ 						<input type="text" class="form-control" id="totalAmount" readonly>
+ 					</div>
 
- 				<!-- Grand Total Display -->
- 				<div class="mb-3">
- 					<label for="grandTotal" class="form-label">Grand Total</label>
- 					<input type="text" class="form-control" id="grandTotal" readonly>
- 				</div>
+ 					<!-- Discount Input -->
+ 					<div class="mb-2">
+ 						<label for="discount" class="form-label">Discount</label>
+ 						<input type="number" class="form-control" id="discountInput" placeholder="Enter discount %">
+ 					</div>
 
- 				<!-- Cash Received Input -->
- 				<div class="mb-3">
- 					<label for="cashReceived" class="form-label">Cash Received<span style="color: red;">*</span></label>
- 					<input type="number" class="form-control" id="cashReceived" placeholder="Enter cash received">
- 				</div>
+ 					<!-- Grand Total Display -->
+ 					<div class="mb-3">
+ 						<label for="grandTotal" class="form-label">Grand Total</label>
+ 						<input type="text" class="form-control" id="grandTotal" readonly>
+ 					</div>
 
- 				<!-- Payment Method Dropdown -->
- 				<div class="mb-3">
- 					<label for="paymentMethod" class="form-label">Payment Method<span style="color: red;">*</span></label>
- 					<select class="form-select" id="paymentMethod">
+ 					<!-- Cash Received Input -->
+ 					<div class="mb-3">
+ 						<label for="cashReceived" class="form-label">Cash Received<span style="color: red;">*</span></label>
+ 						<input type="number" class="form-control" id="cashReceived" placeholder="Enter cash received">
+ 					</div>
+
+ 					<!-- Payment Method Dropdown -->
+ 					<div class="mb-3">
+ 						<label for="paymentMethod" class="form-label">ប្រភេទទូទាត់<span style="color: red;">*</span></label>
+ 						<select class="form-select" name="paymentMethod" id="paymentMethod">
+ 							<option selected value="Cash">Cash</option>
+ 							<option value="Bank">Bank</option>
+ 						</select>
+ 						<!-- <select class="form-select" name="paymentMethod" id="paymentMethod">
  						<option value="">ជ្រើសរើសប្រភេទទូទាត់</option>
  						<?php
-							$sql = mysqli_query($conn, "SELECT * FROM tbl_payment_method WHERE status = 1");
-							while ($row = mysqli_fetch_assoc($sql)) {
-								echo "<option value='" . $row['id'] . "'>" . $row['payment_name'] . ")</option>";
-							}
+							// $sql = mysqli_query($conn, "SELECT * FROM tbl_brand WHERE status = 1");
+							// while ($row = mysqli_fetch_assoc($sql)) {
+							// 	echo "<option value='" . $row['id'] . "'>" . $row['brand_name'] . ")</option>";
+							// }
 							?>
- 					</select>
- 				</div>
+ 					</select> -->
+ 					</div>
+ 				</form>
+
+
  			</div>
  			<div class="modal-footer">
  				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">បិទ</button>
- 				<button type="button" class="btn btn-primary" id="checkoutBtn">ទូទាត់</button>
+ 				<button type="submit" class="btn btn-primary" name="checkoutBtn" id="checkoutBtn">ទូទាត់</button>
  			</div>
  		</div>
  	</div>
@@ -352,6 +380,7 @@
  		} else {
  			// Show the payment modal
  			var paymentModal = document.getElementById('checkout_modal');
+ 			console.log('Showing payment modal');
  			var modal = new bootstrap.Modal(paymentModal);
  			modal.show();
  		}
@@ -436,5 +465,61 @@
  			var change = cashReceivedValue - grandTotalValue;
 
  		}
+ 	});
+
+ 	document.getElementById('checkoutBtn').addEventListener('click', function() {
+ 		console.log('Checkout button clicked'); // Check if this message appears in the console
+ 		// get value from input here
+ 		var totalAmount = document.getElementById('totalAmount').value;
+ 		var discountInput = document.getElementById('discountInput').value;
+ 		var grandTotal = document.getElementById('grandTotal').value;
+ 		var cashReceived = document.getElementById('cashReceived').value;
+ 		var paymentMethod = document.getElementById('paymentMethod').value;
+
+ 		// Check if discout input is empty need to set default value to 0
+ 		if (discountInput == '') {
+ 			discountInput = 0;
+ 		}
+
+ 		// Check if the Cash Received field is empty
+ 		if (cashReceived == '') {
+ 			// If it is, show the warning modal
+ 			var warningModal = document.getElementById('warning_exception');
+ 			var modalMessage = document.getElementById('modalMessage');
+ 			modalMessage.textContent = 'សូមបញ្ចូលទឹកទទួលពីអតិថិជន';
+ 			var modal = new bootstrap.Modal(warningModal);
+ 			modal.show();
+ 			return;
+ 		} else {
+ 			// Otherwise, show the success modal
+ 			var successModal = document.getElementById('succes_modal');
+ 			var modal = new bootstrap.Modal(successModal);
+ 			modal.show();
+ 		}
+
+ 		//Console log
+ 		console.log('Total: ' + totalAmount);
+ 		console.log('Discount: ' + discountInput);
+ 		console.log('Grand Total: ' + grandTotal);
+ 		console.log('Cash Received: ' + cashReceived);
+ 		console.log('Payment Method: ' + paymentMethod);
+
+ 		// insert into databae on php code
+ 		$.ajax({
+ 			url: "pages/cashier/cashier.php",
+ 			method: "POST",
+ 			data: {
+ 				totalAmount: totalAmount,
+ 				discountInput: discountInput,
+ 				grandTotal: grandTotal,
+ 				cashReceived: cashReceived,
+ 				paymentMethod: paymentMethod
+ 			},
+ 			success: function(data) {
+ 				console.log(data);
+ 				$('#checkout_modal').modal('hide');
+ 				$('#succes_modal').modal('show');
+ 			}
+ 		});
  	});
  </script>

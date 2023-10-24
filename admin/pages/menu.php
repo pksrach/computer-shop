@@ -218,12 +218,12 @@
                         </li>
 
                         <!-- Payment Method -->
-                        <li class="nav-item" id="cashier-menu">
-                            <a class="nav-link" href="index.php?pay=payment">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php?c=customer">
                                 <span class="nav-icon">
                                     <i class="fa-solid fa-money-check-dollar fa-xl"></i>
                                 </span>
-                                <span class="nav-link-text">Payment</span>
+                                <span class="nav-link-text">អតិថិជន</span>
                             </a>
                         </li>
 
