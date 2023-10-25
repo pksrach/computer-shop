@@ -78,7 +78,97 @@
 				}
 
 				// Close the database connection
-				mysqli_close($conn);
+				// mysqli_close($conn);
+				?>
+
+ 			<?php
+				if (isset($_POST['checkoutBtn'])) {
+					$total = $_POST['txtTotalAmount'];
+					$discount = $_POST['txtDiscount'];
+					$grandTotal = $_POST['txtGrandTotal'];
+					$cashReceived = $_POST['txtCashReceived'];
+					$paymentMethod = $_POST['txtPaymentMethod'];
+					$customer_id = 1;
+
+					// Get the people_id from the session
+					$people_id = intval($_SESSION['user_people_id']);
+
+					// Set date now
+					$sale_date = date('Y-m-d H:i:s');
+
+					// Convert to float
+					$total = floatval($total);
+					$discount = intval($discount);
+					$grandTotal = floatval($grandTotal);
+					$cashReceived = floatval($cashReceived);
+					$paymentMethod = $_POST['txtPaymentMethod'];
+
+					// Console log
+					echo "<script>console.log('Total: " . $total . "');</script>";
+					echo "<script>console.log('Discount: " . $discount . "');</script>";
+					echo "<script>console.log('Grand Total: " . $grandTotal . "');</script>";
+					echo "<script>console.log('Cash Received: " . $cashReceived . "');</script>";
+					echo "<script>console.log('customer_id: " . $customer_id . "');</script>";
+					echo "<script>console.log('Payment Method: " . $paymentMethod . "');</script>";
+
+					// Use transaction to ensure that all queries are executed
+					mysqli_begin_transaction($conn);
+
+					// Insert the data into the database
+					$sqlInsertSale = "INSERT INTO tbl_sales (sale_date, total, discount, received, people_id, customer_id, payment_type) 
+					VALUES (?, ?, ?, ?, ?, ?, ?);";
+
+					$stmt = mysqli_prepare($conn, $sqlInsertSale);
+
+					mysqli_stmt_bind_param($stmt, 'sdidiis', $sale_date, $total, $discount, $cashReceived, $people_id, $customer_id, $paymentMethod);
+					if (!mysqli_stmt_execute($stmt)) {
+						mysqli_rollback($conn); // Rollback the transaction in case of an error
+						throw new Exception("Error executing import query: " . mysqli_stmt_error($stmt));
+					} else {
+						mysqli_commit($conn); // Commit the transaction if the insert is successful
+					}
+
+					$sale_id = mysqli_insert_id($conn); // Get the sale_id of the inserted row
+
+					// Retrieve cart data from the session
+					if (isset($_SESSION['shoppingCart'])) {
+						$cartData = $_SESSION['shoppingCart'];
+
+						// Loop through the cart items and insert them into tbl_sale_details
+						foreach ($cartData as $cartItem) {
+							$productName = $cartItem['productName'];
+							echo "<script>console.log('Product Name: " . $productName . "');</script>";
+
+							$sale_qty = $cartItem['qty'];
+							$price = $cartItem['price'];
+
+							// Insert this sale detail into tbl_sale_details
+							$sqlInsertSaleDetails = "INSERT INTO tbl_sale_details (sale_id, product_id, sale_qty, price) VALUES (?, ?, ?, ?)";
+							$stmt = mysqli_prepare($conn, $sqlInsertSaleDetails);
+
+
+
+							// Bind parameters and execute the query
+							mysqli_stmt_bind_param($stmt, 'iiid', $sale_id, $product_id, $sale_qty, $price);
+							if (!mysqli_stmt_execute($stmt)) {
+								// Log the error message and the problematic sale_id.
+								error_log("Error executing sale details query: " . mysqli_stmt_error($stmt));
+								error_log("Problematic sale_id: $sale_id");
+
+								mysqli_rollback($conn); // Rollback the transaction in case of an error
+								throw new Exception("Error executing sale details query: " . mysqli_stmt_error($stmt));
+							}
+						}
+
+						// Clear the cart data from the session after it's been processed
+						unset($_SESSION['shoppingCart']);
+					}
+					// Close the statement
+					mysqli_stmt_close($stmt);
+
+					// Commit transaction
+					mysqli_commit($conn);
+				}
 				?>
 
  		</div><!--//container-fluid-->
@@ -140,53 +230,50 @@
  <div class="modal fade" id="checkout_modal" tabindex="-1" aria-labelledby="checkout_modal" aria-hidden="true">
  	<div class="modal-dialog">
  		<div class="modal-content">
- 			<div class="modal-header">
- 				<h5 class="modal-title">ផ្ទាំងគិតប្រាក់</h5>
- 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
- 			</div>
- 			<div class="modal-body">
- 				<!-- Total Amount Display -->
- 				<div class="mb-3">
- 					<label for="totalAmount" class="form-label">Total Amount</label>
- 					<input type="text" class="form-control" id="totalAmount" readonly>
+ 			<form method="post" enctype="multipart/form-data" class="row g-3">
+ 				<div class="modal-header">
+ 					<h5 class="modal-title">ផ្ទាំងគិតប្រាក់</h5>
+ 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
  				</div>
+ 				<div class="modal-body">
+ 					<!-- Total Amount Display -->
+ 					<div class="mb-3">
+ 						<label for="totalAmount" class="form-label">Total Amount</label>
+ 						<input type="text" class="form-control" id="totalAmount" name="txtTotalAmount" readonly>
+ 					</div>
 
- 				<!-- Discount Input -->
- 				<div class="mb-2">
- 					<label for="discount" class="form-label">Discount</label>
- 					<input type="number" class="form-control" id="discountInput" placeholder="Enter discount %">
- 				</div>
+ 					<!-- Discount Input -->
+ 					<div class="mb-2">
+ 						<label for="discount" class="form-label">Discount</label>
+ 						<input type="number" class="form-control" id="discountInput" name="txtDiscount" placeholder="Enter discount %">
+ 					</div>
 
- 				<!-- Grand Total Display -->
- 				<div class="mb-3">
- 					<label for="grandTotal" class="form-label">Grand Total</label>
- 					<input type="text" class="form-control" id="grandTotal" readonly>
- 				</div>
+ 					<!-- Grand Total Display -->
+ 					<div class="mb-3">
+ 						<label for="grandTotal" class="form-label">Grand Total</label>
+ 						<input type="text" class="form-control" id="grandTotal" name="txtGrandTotal" readonly>
+ 					</div>
 
- 				<!-- Cash Received Input -->
- 				<div class="mb-3">
- 					<label for="cashReceived" class="form-label">Cash Received<span style="color: red;">*</span></label>
- 					<input type="number" class="form-control" id="cashReceived" placeholder="Enter cash received">
- 				</div>
+ 					<!-- Cash Received Input -->
+ 					<div class="mb-3">
+ 						<label for="cashReceived" class="form-label">Cash Received<span style="color: red;">*</span></label>
+ 						<input type="number" class="form-control" id="cashReceived" name="txtCashReceived" placeholder="Enter cash received">
+ 					</div>
 
- 				<!-- Payment Method Dropdown -->
- 				<div class="mb-3">
- 					<label for="paymentMethod" class="form-label">Payment Method<span style="color: red;">*</span></label>
- 					<select class="form-select" id="paymentMethod">
- 						<option value="">ជ្រើសរើសប្រភេទទូទាត់</option>
- 						<?php
-							$sql = mysqli_query($conn, "SELECT * FROM tbl_payment_method WHERE status = 1");
-							while ($row = mysqli_fetch_assoc($sql)) {
-								echo "<option value='" . $row['id'] . "'>" . $row['payment_name'] . ")</option>";
-							}
-							?>
- 					</select>
+ 					<!-- Payment Method Dropdown -->
+ 					<div class="mb-3">
+ 						<label for="paymentMethod" class="form-label">ប្រភេទទូទាត់<span style="color: red;">*</span></label>
+ 						<select class="form-select" id="paymentMethod" name="txtPaymentMethod">
+ 							<option selected value="Cash">Cash</option>
+ 							<option value="Bank">Bank</option>
+ 						</select>
+ 					</div>
  				</div>
- 			</div>
- 			<div class="modal-footer">
- 				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">បិទ</button>
- 				<button type="button" class="btn btn-primary" id="checkoutBtn">ទូទាត់</button>
- 			</div>
+ 				<div class="modal-footer">
+ 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">បិទ</button>
+ 					<button type="submit" class="btn btn-primary" name="checkoutBtn" id="checkoutBtn" onclick="checkoutButtonClick()">ទូទាត់</button>
+ 				</div>
+ 			</form>
  		</div>
  	</div>
  </div>
@@ -266,6 +353,20 @@
 
  			// Increment the row number counter
  			rowNum++;
+
+ 			$.ajax({
+ 				url: "pages/cashier/store_product.php", // Create a new PHP file for handling the data storage
+ 				method: "POST",
+ 				data: {
+ 					productName: productName,
+ 					price: price,
+ 					qty: qty,
+ 					maxQty: maxQty
+ 				},
+ 				success: function(data) {
+ 					// Handle the response from the server if needed
+ 				}
+ 			});
  		}
  	}
 
@@ -284,7 +385,6 @@
 
  		// Remove value from shopping cart
  		delete shoppingCart[row.cells[1].textContent];
-
 
  		// Decrement the row number counter
  		rowNum--;
@@ -352,6 +452,7 @@
  		} else {
  			// Show the payment modal
  			var paymentModal = document.getElementById('checkout_modal');
+ 			console.log('Showing payment modal');
  			var modal = new bootstrap.Modal(paymentModal);
  			modal.show();
  		}
@@ -437,4 +538,103 @@
 
  		}
  	});
+
+ 	function isShoppingCartEmpty() {
+ 		return Object.keys(shoppingCart).length === 0;
+ 	}
+ 	if (isShoppingCartEmpty()) {
+ 		console.log("Shopping cart is empty.");
+ 	} else {
+ 		console.log("Shopping cart has data.");
+ 	}
+
+ 	function checkoutButtonClick() {
+ 		console.log('Checkout button clicked'); // Check if this message appears in the console
+
+ 		// Get values from input fields
+ 		var totalAmount = document.getElementById('totalAmount').value;
+ 		var discountInput = document.getElementById('discountInput').value;
+ 		var grandTotal = document.getElementById('grandTotal').value;
+ 		var cashReceived = document.getElementById('cashReceived').value;
+ 		var paymentMethod = document.getElementById('paymentMethod').value;
+
+ 		totalAmount = totalAmount.replace('$', '').replace(',', '');
+ 		grandTotal = parseFloat(grandTotal.replace('$', '').replace(',', ''));
+
+ 		// Check if discount input is empty, set the default value to 0
+ 		if (discountInput === '') {
+ 			discountInput = 0;
+ 		}
+
+ 		if (cashReceived === '') {
+ 			cashReceived = 0;
+ 		}
+
+ 		// Check if the Cash Received field is empty
+ 		if (cashReceived === '') {
+ 			// If it is, show the warning modal
+ 			console.log('grandTotal:', grandTotal);
+ 			var warningModal = document.getElementById('warning_exception');
+ 			var modalMessage = document.getElementById('modalMessage');
+ 			modalMessage.textContent = 'សូមបញ្ចូលប្រាក់ទទួលពីអតិថិជន';
+ 			var modal = new bootstrap.Modal(warningModal);
+ 			modal.show();
+ 			return;
+ 		}
+
+ 		if (parseFloat(cashReceived) <= 0 || parseFloat(cashReceived) < grandTotal) {
+ 			var warningModal = document.getElementById('warning_exception');
+ 			var modalMessage = document.getElementById('modalMessage');
+ 			modalMessage.textContent = 'ប្រាក់ទទួលពីអតិថិជន ត្រូវធំជាងឬស្មើនឹងតម្លៃសរុបរបស់ការលក់';
+ 			var modal = new bootstrap.Modal(warningModal);
+ 			modal.show();
+ 			return;
+ 		} else {
+ 			// Otherwise, show the success modal
+ 			var successModal = document.getElementById('succes_modal');
+ 			var modal = new bootstrap.Modal(successModal);
+ 			modal.show();
+ 		}
+
+ 		// Set data to id fields
+ 		document.getElementById('totalAmount').value = totalAmount;
+ 		document.getElementById('grandTotal').value = grandTotal;
+
+ 		var cartTableData = [];
+ 		// Iterate through the keys (product names) in the shoppingCart object
+ 		for (var productName in shoppingCart) {
+ 			if (shoppingCart.hasOwnProperty(productName)) {
+ 				var row = shoppingCart[productName];
+ 				var cells = row.getElementsByTagName('td');
+ 				var product_id = productName; // The product name is used as the product_id
+ 				var qty = cells[3].getElementsByTagName('input')[0].value;
+ 				var price = cells[2].textContent.replace('$', '').replace(',', '');
+
+ 				cartTableData.push({
+ 					product_id: product_id,
+ 					qty: qty,
+ 					price: price
+ 				});
+ 			}
+ 		}
+
+ 		// Insert data into the database using AJAX
+ 		$.ajax({
+ 			url: "pages/cashier/cashier.php",
+ 			method: "POST",
+ 			data: {
+ 				totalAmount: totalAmount,
+ 				discountInput: discountInput,
+ 				grandTotal: grandTotal,
+ 				cashReceived: cashReceived,
+ 				paymentMethod: paymentMethod,
+ 				// customer_id: customer_id,
+ 				cartTable: JSON.stringify(cartTableData),
+ 			},
+ 			success: function(data) {
+ 				$('#checkout_modal').modal('hide');
+ 				$('#succes_modal').modal('show');
+ 			}
+ 		});
+ 	}
  </script>
