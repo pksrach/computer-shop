@@ -16,7 +16,7 @@
 
                                 include_once("../config_db/config_db.php");
 
-                                $sql = "select SUM(price) as sum from tbl_sale_details;";
+                                $sql = "select SUM(total) as sum from tbl_sales;";
                                 $result = $conn->query($sql);
 
                                 if ($result) {
