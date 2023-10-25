@@ -128,7 +128,7 @@
                                                 </div>
                                             </div>
                                             <div class="product-body ">
-                                                <p class="product-category"><?= $row[3] ?></p>
+                                                <p class="product-category"><?= $row[3] ?> ||<?= $row[2] ?></p>
                                                 <h3 class="product-name"><a href="#"><?= $row[4] ?></a></h3>
                                                 <h4 class="product-price"><?= $row[6] ?> <del class="product-old-price">$990.00</del></h4>
                                                 <div class="product-rating">
