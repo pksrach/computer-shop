@@ -57,6 +57,7 @@
 
 				// Define your SQL query to retrieve products
 				$sql = "SELECT 
+				p.id as product_id,
 				p.product_name, 
 				p.description, 
 				s.stock_qty AS qty,
@@ -181,6 +182,7 @@
 					foreach ($products as $product) {
 					?>
  					<div class="card mx-auto" style="width: 15rem;">
+ 						<input type="hidden" class="product-id" value="<?php echo $product['product_id']; ?>">
  						<img src="<?= $product['attatchment_url'] ? "assets/images/img_data_store_upload/" . $product['attatchment_url'] : 'assets/images/X-ComShop Logo.svg' ?>" class="card-img-top">
  						<div class="card-body">
  							<h5 class="card-title"><?php echo $product['product_name']; ?></h5>
@@ -317,13 +319,13 @@
  	var shoppingCart = {};
 
  	// Function to handle the click event for adding a product
- 	function addProductToTable(productName, price, qty, maxQty) {
+ 	function addProductToTable(productId, productName, price, qty, maxQty) {
  		var table = document.getElementById('cartTable');
  		var row;
 
  		// Check if the product is already in the shopping cart
- 		if (shoppingCart[productName]) {
- 			row = shoppingCart[productName];
+ 		if (shoppingCart[productId]) {
+ 			row = shoppingCart[productId].row;
  			var qtyInput = row.cells[2].querySelector('input');
  			if (qtyInput) { // Check if the input element exists
  				var currentQty = parseInt(qtyInput.value);
@@ -334,7 +336,13 @@
  			}
  		} else {
  			row = table.insertRow();
- 			shoppingCart[productName] = row;
+ 			shoppingCart[productId] = {
+ 				row: row,
+ 				productName: productName,
+ 				price: price,
+ 				qty: qty,
+ 				maxQty: maxQty
+ 			}
 
  			// Insert cells for row number, product name, price, quantity, amount, and a delete button
  			var cell0 = row.insertCell(0);
@@ -344,20 +352,20 @@
  			var cell4 = row.insertCell(4);
  			var cell5 = row.insertCell(5);
 
- 			cell0.textContent = rowNum; // Set the row number
+ 			cell0.textContent = productId; // Set the product ID
  			cell1.innerHTML = productName;
  			cell2.innerHTML = formatCurrency(price);
- 			cell3.innerHTML = '<input type="number" min="1" max="' + maxQty + '" value="1" oninput="updateQty(this, ' + maxQty + ')">'; // Pass maxQty as an argument
- 			cell4.textContent = formatCurrency(price.toFixed(2)); // Display the calculated amount
+ 			cell3.innerHTML = '<input type="number" min="1" max="' + maxQty + '" value="1" oninput="updateQty(this, ' + maxQty + ')">';
+ 			cell4.textContent = formatCurrency(price.toFixed(2));
  			cell5.innerHTML = '<button class="btn btn-danger" type="button" onclick="removeProduct(this)"><i class="fas fa-eraser"></button>';
 
- 			// Increment the row number counter
  			rowNum++;
 
  			$.ajax({
- 				url: "pages/cashier/store_product.php", // Create a new PHP file for handling the data storage
+ 				url: "pages/cashier/store_product.php",
  				method: "POST",
  				data: {
+ 					productId: productId,
  					productName: productName,
  					price: price,
  					qty: qty,
@@ -420,6 +428,8 @@
  	var productCards = document.querySelectorAll('.card');
  	productCards.forEach(function(card) {
  		card.addEventListener('click', function() {
+ 			var productId = card.querySelector('.product-id').value;
+ 			alert(productId);
  			var productName = card.querySelector('.card-title').textContent;
  			var price = parseFloat(card.querySelector('#txtPrice').textContent.split(':')[1].trim());
 
@@ -429,7 +439,7 @@
  			var qty = 1; // Default quantity is 1
 
  			var maxQty = qtyStockInCard; // Maximum quantity available for a product based on the card's quantity
- 			addProductToTable(productName, price, qty, maxQty);
+ 			addProductToTable(productId, productName, price, qty, maxQty);
  		});
  	});
 
@@ -607,6 +617,7 @@
  				var row = shoppingCart[productName];
  				var cells = row.getElementsByTagName('td');
  				var product_id = productName; // The product name is used as the product_id
+ 				console.log('product_id:', product_id);
  				var qty = cells[3].getElementsByTagName('input')[0].value;
  				var price = cells[2].textContent.replace('$', '').replace(',', '');
 
