@@ -11,8 +11,7 @@
  				<!-- Search -->
  				<div class="col-auto">
  					<div class="page-utilities">
- 						<form method="get" class="table-search-form row gx-1 align-items-center">
- 							<input type="hidden" name="ch" value="cashier" />
+ 						<form class="table-search-form row gx-1 align-items-center">
  							<div class="col-auto">
  								<select class="form-select w-auto" name="txtCustomer" id="txtCustomer">
  									<option value="1">អតិថិជនទូទៅ</option>
@@ -64,11 +63,9 @@
 
  			<?php
 				if (isset($_POST['checkoutBtn'])) {
-					if (isset($_SESSION['customer_id'])) {
-						$customer_id = $_SESSION['customer_id'];
-						echo "Selected Customer ID: " . $customer_id;
-					} else {
-						$customer_id = 1;
+					$customer_id = 1;
+					if (isset($_POST['customerId_local'])) {
+						$customer_id = $_POST['customerId_local'];
 					}
 
 					$total = $_POST['txtTotalAmount'];
@@ -234,6 +231,8 @@
  	<div class="modal-dialog">
  		<div class="modal-content">
  			<form method="post" enctype="multipart/form-data" class="row g-3">
+ 				<!-- input hidden customerId_local -->
+ 				<input type="hidden" name="customerId_local" id="customerId_local" value="1">
  				<div class="modal-header">
  					<h5 class="modal-title">ផ្ទាំងគិតប្រាក់</h5>
  					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -562,6 +561,9 @@
  		var customerId = selectedCustomer.value;
  		console.log('Customer ID: ' + customerId);
 
+ 		// Set the customer ID in the hidden input field
+ 		document.getElementById('customerId_local').value = customerId;
+
  		totalAmount = totalAmount.replace('$', '').replace(',', '');
  		grandTotal = parseFloat(grandTotal.replace('$', '').replace(',', ''));
 
@@ -606,7 +608,7 @@
  				grandTotal: grandTotal,
  				cashReceived: cashReceived,
  				paymentMethod: paymentMethod,
- 				customer_id: customer_id,
+ 				customerId: customerId,
  				cartTable: JSON.stringify(cartTableData),
  			}
  		});
@@ -635,5 +637,21 @@
  		location.reload();
  	}
 
- 	document.getElementById('paymentButton').addEventListener('click', checkoutButtonClick);
+ 	document.getElementById('paymentButton').addEventListener('click', checkoutButtonClick)
+ 	document.getElementById('txtCustomer').addEventListener('change', function() {
+ 		recalculateGrandTotal();
+ 	});
+
+ 	function recalculateGrandTotal() {
+ 		var totalAmount = parseFloat(document.getElementById('totalAmount').value.replace('$', '').replace(',', ''));
+ 		var discountInput = parseFloat(document.getElementById('discountInput').value) || 0;
+ 		var cashReceived = parseFloat(document.getElementById('cashReceived').value) || 0;
+
+ 		// Calculate the grand total with the entered discount
+ 		var calculatedDiscount = totalAmount * (discountInput / 100);
+ 		var grandTotal = totalAmount - calculatedDiscount;
+
+ 		// Update the "Grand Total" field
+ 		document.getElementById('grandTotal').value = formatCurrency(grandTotal.toFixed(2));
+ 	}
  </script>
