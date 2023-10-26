@@ -12,7 +12,7 @@
                 <li><a href="index.php?p=accessories">Accessories</a></li>
                 <!-- <li><a href="index.php?p=smartphones">PC Components</a></li> -->
                 <!-- <li><a href="index.php?p=cameras">Cameras</a></li> -->
-                <li><a href="index.php?p=accessories">Desktop</a></li>
+                <li  id="desktop"><a href="index.php?p=desktops">Desktop</a></li>
                 <li><a href="index.php?p=accessories">Contact Us</a></li>
             </ul>
             <!-- /NAV -->
