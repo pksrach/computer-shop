@@ -1,7 +1,8 @@
 <?php
 session_start();
 
-if (isset($_POST['productName']) && isset($_POST['price']) && isset($_POST['qty']) && isset($_POST['maxQty'])) {
+if (isset($_POST['productId']) && isset($_POST['productName']) && isset($_POST['price']) && isset($_POST['qty']) && isset($_POST['maxQty'])) {
+    $productId = $_POST['productId'];
     $productName = $_POST['productName'];
     $price = $_POST['price'];
     $qty = $_POST['qty'];
@@ -9,6 +10,7 @@ if (isset($_POST['productName']) && isset($_POST['price']) && isset($_POST['qty'
 
     // Create an array to store the product information
     $productInfo = array(
+        'productId' => $productId,
         'productName' => $productName,
         'price' => $price,
         'qty' => $qty,

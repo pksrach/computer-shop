@@ -262,7 +262,6 @@
 						</div><!--//app-card-body-->
 					</div><!--//app-card-->
 
-
 					<!-- Start pagination -->
 					<?php
 					require_once 'pages/pagin/pagin.php';

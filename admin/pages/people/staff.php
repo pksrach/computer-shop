@@ -1,3 +1,4 @@
+
 <div class="app-wrapper">
 
     <div class="app-content pt-3 p-md-3 p-lg-4">
@@ -35,6 +36,7 @@
             </nav>
 
             <?php
+            
             // update
             if (isset($_POST['btnUpdate'])) {
                 $id = $_POST['u_id'];

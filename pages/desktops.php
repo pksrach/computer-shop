@@ -1,4 +1,12 @@
 <!-- SECTION -->
+<script>
+		// script to add active on the menu
+	const activeDiv = document.querySelector('.active');
+	const otherDiv = document.querySelector('#desktop');
+	activeDiv.classList.remove('active');
+	otherDiv.classList.add('active');
+
+</script>
 		<div class="section">
 			<!-- container -->
 			<div class="container">
@@ -47,7 +55,8 @@
                                 tbl_product p
                                 INNER JOIN tbl_brand b ON p.brand_id = b.id
                                 INNER JOIN tbl_category c ON p.category_id = c.id
-                                INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id";
+                                INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id
+																where category_name = 'Desktop'";
                                 $result = mysqli_query($conn, $sql);
                                 if ($result) {
 
@@ -62,14 +71,14 @@
                                                 echo '<img src="./admin/assets/images/img_data_store_upload/' . $img . '" alt="">'
                                                 ?>
 												<div class="product-label">
-													<span class="sale">-30%</span>
+													
 													<span class="new">NEW</span>
 												</div>
 											</div>
 											<div class="product-body">
-												<p class="product-category">Category</p>
-												<h3 class="product-name"><a href="#">product name goes here</a></h3>
-												<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+												<p class="product-category"><?= $row[3] ?></p>
+												<h3 class="product-name"><a href="#"><?= $row[4] ?></a></h3>
+												<h4 class="product-price">$<?= $row[6] ?></h4>
 												<div class="product-rating">
 													<i class="fa fa-star"></i>
 													<i class="fa fa-star"></i>
