@@ -24,8 +24,8 @@ if (isset($_GET['pg'])) {
     include "pages/Expense/" . $_GET['cexp'] . ".php";
 } elseif (isset($_GET['expt'])) {
     include "pages/Expense/" . $_GET['expt'] . ".php";
-} elseif (isset($_GET['pay'])) {
-    include "pages/PaymentMethod/" . $_GET['pay'] . ".php";
+} elseif (isset($_GET['c'])) {
+    include "pages/customer/" . $_GET['c'] . ".php";
 } elseif (isset($_GET['ch'])) {
     include "pages/cashier/" . $_GET['ch'] . ".php";
 } elseif (isset($_GET['imh'])) {

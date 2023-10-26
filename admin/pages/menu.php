@@ -217,16 +217,6 @@
                             </div>
                         </li>
 
-                        <!-- Payment Method -->
-                        <li class="nav-item" id="cashier-menu">
-                            <a class="nav-link" href="index.php?pay=payment">
-                                <span class="nav-icon">
-                                    <i class="fa-solid fa-money-check-dollar fa-xl"></i>
-                                </span>
-                                <span class="nav-link-text">Payment</span>
-                            </a>
-                        </li>
-
                         <!-- Manage Expense -->
                         <li class="nav-item has-submenu">
                             <a class="nav-link submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-13" aria-expanded="false" aria-controls="submenu-13">
@@ -246,25 +236,31 @@
                                 </ul>
                             </div>
                         </li>
+
+                        <!-- Customer -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.php?c=customer">
+                                <span class="nav-icon">
+                                    <i class="fa-solid fa-address-card fa-lg"></i>
+                                </span>
+                                <span class="nav-link-text">អតិថិជន</span>
+                            </a>
+                        </li>
+
                         <li class="nav-item has-submenu">
                             <a class="nav-link submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-1" aria-expanded="false" aria-controls="submenu-1">
                                 <span class="nav-icon">
-                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-files" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M4 2h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H4z" />
-                                        <path d="M6 0h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H6a1 1 0 0 0-1 1H4a2 2 0 0 1 2-2z" />
-                                    </svg>
+                                    <i class="fa-solid fa-clipboard-user fa-xl"></i>
                                 </span>
-                                <span class="nav-link-text">People</span>
+                                <span class="nav-link-text">បុគ្គលិក</span>
                                 <span class="submenu-arrow">
-                                    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-chevron-down" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z" />
-                                    </svg>
+                                    <i class="fa-solid fa-arrow-turn-down"></i>
                                 </span>
                             </a>
                             <div id="submenu-1" class="collapse submenu submenu-1" data-bs-parent="#menu-accordion">
                                 <ul class="submenu-list list-unstyled">
-                                    <li class="submenu-item"><a class="submenu-link" href="index.php?pe=staff">បុគ្គលិក</a></li>
-                                    <li class="submenu-item"><a class="submenu-link" href="index.php?pe=user">អ្នកប្រើប្រាស់</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?pe=staff"><i class="fa-solid fa-users"></i> បុគ្គលិក</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?pe=user"><i class="fa-solid fa-user"></i> អ្នកប្រើប្រាស់</a></li>
                                     <!-- <li class="submenu-item"><a class="submenu-link" href="index.php?pg=settings">Settings</a></li> -->
                                 </ul>
                             </div>
@@ -274,14 +270,14 @@
                 <div class="app-sidepanel-footer">
                     <nav class="app-nav app-nav-footer">
                         <ul class="app-menu footer-menu list-unstyled">
-                            <li class="nav-item">
+                            <!-- <li class="nav-item">
                                 <a class="nav-link" href="index.php?pg=settings">
                                     <span class="nav-icon">
                                         <i class="fa-solid fa-gear fa-lg"></i>
                                     </span>
                                     <span class="nav-link-text">Settings</span>
                                 </a>
-                            </li>
+                            </li> -->
                             <li class="nav-item">
                                 <a class="nav-link" href="../admin/logout.php" class="btn btn-danger text-white px-2">
                                     <span class="nav-icon">

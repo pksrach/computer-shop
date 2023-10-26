@@ -1,3 +1,4 @@
+
 <div class="app-wrapper">
 
     <div class="app-content pt-3 p-md-3 p-lg-4">
@@ -35,6 +36,7 @@
             </nav>
 
             <?php
+            
             // update
             if (isset($_POST['btnUpdate'])) {
                 $id = $_POST['u_id'];
@@ -65,10 +67,12 @@
                                 <table class="table app-table-hover mb-0 text-left">
                                     <thead>
                                         <tr>
-                                            <th class="cell">លេខសម្គាល់#</th>
-                                            <th class="cell">Username</th>
-                                            <th class="cell">Password</th>
-                                            <th class="cell">Role</th>
+                                            <th class="cell">លេខសម្គាល់#</th>   
+                                            <th class="cell">ឈ្មោះ</th>
+                                            <th class="cell">លេខទូរសព្ទ</th>
+                                            <th class="cell">អាស័យដ្ធាន</th>
+                                            <th class="cell">ថ្ងៃខែឆ្នាំកំណើត</th>
+                                            <th class="cell">ស្ថានភាព</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -78,7 +82,7 @@
                                             $keyinputdata = $_GET['keyinputdata'];
                                             // Pagination when searching
                                             $number_of_page = 0;
-                                            $s = "SELECT count(*) FROM tbl_unit_measurement";
+                                            $s = "SELECT count(*) FROM tbl_people"; 
                                             $q = $conn->query($s);
                                             $r = mysqli_fetch_row($q);
                                             $row_per_page = 5;
@@ -121,7 +125,7 @@
                                                 $current_page = ($current_page - 1) * $row_per_page;
                                             }
                                             // End pagination
-                                            $sql = "SELECT * FROM tbl_user ;";
+                                            $sql = "SELECT * FROM tbl_people;";
                                             $result = mysqli_query($conn, $sql);
                                             $num_row = $result->num_rows;
                                         }
@@ -135,9 +139,10 @@
                                                     <input type="hidden" name="txtid" id="" value="<?= $row['id'] ?>">
                                                     <tr>
                                                         <td class="cell"><?= $row['id'] ?></td>
-                                                        <td class="cell"><?= $row['username'] ?></td>
-                                                        <td class="cell"><?= $row['password'] ?></td>
-                                                        <td class="cell"><?= $row['role'] ?></td>
+                                                        <td class="cell"><?= $row['name'] ?></td>
+                                                        <td class="cell"><?= $row['phone_number'] ?></td>
+                                                        <td class="cell"><?= $row['address'] ?></td>
+                                                        <td class="cell"><?= $row['date_of_birth'] ?></td>
                                                         <!-- Button action -->
                                                         <td class="cell">
                                                             <!-- <a class="btn btn-info" href="#"><i class="fas fa-eye"></i></a> -->
@@ -180,19 +185,22 @@
                     <?php
                     // insert
                     if (isset($_POST['btnSave'])) {
-                        $txt_um_name = $_POST['txt_um_name'];
-                        $txt_rate = $_POST['txt_rate'];
+                        $txt_st_name = $_POST['txt_st_name'];
+                        $txt_phone_number = $_POST['txt_phone_number'];
+                        $txt_address = $_POST['txt_address'];
+                        $txt_bod = $_POST['txt_bod'];
+                        $staff='staff';
                         // validate empty data
-                        if (trim($txt_um_name) == '') {
-                            msgstyle('សូមបញ្ចូលឈ្មោះខ្នាតផលិតផល', 'danger');
-                            return;
-                        } else if (trim($txt_rate) < 0) {
-                            msgstyle('សូមបញ្ចូលបរិមាណរបស់ខ្នាត', 'danger');
-                            return;
-                        }
+                        // if (trim($txt_um_name) == '') {
+                        //     msgstyle('សូមបញ្ចូលឈ្មោះខ្នាតផលិតផល', 'danger');
+                        //     return;
+                        // } else if (trim($txt_rate) < 0) {
+                        //     msgstyle('សូមបញ្ចូលបរិមាណរបស់ខ្នាត', 'danger');
+                        //     return;
+                        // }
 
                         $sql = "
-                            INSERT INTO tbl_unit_measurement (unit_name, rate) VALUES('$txt_um_name', '$txt_rate');
+                        INSERT INTO tbl_people (name, phone_number,address,people_type,date_of_birth) VALUES ('$txt_st_name','$txt_phone_number','  $txt_address','$staff','$txt_bod')
                         ";
                         if (mysqli_query($conn, $sql)) {
                             // echo"Data inserting successfully";
@@ -235,14 +243,22 @@
                                                 <form class="settings-form" method="POST" action="<?php $_SERVER['PHP_SELF']; ?>">
 
                                                     <div class="mb-3">
-                                                        <label for="lbl_name" class="form-label">Username<span style="color: red"> *</span></label>
-                                                        <input type="text" name="txt_um_name" class="form-control" id="txt_um_name" value="" required>
+                                                        <label for="lbl_name" class="form-label">ឈ្មោះ<span style="color: red"> *</span></label>
+                                                        <input type="text" name="txt_st_name" class="form-control" id="txt_um_name" value="" required>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="txt_rate" class="form-label">លេខសម្គាល់#<span style="color: red"> *</span></label>
-                                                        <input type="number" name="txt_rate" class="form-control" id="txt_rate" value="" required>
+                                                        <label for="txt_rate" class="form-label">លេខទូរសព្ទ័<span style="color: red"> *</span></label>
+                                                        <input type="number" name="txt_phone_number" class="form-control" id="txt_rate" value="" required>
                                                     </div>
-                                                    <div class="d-inline">
+                                                    <div class="mb-3">
+                                                        <label for="txt_rate" class="form-label">អាស័យដ្ធាន<span style="color: red"> *</span></label>
+                                                        <input type="text" name="txt_address" class="form-control" id="txt_rate" value="" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="txt_rate" class="form-label">ថ្ងៃខែឆ្នាំកំណើត<span style="color: red"> *</span></label>
+                                                        <input type="date" name="txt_bod" class="form-control" id="txt_rate" value="" required>
+                                                    </div>
+                                                    <!-- <div class="d-inline">
                                                         <div class="input-group">
                                                             <div class="input-group-prepend">
                                                                 <div class="input-group-text">
@@ -257,7 +273,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    </div> -->
                                                     <button id="btnSave" type="submit" name="btnSave" class="btn app-btn-primary">រក្សាទុក</button>
                                                 </form>
                                             </div><!--//app-card-body-->
@@ -279,7 +295,7 @@
                 $(document).ready(function() {
                     $("#brand_list-tab").click(function() {
                         // alert('Test click tap');
-                        window.location.href = "index.php?um=unit_measurement";
+                        window.location.href = "index.php?pe=staff";
                     });
                 });
             </script>
