@@ -22,8 +22,14 @@ if (isset($_POST['productId']) && isset($_POST['productName']) && isset($_POST['
         $_SESSION['shoppingCart'] = array();
     }
 
-    // Add the product information to the shopping cart
-    $_SESSION['shoppingCart'][$productName] = $productInfo;
+    // Check if the product is already in the shopping cart
+    if (isset($_SESSION['shoppingCart'][$productId])) {
+        // If the product is already in the cart, increase the quantity
+        $_SESSION['shoppingCart'][$productId]['qty'] += $qty;
+    } else {
+        // Add the product information to the shopping cart
+        $_SESSION['shoppingCart'][$productId] = $productInfo;
+    }
 
     // You can send a response back to JavaScript if needed
     echo 'Product added to cart.';
