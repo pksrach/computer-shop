@@ -1,4 +1,3 @@
-
 <div class="app-wrapper">
 
     <div class="app-content pt-3 p-md-3 p-lg-4">
@@ -13,9 +12,9 @@
                         <div class="row g-2 justify-content-start justify-content-md-end align-items-center">
                             <div class="col-auto">
                                 <form class="table-search-form row gx-1 align-items-center">
-                                    <input type="hidden" name="um" value="unit_measurement" />
+                                    <input type="hidden" name="pe" value="staff" />
                                     <div class="col-auto">
-                                        <input type="text" id="keyinputdata" name="keyinputdata" class="form-control search-orders" placeholder="ស្វែងរកឈ្មោះ">
+                                        <input type="text" id="keyinputdata" name="keyinputdata" class="form-control search-orders" placeholder="ស្វែងរកលេខទូរស័ព្ទ">
                                     </div>
                                     <div class="col-auto">
                                         <button type="submit" name="btnSearch" class="btn app-btn-secondary">ស្វែងរក</button>
@@ -36,17 +35,19 @@
             </nav>
 
             <?php
-            
+
             // update
             if (isset($_POST['btnUpdate'])) {
                 $id = $_POST['u_id'];
-                $txt_um_name = $_POST['txt_um_name'];
-                $txt_rate = $_POST['txt_rate'];
+                $txt_st_name = $_POST['txt_st_name'];
+                $txt_phone_number = $_POST['txt_phone_number'];
+                $txt_address = $_POST['txt_address'];
+                $txt_date_of_birth = $_POST['txt_date_of_birth'];
 
-                if (trim($txt_um_name) != '') {
+                if (trim($txt_st_name) != '') {
                     $sql = "
-                        UPDATE tbl_unit_measurement
-                        SET unit_name=' $txt_um_name', rate='$txt_rate'
+                        UPDATE tbl_people
+                        SET name='$txt_st_name', phone_number='$txt_phone_number', address='$txt_address', date_of_birth='$txt_date_of_birth'
                         WHERE id=$id      
                     ";
                     // echo $sql;
@@ -67,7 +68,7 @@
                                 <table class="table app-table-hover mb-0 text-left">
                                     <thead>
                                         <tr>
-                                            <th class="cell">លេខសម្គាល់#</th>   
+                                            <th class="cell">លេខសម្គាល់#</th>
                                             <th class="cell">ឈ្មោះ</th>
                                             <th class="cell">លេខទូរសព្ទ</th>
                                             <th class="cell">អាស័យដ្ធាន</th>
@@ -82,10 +83,10 @@
                                             $keyinputdata = $_GET['keyinputdata'];
                                             // Pagination when searching
                                             $number_of_page = 0;
-                                            $s = "SELECT count(*) FROM tbl_people"; 
+                                            $s = "SELECT count(*) FROM tbl_people ";
                                             $q = $conn->query($s);
                                             $r = mysqli_fetch_row($q);
-                                            $row_per_page = 5;
+                                            $row_per_page = 10;
                                             $number_of_page = ceil($r[0] / $row_per_page); #Round numbers up to the nearest integer
                                             if (!isset($_GET['pn'])) {
                                                 $current_page = 0;
@@ -95,14 +96,14 @@
                                             }
                                             // End pagination
 
-                                            $sql_select = "SELECT * FROM tbl_user;";
+                                            $sql_select = "SELECT * FROM tbl_people ";
 
                                             if ($keyinputdata == "") {
                                                 $sql = $sql_select . "LIMIT $current_page, $row_per_page;";
                                             } else {
                                                 $sql = $sql_select . "
                                                     WHERE
-                                                        unit_name LIKE '%" . $keyinputdata . "%'
+                                                        phone_number LIKE '%" . $keyinputdata . "%'
                                                     ORDER BY
                                                         id DESC LIMIT $current_page, $row_per_page;";
                                             }
@@ -113,10 +114,10 @@
                                             // Load all data
                                             // Pagination
                                             $number_of_page = 0;
-                                            $s = "SELECT count(*) FROM tbl_unit_measurement";
+                                            $s = "SELECT count(*) FROM tbl_people ";
                                             $q = $conn->query($s);
                                             $r = mysqli_fetch_row($q);
-                                            $row_per_page = 5;
+                                            $row_per_page = 10;
                                             $number_of_page = ceil($r[0] / $row_per_page); #Round numbers up to the nearest integer
                                             if (!isset($_GET['pn'])) {
                                                 $current_page = 0;
@@ -135,7 +136,7 @@
                                             while ($row = mysqli_fetch_array($result)) {
                                         ?>
                                                 <form method="get">
-                                                    <input type="hidden" name="um" value="unit_measurement" id="">
+                                                    <input type="hidden" name="pe" value="staff" id="">
                                                     <input type="hidden" name="txtid" id="" value="<?= $row['id'] ?>">
                                                     <tr>
                                                         <td class="cell"><?= $row['id'] ?></td>
@@ -154,7 +155,49 @@
                                                 </form>
 
                                         <?php
-
+                                                echo '                                        
+                                                <!-- Modal -->
+                                                <div class="modal fade bd-example-modal-lg" id="editModal' . $row['id'] . '" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-lg" role="document">
+                                                        <div class="modal-content">
+                                                    
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="exampleModalLabel">កែប្រែ</h5>
+                                                            </div>
+                                                        <div class="modal-body">
+                                                        
+                                                        <div class="app-card-body">
+                                                            <form class="settings-form" method="POST" ">
+                                                                <input type="hidden" name="u_id" id="" value="' . $row['id'] . '">
+                                                                <div class="mb-3">
+                                                                    <label for="lbl_category_name" class="form-label" >ឈ្មោះ<span style="color: red"> *</span></label>
+                                                                    <input type="text" name="txt_st_name" class="form-control" id="txt_st_name" value="' . $row['name'] . '" required>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="txt_rate" class="form-label">លេខទូរសព្ទ័<span style="color: red"> *</span></label>
+                                                                    <input type="text" name="txt_phone_number" class="form-control" id="txt_phone_number" value="' . $row['phone_number'] . '" required>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="txt_rate" class="form-label">អាស័យដ្ធាន</label>
+                                                                    <textarea type="text" name="txt_address" id="txt_address' . $row['address'] . '" class="form-control" style="height: 100px"></textarea>
+                                                                </div>
+                                                                <div class="mb-3">
+                                                                    <label for="txt_rate" class="form-label">ថ្ងៃខែឆ្នាំកំណើត<span style="color: red"> *</span></label>
+                                                                    <input type="date" name="txt_date_of_birth" class="form-control" id="txt_date_of_birth" value="' . $row['date_of_birth'] . '" required>
+                                                                </div>
+                                                                <button type="submit" name="btnUpdate" class="btn app-btn-primary" >កែប្រែ</button>
+                                                            </form>
+                                                            <script>
+                                                                var textarea = document.getElementById("txt_address' . $row['id'] . '");
+                                                                textarea.value = "' . $row['address'] . '";
+                                                            </script>
+                                                        </div><!--//app-card-body--> 
+                                                    </div>
+                                                </div>
+                                                </div>
+                                                </div>
+                                                ';
+                                                $i++;
                                             }
                                         } else {
                                             echo '
@@ -188,26 +231,17 @@
                         $txt_st_name = $_POST['txt_st_name'];
                         $txt_phone_number = $_POST['txt_phone_number'];
                         $txt_address = $_POST['txt_address'];
-                        $txt_bod = $_POST['txt_bod'];
-                        $staff='staff';
-                        // validate empty data
-                        // if (trim($txt_um_name) == '') {
-                        //     msgstyle('សូមបញ្ចូលឈ្មោះខ្នាតផលិតផល', 'danger');
-                        //     return;
-                        // } else if (trim($txt_rate) < 0) {
-                        //     msgstyle('សូមបញ្ចូលបរិមាណរបស់ខ្នាត', 'danger');
-                        //     return;
-                        // }
+                        $txt_date_of_birth = $_POST['txt_date_of_birth'];
+                        $people_type = "Staff";
 
-                        $sql = "
-                        INSERT INTO tbl_people (name, phone_number,address,people_type,date_of_birth) VALUES ('$txt_st_name','$txt_phone_number','  $txt_address','$staff','$txt_bod')
-                        ";
+                        $sql = "INSERT INTO tbl_people (`name`, phone_number, `address`, people_type, date_of_birth) 
+                                VALUES ('$txt_st_name', '$txt_phone_number', '$txt_address', '$people_type', '$txt_date_of_birth')";
+
                         if (mysqli_query($conn, $sql)) {
-                            // echo"Data inserting successfully";
-                            echo msgstyle('Data inserting successfully', 'success');
+                            echo msgstyle('Data inserted successfully', 'success');
                             include 'refresh_page.php';
                         } else {
-                            echo "Error Inserting $sql" . mysqli_error($conn);
+                            echo msgstyle('Data insertion failed. Error: ' . mysqli_error($conn), 'danger');
                         }
                         // close connection
                         mysqli_close($conn);
@@ -219,7 +253,7 @@
                     // delete
                     if (isset($_GET['btnDelete'])) {
                         $id = $_GET['txtid'];
-                        $sql = mysqli_query($conn, "DELETE FROM tbl_unit_measurement WHERE id=$id");
+                        $sql = mysqli_query($conn, "DELETE FROM tbl_people WHERE id=$id");
                         if ($sql) {
                             echo msgstyle('Data Delete sucess!', 'success');
                             include 'refresh_page.php';
@@ -244,36 +278,20 @@
 
                                                     <div class="mb-3">
                                                         <label for="lbl_name" class="form-label">ឈ្មោះ<span style="color: red"> *</span></label>
-                                                        <input type="text" name="txt_st_name" class="form-control" id="txt_um_name" value="" required>
+                                                        <input type="text" name="txt_st_name" class="form-control" id="txt_st_name" value="" required>
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="txt_rate" class="form-label">លេខទូរសព្ទ័<span style="color: red"> *</span></label>
-                                                        <input type="number" name="txt_phone_number" class="form-control" id="txt_rate" value="" required>
+                                                        <input type="number" name="txt_phone_number" class="form-control" id="txt_phone_number" value="" required>
                                                     </div>
                                                     <div class="mb-3">
-                                                        <label for="txt_rate" class="form-label">អាស័យដ្ធាន<span style="color: red"> *</span></label>
-                                                        <input type="text" name="txt_address" class="form-control" id="txt_rate" value="" required>
+                                                        <label for="txt_rate" class="form-label">អាស័យដ្ធាន</label>
+                                                        <input type="text" name="txt_address" class="form-control" id="txt_address" value="">
                                                     </div>
                                                     <div class="mb-3">
                                                         <label for="txt_rate" class="form-label">ថ្ងៃខែឆ្នាំកំណើត<span style="color: red"> *</span></label>
-                                                        <input type="date" name="txt_bod" class="form-control" id="txt_rate" value="" required>
+                                                        <input type="date" name="txt_date_of_birth" class="form-control" id="txt_date_of_birth" value="" required>
                                                     </div>
-                                                    <!-- <div class="d-inline">
-                                                        <div class="input-group">
-                                                            <div class="input-group-prepend">
-                                                                <div class="input-group-text">
-                                                                    <input type="radio" aria-label="Radio button for following text input">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="input-group">
-                                                            <div class="input-group-prepend">
-                                                                <div class="input-group-text">
-                                                                    <input type="radio" aria-label="Radio button for following text input">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div> -->
                                                     <button id="btnSave" type="submit" name="btnSave" class="btn app-btn-primary">រក្សាទុក</button>
                                                 </form>
                                             </div><!--//app-card-body-->
