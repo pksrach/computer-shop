@@ -6,7 +6,7 @@
         <div id="responsive-nav">
             <!-- NAV -->
             <ul class="main-nav nav navbar-nav">
-                <li class="active"><a href="index.php?p=homepage">Home</a></li>
+                <li  ><a href="index.php?p=homepage">Home</a></li>
                 <!--<li><a href="#">Hot Deals</a></li>-->
                 <li><a href="index.php?p=laptops">Laptops</a></li>
                 <li><a href="index.php?p=accessories">Accessories</a></li>

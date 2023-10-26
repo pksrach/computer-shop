@@ -11,8 +11,7 @@
  				<!-- Search -->
  				<div class="col-auto">
  					<div class="page-utilities">
- 						<form method="get" class="table-search-form row gx-1 align-items-center">
- 							<input type="hidden" name="ch" value="cashier" />
+ 						<form class="table-search-form row gx-1 align-items-center">
  							<div class="col-auto">
  								<select class="form-select w-auto" name="txtCustomer" id="txtCustomer">
  									<option value="1">អតិថិជនទូទៅ</option>
@@ -64,11 +63,9 @@
 
  			<?php
 				if (isset($_POST['checkoutBtn'])) {
-					if (isset($_SESSION['customer_id'])) {
-						$customer_id = $_SESSION['customer_id'];
-						echo "Selected Customer ID: " . $customer_id;
-					} else {
-						$customer_id = 1;
+					$customer_id = 1;
+					if (isset($_POST['customerId_local'])) {
+						$customer_id = $_POST['customerId_local'];
 					}
 
 					$total = $_POST['txtTotalAmount'];
@@ -133,30 +130,41 @@
 							echo "<script>console.log('Sale ID: " . $sale_id . "');</script>";
 
 							// Loop through the cart items and insert them into tbl_sale_details
-							foreach ($cartData as $cartItem) {
+							foreach ($cartData as $key => $cartItem) {
 								$productName = $cartItem['productName'];
 								$product_id = $cartItem['productId'];
 								echo "<script>console.log('Product: " . $product_id . "|" . $productName . "');</script>";
 
 								$sale_qty = $cartItem['qty'];
+								echo "<script>console.log('Sale Qty: " . $sale_qty . "');</script>";
 								$price = $cartItem['price'];
 
 								// Insert this sale detail into tbl_sale_details
 								$sqlInsertSaleDetails = "INSERT INTO tbl_sale_details (sale_id, product_id, sale_qty, price) VALUES (?, ?, ?, ?)";
 								$stmt = mysqli_prepare($conn, $sqlInsertSaleDetails);
 
-
-
 								// Bind parameters and execute the query
 								mysqli_stmt_bind_param($stmt, 'iiid', $sale_id, $product_id, $sale_qty, $price);
 								if (!mysqli_stmt_execute($stmt)) {
 									error_log("Error executing sale details query: " . mysqli_stmt_error($stmt));
 									error_log("Problematic sale_id: $sale_id");
-
 									unset($_SESSION['shoppingCart']);
 									mysqli_rollback($conn); // Rollback the transaction in case of an error
 									throw new Exception("Error executing sale details query: " . mysqli_stmt_error($stmt));
 								}
+
+								// Cut stock
+								$sqlStock = "UPDATE tbl_stock SET stock_qty = stock_qty - ? WHERE product_id = ?";
+								$stmt2 = mysqli_prepare($conn, $sqlStock);
+								mysqli_stmt_bind_param($stmt2, 'ii', $sale_qty, $product_id);
+								if (!mysqli_stmt_execute($stmt2)) {
+									error_log("Error executing stock query: " . mysqli_stmt_error($stmt2));
+									unset($_SESSION['shoppingCart']);
+									mysqli_rollback($conn); // Rollback the transaction in case of an error
+									throw new Exception("Error executing stock query: " . mysqli_stmt_error($stmt2));
+								}
+								// Update the quantity in the cart
+								$_SESSION['shoppingCart'][$key]['qty'] -= $sale_qty;
 							}
 						}
 						// Close the statement
@@ -234,6 +242,8 @@
  	<div class="modal-dialog">
  		<div class="modal-content">
  			<form method="post" enctype="multipart/form-data" class="row g-3">
+ 				<!-- input hidden customerId_local -->
+ 				<input type="hidden" name="customerId_local" id="customerId_local" value="1">
  				<div class="modal-header">
  					<h5 class="modal-title">ផ្ទាំងគិតប្រាក់</h5>
  					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -320,65 +330,90 @@
 
  	var shoppingCart = {};
 
- 	// Function to handle the click event for adding a product
+
  	function addProductToTable(productId, productName, price, qty, maxQty) {
  		var table = document.getElementById('cartTable');
+ 		// check qty in stock
  		var row;
 
  		// Check if the product is already in the shopping cart
  		if (shoppingCart[productId]) {
- 			row = shoppingCart[productId].row;
- 			var qtyInput = row.cells[3].querySelector('input');
- 			if (qtyInput) { // Check if the input element exists
- 				var currentQty = parseInt(qtyInput.value);
- 				if (currentQty < maxQty) {
- 					qtyInput.value = currentQty + 1;
- 					updateQty(qtyInput, maxQty); // Pass maxQty as an argument
- 				}
+ 			console.log('Product already exists in the shopping cart.')
+ 			var cartItem = shoppingCart[productId];
+ 			var existingRow = cartItem.row;
+ 			var qtyInput = existingRow.cells[3].querySelector('input');
+ 			var existingQty = parseInt(qtyInput.value);
+
+ 			if (existingQty + qty > maxQty) {
+ 				alert('Quantity exceeds available stock.');
+ 				return;
  			}
+ 			// Update the quantity
+ 			var newQty = existingQty + qty;
+ 			qtyInput.value = newQty;
+
+ 			// Update the amount
+ 			var newAmount = (price * newQty).toFixed(2);
+ 			existingRow.cells[4].textContent = formatCurrency(newAmount);
+
+ 			// Update the shoppingCart object
+ 			shoppingCart[productId].qty = newQty;
+
  		} else {
- 			row = table.insertRow();
- 			shoppingCart[productId] = {
- 				row: row,
- 				productName: productName,
- 				price: price,
- 				qty: qty,
- 				maxQty: maxQty
- 			}
-
- 			// Insert cells for row number, product name, price, quantity, amount, and a delete button
- 			var cell0 = row.insertCell(0);
- 			var cell1 = row.insertCell(1);
- 			var cell2 = row.insertCell(2);
- 			var cell3 = row.insertCell(3);
- 			var cell4 = row.insertCell(4);
- 			var cell5 = row.insertCell(5);
-
- 			cell0.textContent = productId; // Set the product ID
- 			cell1.innerHTML = productName;
- 			cell2.innerHTML = formatCurrency(price);
- 			cell3.innerHTML = '<input type="number" min="1" max="' + maxQty + '" value="1" oninput="updateQty(this, ' + maxQty + ')">';
- 			cell4.textContent = formatCurrency(price.toFixed(2));
- 			cell5.innerHTML = '<button class="btn btn-danger" type="button" onclick="removeProduct(this)"><i class="fas fa-eraser"></button>';
-
- 			rowNum++;
-
- 			// Add product store on session
- 			$.ajax({
- 				url: "pages/cashier/store_product.php",
- 				method: "POST",
- 				data: {
- 					productId: productId,
+ 			// check qty in stock 
+ 			if (qty > 0 && maxQty > 0) {
+ 				console.log('Product does not exist in the shopping cart.')
+ 				row = table.insertRow();
+ 				shoppingCart[productId] = {
+ 					row: row,
  					productName: productName,
  					price: price,
  					qty: qty,
  					maxQty: maxQty
- 				},
- 				success: function(data) {
- 					// Handle the response from the server if needed
  				}
- 			});
+
+ 				// Insert cells for row number, product name, price, quantity, amount, and a delete button
+ 				var cell0 = row.insertCell(0);
+ 				var cell1 = row.insertCell(1);
+ 				var cell2 = row.insertCell(2);
+ 				var cell3 = row.insertCell(3);
+ 				var cell4 = row.insertCell(4);
+ 				var cell5 = row.insertCell(5);
+
+ 				cell0.textContent = productId; // Set the product ID
+ 				cell1.innerHTML = productName;
+ 				cell2.innerHTML = formatCurrency(price);
+ 				cell3.innerHTML = '<input type="number" min="1" max="' + maxQty + '" value="1" oninput="updateQty(this, ' + maxQty + ')" readonly>';
+ 				cell4.textContent = formatCurrency(price.toFixed(2));
+ 				cell5.innerHTML = '<button class="btn btn-danger" type="button" onclick="removeProduct(this)"><i class="fas fa-eraser"></button>';
+
+ 				rowNum++;
+
+ 				// Add product store on session
+ 				$.ajax({
+ 					url: "pages/cashier/store_product.php",
+ 					method: "POST",
+ 					data: {
+ 						productId: productId,
+ 						productName: productName,
+ 						price: price,
+ 						qty: qty,
+ 						maxQty: maxQty
+ 					},
+ 					success: function(data) {
+ 						// Handle the response from the server if needed
+ 					}
+ 				});
+ 			}
  		}
+ 		calculateTotalAmount();
+ 	}
+
+ 	function saveCartToSession(cart) {
+ 		// Convert the cart object to a JSON string
+ 		var cartJSON = JSON.stringify(cart);
+ 		// Store it in the session
+ 		sessionStorage.setItem('shoppingCart', cartJSON);
  	}
 
  	// Function to format a number as currency
@@ -399,7 +434,6 @@
  		delete shoppingCart[productId];
  	}
 
- 	// Function to update the quantity and calculate the amount
  	function updateQty(input, maxQty) {
  		var row = input.parentNode.parentNode;
  		var price = parseFloat(row.cells[2].textContent.replace('$', '').replace(',', ''));
@@ -415,6 +449,7 @@
  		row.cells[4].textContent = formatCurrency(amount); // Update the amount cell
  	}
 
+ 	var productQuantities = new Map();
  	// Add event listeners to each product card
  	var productCards = document.querySelectorAll('.card');
  	productCards.forEach(function(card) {
@@ -426,10 +461,26 @@
  			// Extract the quantity and unit name from the card's HTML
  			var qtyStr = card.querySelector('#txtQty').textContent;
  			var qtyStockInCard = parseInt(qtyStr.match(/\d+/)); // Extract the numerical quantity
- 			var qty = 1; // Default quantity is 1
-
- 			var maxQty = qtyStockInCard; // Maximum quantity available for a product based on the card's quantity
- 			addProductToTable(productId, productName, price, qty, maxQty);
+ 			// Check if the product is already in the cart
+ 			if (productQuantities.has(productId)) {
+ 				var maxQty = qtyStockInCard - productQuantities.get(productId);
+ 				if (maxQty > 0) {
+ 					productQuantities.set(productId, productQuantities.get(productId) + 1);
+ 					addProductToTable(productId, productName, price, 1, maxQty);
+ 				} else {
+ 					// Handle the case when the product is out of stock
+ 					// show modal warning_exception
+ 					var warningModal = document.getElementById('warning_exception');
+ 					var modalMessage = document.getElementById('modalMessage');
+ 					modalMessage.textContent = 'ផលិតផលនេះមិនមានក្នុងស្តុកទេ';
+ 					var modal = new bootstrap.Modal(warningModal);
+ 					modal.show();
+ 				}
+ 			} else {
+ 				var maxQty = qtyStockInCard;
+ 				productQuantities.set(productId, 1);
+ 				addProductToTable(productId, productName, price, 1, maxQty);
+ 			}
  		});
  	});
 
@@ -551,66 +602,94 @@
  	function checkoutButtonClick() {
  		console.log('Checkout button clicked'); // Check if this message appears in the console
 
- 		// Get values from input fields
- 		var totalAmount = document.getElementById('totalAmount').value;
- 		var discountInput = document.getElementById('discountInput').value;
- 		var grandTotal = document.getElementById('grandTotal').value;
- 		var cashReceived = document.getElementById('cashReceived').value;
- 		var paymentMethod = document.getElementById('paymentMethod').value;
+ 		var hasInsufficientStock = false;
 
- 		var selectedCustomer = document.getElementById('txtCustomer');
- 		var customerId = selectedCustomer.value;
- 		console.log('Customer ID: ' + customerId);
-
- 		totalAmount = totalAmount.replace('$', '').replace(',', '');
- 		grandTotal = parseFloat(grandTotal.replace('$', '').replace(',', ''));
-
- 		// Check if discount input is empty, set the default value to 0
- 		if (discountInput == '') {
- 			discountInput = 0;
- 		}
-
- 		// Check if the Cash Received field is empty
- 		if (cashReceived == '') {
- 			cashReceived = 0;
- 		}
-
- 		// Set data to id fields
- 		document.getElementById('totalAmount').value = totalAmount;
- 		document.getElementById('grandTotal').value = grandTotal;
-
- 		var cartTableData = [];
- 		// Iterate through the keys (product names) in the shoppingCart object
+ 		// Loop through the items in the shopping cart
  		for (var productId in shoppingCart) {
  			if (shoppingCart.hasOwnProperty(productId)) {
- 				var row = shoppingCart[productId].row;
- 				var cells = row.getElementsByTagName('td');
- 				var qty = cells[3].getElementsByTagName('input')[0].value;
- 				var price = cells[2].textContent.replace('$', '').replace(',', '');
+ 				var cartItem = shoppingCart[productId];
+ 				var qtyToCheckout = parseInt(cartItem.qty);
+ 				var availableStock = cartItem.maxQty; // This should be the available stock for this product
 
- 				cartTableData.push({
- 					product_id: productId, // Use the product ID
- 					qty: qty,
- 					price: price
- 				});
+ 				console.log('Cart Item:', cartItem);
+ 				console.log('Qty to Checkout:', qtyToCheckout);
+ 				console.log('Available Stock:', availableStock);
+
+ 				if (qtyToCheckout > availableStock) {
+ 					// If the quantity to checkout exceeds available stock, set the flag
+ 					hasInsufficientStock = true;
+
+ 					// You can also show an error message to the user
+ 					alert('Insufficient stock for ' + cartItem.productName);
+ 					break; // Exit the loop immediately
+ 				}
  			}
  		}
 
- 		// Insert data into the database using AJAX
- 		$.ajax({
- 			url: "pages/cashier/cashier.php",
- 			method: "POST",
- 			data: {
- 				totalAmount: totalAmount,
- 				discountInput: discountInput,
- 				grandTotal: grandTotal,
- 				cashReceived: cashReceived,
- 				paymentMethod: paymentMethod,
- 				customer_id: customer_id,
- 				cartTable: JSON.stringify(cartTableData),
- 			}
- 		});
+ 		if (!hasInsufficientStock) {
+ 			// Get values from input fields
+ 			var totalAmount = document.getElementById('totalAmount').value;
+ 			var discountInput = document.getElementById('discountInput').value;
+ 			var grandTotal = document.getElementById('grandTotal').value;
+ 			var cashReceived = document.getElementById('cashReceived').value;
+ 			var paymentMethod = document.getElementById('paymentMethod').value;
 
+ 			var selectedCustomer = document.getElementById('txtCustomer');
+ 			var customerId = selectedCustomer.value;
+ 			console.log('Customer ID: ' + customerId);
+
+ 			// Set the customer ID in the hidden input field
+ 			document.getElementById('customerId_local').value = customerId;
+
+ 			totalAmount = totalAmount.replace('$', '').replace(',', '');
+ 			grandTotal = parseFloat(grandTotal.replace('$', '').replace(',', ''));
+
+ 			// Check if discount input is empty, set the default value to 0
+ 			if (discountInput == '') {
+ 				discountInput = 0;
+ 			}
+
+ 			// Check if the Cash Received field is empty
+ 			if (cashReceived == '') {
+ 				cashReceived = 0;
+ 			}
+
+ 			// Set data to id fields
+ 			document.getElementById('totalAmount').value = totalAmount;
+ 			document.getElementById('grandTotal').value = grandTotal;
+
+ 			var cartTableData = [];
+ 			// Iterate through the keys (product names) in the shoppingCart object
+ 			for (var productId in shoppingCart) {
+ 				if (shoppingCart.hasOwnProperty(productId)) {
+ 					var row = shoppingCart[productId].row;
+ 					var cells = row.getElementsByTagName('td');
+ 					var qty = cells[3].getElementsByTagName('input')[0].value;
+ 					var price = cells[2].textContent.replace('$', '').replace(',', '');
+
+ 					cartTableData.push({
+ 						product_id: productId, // Use the product ID
+ 						qty: qty,
+ 						price: price
+ 					});
+ 				}
+ 			}
+
+ 			// Insert data into the database using AJAX
+ 			$.ajax({
+ 				url: "pages/cashier/cashier.php",
+ 				method: "POST",
+ 				data: {
+ 					totalAmount: totalAmount,
+ 					discountInput: discountInput,
+ 					grandTotal: grandTotal,
+ 					cashReceived: cashReceived,
+ 					paymentMethod: paymentMethod,
+ 					customerId: customerId,
+ 					cartTable: JSON.stringify(cartTableData),
+ 				}
+ 			});
+ 		}
  	}
 
  	function showWarningModal() {
@@ -635,5 +714,21 @@
  		location.reload();
  	}
 
- 	document.getElementById('paymentButton').addEventListener('click', checkoutButtonClick);
+ 	document.getElementById('paymentButton').addEventListener('click', checkoutButtonClick)
+ 	document.getElementById('txtCustomer').addEventListener('change', function() {
+ 		recalculateGrandTotal();
+ 	});
+
+ 	function recalculateGrandTotal() {
+ 		var totalAmount = parseFloat(document.getElementById('totalAmount').value.replace('$', '').replace(',', ''));
+ 		var discountInput = parseFloat(document.getElementById('discountInput').value) || 0;
+ 		var cashReceived = parseFloat(document.getElementById('cashReceived').value) || 0;
+
+ 		// Calculate the grand total with the entered discount
+ 		var calculatedDiscount = totalAmount * (discountInput / 100);
+ 		var grandTotal = totalAmount - calculatedDiscount;
+
+ 		// Update the "Grand Total" field
+ 		document.getElementById('grandTotal').value = formatCurrency(grandTotal.toFixed(2));
+ 	}
  </script>
