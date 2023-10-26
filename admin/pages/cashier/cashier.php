@@ -469,7 +469,12 @@
  					addProductToTable(productId, productName, price, 1, maxQty);
  				} else {
  					// Handle the case when the product is out of stock
- 					alert('Product is out of stock.');
+ 					// show modal warning_exception
+ 					var warningModal = document.getElementById('warning_exception');
+ 					var modalMessage = document.getElementById('modalMessage');
+ 					modalMessage.textContent = 'ផលិតផលនេះមិនមានក្នុងស្តុកទេ';
+ 					var modal = new bootstrap.Modal(warningModal);
+ 					modal.show();
  				}
  			} else {
  				var maxQty = qtyStockInCard;
