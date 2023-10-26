@@ -5,7 +5,7 @@
         <!-- row -->
         <div class="row">
             <!-- shop -->
-            <div class="col-md-4 col-xs-6">
+            <div class="col-md-6 col-xs-6">
                 <div class="shop">
                     <div class="shop-img">
                         <img src="./img/shop01.png" alt="">
@@ -19,7 +19,7 @@
             <!-- /shop -->
 
             <!-- shop -->
-            <div class="col-md-4 col-xs-6">
+            <div class="col-md-6 col-xs-6">
                 <div class="shop">
                     <div class="shop-img">
                         <img src="./img/shop03.png" alt="">
@@ -33,15 +33,15 @@
             <!-- /shop -->
 
             <!-- shop -->
-            <div class="col-md-4 col-xs-6">
+            <!-- <div class="col-md-4 col-xs-6">
                 <div class="shop">
-                    <div class="shop-img">
-                        <img src="./img/shop02.png" alt="">
-                    </div>
+                    <div class="shop-img"> -->
+                        <!-- <img src="./img/shop02.png" alt=""> -->
+                    <!-- </div>
                     <div class="shop-body">
                         <h3>Cameras<br>Collection</h3>
                         <a href="index.php?p=cameras" class="cta-btn">Shop now <i class="fa fa-arrow-circle-right"></i></a>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <!-- /shop -->
@@ -128,7 +128,7 @@
                                                 </div>
                                             </div>
                                             <div class="product-body ">
-                                                <p class="product-category"><?= $row[3] ?></p>
+                                                <p class="product-category"><?= $row[3] ?> ||<?= $row[2] ?></p>
                                                 <h3 class="product-name"><a href="#"><?= $row[4] ?></a></h3>
                                                 <h4 class="product-price"><?= $row[6] ?> <del class="product-old-price">$990.00</del></h4>
                                                 <div class="product-rating">
