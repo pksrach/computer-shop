@@ -1,3 +1,11 @@
+<script>
+		// script to add active on the menu
+	const activeDiv = document.querySelector('.active');
+	const otherDiv = document.querySelector('#laptop');
+	activeDiv.classList.remove('active');
+	otherDiv.classList.add('active');
+
+</script>
 <!-- SECTION -->
 		<div class="section">
 			<!-- container -->
@@ -10,12 +18,6 @@
 						<div class="section-title">
 							<h3 class="title">New Products</h3>
 							<div class="section-nav">
-								<ul class="section-tab-nav tab-nav">
-									<li class="active"><a data-toggle="tab" href="#tab1">Laptops</a></li>
-									<li><a data-toggle="tab" href="#tab1">Smartphones</a></li>
-									<li><a data-toggle="tab" href="#tab1">Cameras</a></li>
-									<li><a data-toggle="tab" href="#tab1">Accessories</a></li>
-								</ul>
 							</div>
 						</div>
 					</div>
@@ -47,7 +49,8 @@
                                 tbl_product p
                                 INNER JOIN tbl_brand b ON p.brand_id = b.id
                                 INNER JOIN tbl_category c ON p.category_id = c.id
-                                INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id";
+                                INNER JOIN tbl_unit_measurement u ON p.unit_id = u.id
+								where category_name ='   Laptop'";
                                 $result = mysqli_query($conn, $sql);
                                 if ($result) {
 
@@ -61,15 +64,11 @@
                                                 $img = $row[1] ?? $defaultimage;
                                                 echo '<img src="./admin/assets/images/img_data_store_upload/' . $img . '" alt="">'
                                                 ?>
-												<div class="product-label">
-													<span class="sale">-30%</span>
-													<span class="new">NEW</span>
-												</div>
 											</div>
 											<div class="product-body">
-												<p class="product-category">Category</p>
-												<h3 class="product-name"><a href="#">product name goes here</a></h3>
-												<h4 class="product-price">$980.00 <del class="product-old-price">$990.00</del></h4>
+												<p class="product-category"><?= $row[3] ?></p>
+												<h3 class="product-name"><a href="#"><?= $row[4] ?></a></h3>
+												<h4 class="product-price">$<?= $row[6] ?></h4>
 												<div class="product-rating">
 													<i class="fa fa-star"></i>
 													<i class="fa fa-star"></i>
@@ -78,6 +77,7 @@
 													<i class="fa fa-star"></i>
 												</div>
 											</div>
+											<div style="color: black; font-size: 11px;font-weight: bold; text-align: center;"><?= $row[5] ?></div>
 										</div>
 										<?php }
                                 } else {
