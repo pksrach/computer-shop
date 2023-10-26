@@ -3,7 +3,7 @@
  	<div class="app-content pt-3 p-md-3 p-lg-4">
  		<div class="container-xl">
  			<!-- Header -->
- 			<div class="row g-3 mb-4 align-items-center justify-content-between">
+ 			<div class="row g-3 mb-2 align-items-center justify-content-between">
  				<div class="col-auto">
  					<h1 class="app-page-title mb-0">ផ្ទាំងលក់</h1>
  				</div>
@@ -12,37 +12,17 @@
  				<div class="col-auto">
  					<div class="page-utilities">
  						<form method="get" class="table-search-form row gx-1 align-items-center">
- 							<input type="hidden" name="st" value="stock" />
-
+ 							<input type="hidden" name="ch" value="cashier" />
  							<div class="col-auto">
- 								<select class="form-select w-auto" name="key_brand" id="sel_brand">
- 									<option value="">ជ្រើសរើសប្រេន</option>
+ 								<select class="form-select w-auto" name="txtCustomer" id="txtCustomer">
+ 									<option value="1">អតិថិជនទូទៅ</option>
  									<?php
-										$sql = mysqli_query($conn, "SELECT * FROM tbl_brand");
+										$sql = mysqli_query($conn, "SELECT *, concat(`name`,'-',phone_number) as customer FROM tbl_customer where name != 'General'");
 										while ($row = mysqli_fetch_assoc($sql)) {
-											echo "<option value='" . $row['id'] . "'>" . $row['brand_name'] . "</option>";
+											echo "<option value='" . $row['id'] . "'>" . $row['customer'] . "</option>";
 										}
 										?>
  								</select>
- 							</div>
-
- 							<div class="col-auto">
- 								<select class="form-select w-auto" name='key_category' id='sel_category'>
- 									<option value="">ជ្រើសរើសប្រភេទ</option>
- 									<?php
-										$sql = mysqli_query($conn, "SELECT * FROM tbl_category");
-										while ($row = mysqli_fetch_assoc($sql)) {
-											echo "<option value='" . $row['id'] . "'>" . $row['category_name'] . "</option>";
-										}
-										?>
- 								</select>
- 							</div>
-
- 							<div class="col-auto">
- 								<input type="text" id="keyinputdata" name="keyinputdata" class="form-control search-orders" placeholder="ស្វែងរកឈ្មោះផលិតផល">
- 							</div>
- 							<div class="col-auto">
- 								<button type="submit" name="btnSearch" class="btn app-btn-secondary">Search</button>
  							</div>
  						</form>
  					</div>
@@ -84,17 +64,19 @@
 
  			<?php
 				if (isset($_POST['checkoutBtn'])) {
+					if (isset($_SESSION['customer_id'])) {
+						$customer_id = $_SESSION['customer_id'];
+						echo "Selected Customer ID: " . $customer_id;
+					} else {
+						$customer_id = 1;
+					}
+
 					$total = $_POST['txtTotalAmount'];
-					$discount = $_POST['txtDiscount'];
+					$discount = $_POST['txtDiscount'] ? $_POST['txtDiscount'] : 0;
 					$grandTotal = $_POST['txtGrandTotal'];
-					$cashReceived = $_POST['txtCashReceived'];
+					$cashReceived = $_POST['txtCashReceived'] ? $_POST['txtCashReceived'] : 0;
 					$paymentMethod = $_POST['txtPaymentMethod'];
-					$customer_id = 1;
-
-					// Get the people_id from the session
 					$people_id = intval($_SESSION['user_people_id']);
-
-					// Set date now
 					$sale_date = date('Y-m-d H:i:s');
 
 					// Convert to float
@@ -103,6 +85,15 @@
 					$grandTotal = floatval($grandTotal);
 					$cashReceived = floatval($cashReceived);
 					$paymentMethod = $_POST['txtPaymentMethod'];
+					$customer_id = intval($customer_id);
+
+					// Check if the Cash Received field is empty
+					if ($cashReceived == '') {
+						$cashReceived = 0;
+					}
+					if ($discount == '') {
+						$discount = 0;
+					}
 
 					// Console log
 					echo "<script>console.log('Total: " . $total . "');</script>";
@@ -112,63 +103,68 @@
 					echo "<script>console.log('customer_id: " . $customer_id . "');</script>";
 					echo "<script>console.log('Payment Method: " . $paymentMethod . "');</script>";
 
-					// Use transaction to ensure that all queries are executed
-					mysqli_begin_transaction($conn);
-
-					// Insert the data into the database
-					$sqlInsertSale = "INSERT INTO tbl_sales (sale_date, total, discount, received, people_id, customer_id, payment_type) 
-					VALUES (?, ?, ?, ?, ?, ?, ?);";
-
-					$stmt = mysqli_prepare($conn, $sqlInsertSale);
-
-					mysqli_stmt_bind_param($stmt, 'sdidiis', $sale_date, $total, $discount, $cashReceived, $people_id, $customer_id, $paymentMethod);
-					if (!mysqli_stmt_execute($stmt)) {
-						mysqli_rollback($conn); // Rollback the transaction in case of an error
-						throw new Exception("Error executing import query: " . mysqli_stmt_error($stmt));
+					// validate if $cashReceived is less than $grandTotal
+					if ($cashReceived < $grandTotal) {
+						// Show the warning modal
+						echo "<script>alert('ប្រាក់ទទូលពីអតិថិជនត្រូវធំជាង ឬស្មើតម្លៃសរុប');</script>";
 					} else {
-						mysqli_commit($conn); // Commit the transaction if the insert is successful
-					}
+						// Retrieve cart data from the session
+						if (isset($_SESSION['shoppingCart'])) {
+							$cartData = $_SESSION['shoppingCart'];
 
-					$sale_id = mysqli_insert_id($conn); // Get the sale_id of the inserted row
+							// Use transaction to ensure that all queries are executed
+							mysqli_begin_transaction($conn);
 
-					// Retrieve cart data from the session
-					if (isset($_SESSION['shoppingCart'])) {
-						$cartData = $_SESSION['shoppingCart'];
+							// Insert the data into the database
+							$sqlInsertSale = "INSERT INTO tbl_sales (sale_date, total, discount, received, people_id, customer_id, payment_type) 
+							VALUES (?, ?, ?, ?, ?, ?, ?);";
 
-						// Loop through the cart items and insert them into tbl_sale_details
-						foreach ($cartData as $cartItem) {
-							$productName = $cartItem['productName'];
-							echo "<script>console.log('Product Name: " . $productName . "');</script>";
+							$stmt = mysqli_prepare($conn, $sqlInsertSale);
 
-							$sale_qty = $cartItem['qty'];
-							$price = $cartItem['price'];
-
-							// Insert this sale detail into tbl_sale_details
-							$sqlInsertSaleDetails = "INSERT INTO tbl_sale_details (sale_id, product_id, sale_qty, price) VALUES (?, ?, ?, ?)";
-							$stmt = mysqli_prepare($conn, $sqlInsertSaleDetails);
-
-
-
-							// Bind parameters and execute the query
-							mysqli_stmt_bind_param($stmt, 'iiid', $sale_id, $product_id, $sale_qty, $price);
+							mysqli_stmt_bind_param($stmt, 'sdidiis', $sale_date, $total, $discount, $cashReceived, $people_id, $customer_id, $paymentMethod);
 							if (!mysqli_stmt_execute($stmt)) {
-								// Log the error message and the problematic sale_id.
-								error_log("Error executing sale details query: " . mysqli_stmt_error($stmt));
-								error_log("Problematic sale_id: $sale_id");
+								mysqli_rollback($conn);
+								echo "<script>alert('Error executing import query: " . mysqli_stmt_error($stmt) . "');</script>";
+								unset($_SESSION['shoppingCart']);
+								throw new Exception("Error executing import query: " . mysqli_stmt_error($stmt));
+							}
 
-								mysqli_rollback($conn); // Rollback the transaction in case of an error
-								throw new Exception("Error executing sale details query: " . mysqli_stmt_error($stmt));
+							$sale_id = mysqli_insert_id($conn); // Get the sale_id of the inserted row
+							echo "<script>console.log('Sale ID: " . $sale_id . "');</script>";
+
+							// Loop through the cart items and insert them into tbl_sale_details
+							foreach ($cartData as $cartItem) {
+								$productName = $cartItem['productName'];
+								$product_id = $cartItem['productId'];
+								echo "<script>console.log('Product: " . $product_id . "|" . $productName . "');</script>";
+
+								$sale_qty = $cartItem['qty'];
+								$price = $cartItem['price'];
+
+								// Insert this sale detail into tbl_sale_details
+								$sqlInsertSaleDetails = "INSERT INTO tbl_sale_details (sale_id, product_id, sale_qty, price) VALUES (?, ?, ?, ?)";
+								$stmt = mysqli_prepare($conn, $sqlInsertSaleDetails);
+
+
+
+								// Bind parameters and execute the query
+								mysqli_stmt_bind_param($stmt, 'iiid', $sale_id, $product_id, $sale_qty, $price);
+								if (!mysqli_stmt_execute($stmt)) {
+									error_log("Error executing sale details query: " . mysqli_stmt_error($stmt));
+									error_log("Problematic sale_id: $sale_id");
+
+									unset($_SESSION['shoppingCart']);
+									mysqli_rollback($conn); // Rollback the transaction in case of an error
+									throw new Exception("Error executing sale details query: " . mysqli_stmt_error($stmt));
+								}
 							}
 						}
+						// Close the statement
+						mysqli_stmt_close($stmt);
 
-						// Clear the cart data from the session after it's been processed
-						unset($_SESSION['shoppingCart']);
+						// Commit transaction
+						mysqli_commit($conn);
 					}
-					// Close the statement
-					mysqli_stmt_close($stmt);
-
-					// Commit transaction
-					mysqli_commit($conn);
 				}
 				?>
 
@@ -215,6 +211,11 @@
 
  		</div><!--//row-->
 
+ 		<!-- List Dropdown Customer -->
+ 		<div class="row g-3">
+
+ 		</div>
+
  		<div style="height: 100px;">
  			<div class="d-flex justify-content-center align-items-center h-100"> <!-- Use d-flex and justify-content-center classes -->
  				<button type="button" id="paymentButton" name="btnSave" class="col-12 btn btn-success h-60">
@@ -258,7 +259,7 @@
 
  					<!-- Cash Received Input -->
  					<div class="mb-3">
- 						<label for="cashReceived" class="form-label">Cash Received<span style="color: red;">*</span></label>
+ 						<label for="cashReceivedtt" class="form-label">Cash Received<span style="color: red;">*</span></label>
  						<input type="number" class="form-control" id="cashReceived" name="txtCashReceived" placeholder="Enter cash received">
  					</div>
 
@@ -311,6 +312,7 @@
  	</div>
  </div>
 
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
  <script>
  	// Initialize a counter for row numbers
@@ -326,7 +328,7 @@
  		// Check if the product is already in the shopping cart
  		if (shoppingCart[productId]) {
  			row = shoppingCart[productId].row;
- 			var qtyInput = row.cells[2].querySelector('input');
+ 			var qtyInput = row.cells[3].querySelector('input');
  			if (qtyInput) { // Check if the input element exists
  				var currentQty = parseInt(qtyInput.value);
  				if (currentQty < maxQty) {
@@ -361,6 +363,7 @@
 
  			rowNum++;
 
+ 			// Add product store on session
  			$.ajax({
  				url: "pages/cashier/store_product.php",
  				method: "POST",
@@ -389,15 +392,11 @@
  	// Function to remove a product from the table
  	function removeProduct(button) {
  		var row = button.parentNode.parentNode;
+ 		var productId = row.cells[0].textContent;
  		row.parentNode.removeChild(row);
 
  		// Remove value from shopping cart
- 		delete shoppingCart[row.cells[1].textContent];
-
- 		// Decrement the row number counter
- 		rowNum--;
- 		// Update row numbers after removal
- 		updateRowNumbers();
+ 		delete shoppingCart[productId];
  	}
 
  	// Function to update the quantity and calculate the amount
@@ -416,20 +415,11 @@
  		row.cells[4].textContent = formatCurrency(amount); // Update the amount cell
  	}
 
- 	// Function to update row numbers after a row is removed
- 	function updateRowNumbers() {
- 		var table = document.getElementById('cartTable');
- 		for (var i = 1; i < table.rows.length; i++) {
- 			table.rows[i].cells[0].textContent = i;
- 		}
- 	}
-
  	// Add event listeners to each product card
  	var productCards = document.querySelectorAll('.card');
  	productCards.forEach(function(card) {
  		card.addEventListener('click', function() {
  			var productId = card.querySelector('.product-id').value;
- 			alert(productId);
  			var productName = card.querySelector('.card-title').textContent;
  			var price = parseFloat(card.querySelector('#txtPrice').textContent.split(':')[1].trim());
 
@@ -568,42 +558,21 @@
  		var cashReceived = document.getElementById('cashReceived').value;
  		var paymentMethod = document.getElementById('paymentMethod').value;
 
+ 		var selectedCustomer = document.getElementById('txtCustomer');
+ 		var customerId = selectedCustomer.value;
+ 		console.log('Customer ID: ' + customerId);
+
  		totalAmount = totalAmount.replace('$', '').replace(',', '');
  		grandTotal = parseFloat(grandTotal.replace('$', '').replace(',', ''));
 
  		// Check if discount input is empty, set the default value to 0
- 		if (discountInput === '') {
+ 		if (discountInput == '') {
  			discountInput = 0;
  		}
 
- 		if (cashReceived === '') {
- 			cashReceived = 0;
- 		}
-
  		// Check if the Cash Received field is empty
- 		if (cashReceived === '') {
- 			// If it is, show the warning modal
- 			console.log('grandTotal:', grandTotal);
- 			var warningModal = document.getElementById('warning_exception');
- 			var modalMessage = document.getElementById('modalMessage');
- 			modalMessage.textContent = 'សូមបញ្ចូលប្រាក់ទទួលពីអតិថិជន';
- 			var modal = new bootstrap.Modal(warningModal);
- 			modal.show();
- 			return;
- 		}
-
- 		if (parseFloat(cashReceived) <= 0 || parseFloat(cashReceived) < grandTotal) {
- 			var warningModal = document.getElementById('warning_exception');
- 			var modalMessage = document.getElementById('modalMessage');
- 			modalMessage.textContent = 'ប្រាក់ទទួលពីអតិថិជន ត្រូវធំជាងឬស្មើនឹងតម្លៃសរុបរបស់ការលក់';
- 			var modal = new bootstrap.Modal(warningModal);
- 			modal.show();
- 			return;
- 		} else {
- 			// Otherwise, show the success modal
- 			var successModal = document.getElementById('succes_modal');
- 			var modal = new bootstrap.Modal(successModal);
- 			modal.show();
+ 		if (cashReceived == '') {
+ 			cashReceived = 0;
  		}
 
  		// Set data to id fields
@@ -612,17 +581,15 @@
 
  		var cartTableData = [];
  		// Iterate through the keys (product names) in the shoppingCart object
- 		for (var productName in shoppingCart) {
- 			if (shoppingCart.hasOwnProperty(productName)) {
- 				var row = shoppingCart[productName];
+ 		for (var productId in shoppingCart) {
+ 			if (shoppingCart.hasOwnProperty(productId)) {
+ 				var row = shoppingCart[productId].row;
  				var cells = row.getElementsByTagName('td');
- 				var product_id = productName; // The product name is used as the product_id
- 				console.log('product_id:', product_id);
  				var qty = cells[3].getElementsByTagName('input')[0].value;
  				var price = cells[2].textContent.replace('$', '').replace(',', '');
 
  				cartTableData.push({
- 					product_id: product_id,
+ 					product_id: productId, // Use the product ID
  					qty: qty,
  					price: price
  				});
@@ -639,13 +606,34 @@
  				grandTotal: grandTotal,
  				cashReceived: cashReceived,
  				paymentMethod: paymentMethod,
- 				// customer_id: customer_id,
+ 				customer_id: customer_id,
  				cartTable: JSON.stringify(cartTableData),
- 			},
- 			success: function(data) {
- 				$('#checkout_modal').modal('hide');
- 				$('#succes_modal').modal('show');
  			}
  		});
+
  	}
+
+ 	function showWarningModal() {
+ 		var warningModal = document.getElementById('warning_exception');
+ 		var modalMessage = document.getElementById('modalMessage');
+ 		modalMessage.textContent = 'ប្រាក់ទទួលពីអតិថិជន ត្រូវធំជាងឬស្មើនឹងតម្លៃសរុបរបស់ការលក់';
+ 		var modal = new bootstrap.Modal(warningModal);
+ 		modal.show();
+ 	}
+
+ 	function showSuccessModal() {
+ 		var successModal = document.getElementById('succes_modal');
+ 		var modal = new bootstrap.Modal(successModal);
+ 		modal.show();
+ 	}
+
+ 	function clearSession() {
+ 		<?php unset($_SESSION['shoppingCart']); ?>
+ 	}
+
+ 	function reloadPage() {
+ 		location.reload();
+ 	}
+
+ 	document.getElementById('paymentButton').addEventListener('click', checkoutButtonClick);
  </script>

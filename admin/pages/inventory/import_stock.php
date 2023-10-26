@@ -242,11 +242,6 @@ unset($_SESSION['addedRows']);
 															<button type="button" name="btnAdd" class="col-12 btn btn-info" onclick="addTableRow()">បញ្ចូល</button>
 														</div>
 
-														<!-- Remove button -->
-														<!-- <div class="col-1">
-															<a href="#" class="btn btn-danger" onclick="removeRow(this)"><i class="fas fa-eraser"></i></a>
-														</div> -->
-
 														<div class="table-responsive">
 															<table class="table app-table-hover mb-0 text-left">
 																<thead>
@@ -303,7 +298,6 @@ unset($_SESSION['addedRows']);
 															<div class="col-12" style="padding: 5px;">
 																<!-- Button save  -->
 																<button type="submit" name="btnSave" class="col-12 btn app-btn-primary">រក្សាទុក</button>
-																<!-- <button type="button" name="btnClear" class="col-12 btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmClearModal">សម្អាត</button> -->
 															</div>
 														</div>
 													</form>
