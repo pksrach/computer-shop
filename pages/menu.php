@@ -13,7 +13,7 @@
                 <!-- <li><a href="index.php?p=smartphones">PC Components</a></li> -->
                 <!-- <li><a href="index.php?p=cameras">Cameras</a></li> -->
                 <li  id="desktop"><a href="index.php?p=desktops">Desktop</a></li>
-                <li><a href="index.php?p=accessories">Contact Us</a></li>
+                <li><a href="pages/contact_form/contact_us.php">Contact Us</a></li>
             </ul>
             <!-- /NAV -->
         </div>
