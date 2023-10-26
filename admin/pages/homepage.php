@@ -1,9 +1,66 @@
+<?php
+include_once("../config_db/config_db.php");
+
+$totalSales = 0;
+$expenses = 0;
+$customerCount = 0;
+$employeeCount = 0;
+
+// Query for Total Sales
+$sql = "select SUM(total) as sum from tbl_sales;";
+$result = $conn->query($sql);
+
+if ($result === false) {
+    // Handle the database error
+    echo "Error in Total Sales query: " . $conn->error;
+} else {
+    $row = $result->fetch_assoc();
+    $totalSales = $row['sum'] ? $row['sum'] : 0;
+}
+
+// Query for Expenses
+$sql = "select sum(amount) as sum FROM tbl_expense_details;";
+$result = $conn->query($sql);
+
+if ($result === false) {
+    // Handle the database error
+    echo "Error in Expenses query: " . $conn->error;
+} else {
+    $row = $result->fetch_assoc();
+    $expenses = $row['sum'] ? $row['sum'] : 0;
+}
+
+// Query for Customer Count
+$sql = "select count(name) as count from tbl_customer;";
+$result = $conn->query($sql);
+
+if ($result === false) {
+    // Handle the database error
+    echo "Error in Customer Count query: " . $conn->error;
+} else {
+    $row = $result->fetch_assoc();
+    $customerCount = $row['count'];
+}
+
+// Query for Employee Count
+$sql = "select count(name) as count from tbl_people;";
+$result = $conn->query($sql);
+
+if ($result === false) {
+    // Handle the database error
+    echo "Error in Employee Count query: " . $conn->error;
+} else {
+    $row = $result->fetch_assoc();
+    $employeeCount = $row['count'];
+}
+?>
+
 <div class="app-wrapper">
 
     <div class="app-content pt-3 p-md-3 p-lg-4">
         <div class="container-xl">
 
-            <h1 class="app-page-title">Overview</h1>
+            <h1 class="app-page-title">ផ្ទាំងគ្រប់គ្រង</h1>
 
             <div class="row g-4 mb-4">
                 <div class="col-6 col-lg-3">
@@ -167,12 +224,7 @@
                         <div class="app-card-header p-3">
                             <div class="row justify-content-between align-items-center">
                                 <div class="col-auto">
-                                    <h4 class="app-card-title">Bar Chart Example</h4>
-                                </div><!--//col-->
-                                <div class="col-auto">
-                                    <div class="card-header-action">
-                                        <a href="index.php?pg=charts">More charts</a>
-                                    </div><!--//card-header-actions-->
+                                    <h4 class="app-card-title">Bar Chart Expenses</h4>
                                 </div><!--//col-->
                             </div><!--//row-->
                         </div><!--//app-card-header-->
@@ -199,26 +251,17 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        // Fetch sales data from your PHP script or API endpoint
-        // Replace 'your_data_fetching_url' with the actual URL or script that fetches data
-        fetch('your_data_fetching_url')
-            .then(response => response.json())
-            .then(data => {
-                const salesData = data; // Assuming your data is an array of sales data
-
-                // Create a Line Chart
-                const ctx = document.getElementById('canvas-linechart').getContext('2d');
-                const salesLineChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: salesData.map(item => item.date), // Date labels
-                        datasets: [{
-                            label: 'Sales',
-                            data: salesData.map(item => item.amount), // Sales amount data
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1,
-                        }, ],
-                    },
-                });
-            });
+        // fetch('pages/get_sales_data.php')
+        //     .then(response => {
+        //         if (!response.ok) {
+        //             throw new Error('Network response was not ok');
+        //         }
+        //         return response.json();
+        //     })
+        //     .then(data => {
+        //         // ... handle successful data retrieval ...
+        //     })
+        //     .catch(error => {
+        //         console.error('Fetch error:', error);
+        //     });
     </script>
