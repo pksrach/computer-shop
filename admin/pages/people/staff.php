@@ -96,7 +96,7 @@
                                             }
                                             // End pagination
 
-                                            $sql_select = "SELECT * FROM tbl_people ";
+                                            $sql_select = "SELECT id, name, phone_number, address, people_type, DATE(date_of_birth) as date_of_birth FROM tbl_people ";
 
                                             if ($keyinputdata == "") {
                                                 $sql = $sql_select . "LIMIT $current_page, $row_per_page;";
