@@ -5,14 +5,14 @@
 			<!-- Search -->
 			<div class="row g-3 mb-4 align-items-center justify-content-between">
 				<div class="col-auto">
-					<h1 class="app-page-title mb-0">របាយការណ៍ចំណាយ</h1>
+					<h1 class="app-page-title mb-0">របាយការណ៍ចំណូល</h1>
 				</div>
 				<div class="col-auto">
 					<div class="page-utilities">
 						<div class="row g-2 justify-content-start justify-content-md-end align-items-center">
 							<div class="col-auto">
 								<form method="get" class="table-search-form row gx-1 align-items-center">
-									<input type="hidden" name="exp" value="expense" />
+									<input type="hidden" name="rep" value="income" />
 
 									<!-- Start date -->
 									<label class="col-auto">ចាប់ពីថ្ងៃ</label>
@@ -65,14 +65,17 @@
 					<div class="app-card app-card-orders-table shadow-sm mb-5">
 						<div class="app-card-body">
 							<div class="table-responsive">
-								<table class="table app-table-hover mb-0 text-left" id="expense-table">
+								<table class="table app-table-hover mb-0 text-left" id="income-table">
 									<thead>
 										<tr>
 											<th class="cell">#</th>
 											<th class="cell" style="text-align: center;">កាលបរិច្ឆេទ</th>
-											<th class="cell" style="text-align: center;">ប្រភេទចំណាយ</th>
-											<th class="cell" style="text-align: center;">ថ្លៃចំណាយ</th>
-											<th class="cell" style="text-align: center;">បរិយាយ</th>
+											<th class="cell" style="text-align: center;">អតិថិជន</th>
+											<th class="cell" style="text-align: center;">សរុប</th>
+											<th class="cell" style="text-align: center;">បញ្ចុះតម្លៃ</th>
+											<th class="cell" style="text-align: center;">ប្រាក់ទទួល</th>
+											<th class="cell" style="text-align: center;">ប្រាក់សរុប</th>
+											<th class="cell" style="text-align: center;">វិធីទូទាត់</th>
 											<th class="cell" style="text-align: center;">បុគ្គលិក</th>
 										</tr>
 									</thead>
@@ -91,10 +94,9 @@
 											// Pagination when searching
 											$number_of_page = 0;
 											$s = "SELECT count(*) 
-												FROM tbl_expense_details expd
-												INNER JOIN tbl_expense exp ON expd.exp_id = exp.id
-												INNER JOIN tbl_expense_type expt ON expd.exp_type_id = expt.id
-												INNER JOIN tbl_people pp ON exp.people_id = pp.id
+												FROM tbl_sales s
+												INNER JOIN tbl_customer c ON s.customer_id = c.id
+												INNER JOIN tbl_people p ON s.people_id = p.id
 											";
 											$q = $conn->query($s);
 											$r = mysqli_fetch_row($q);
@@ -109,42 +111,44 @@
 											// End pagination
 
 											$sql_select = "SELECT 
-												expd.exp_id, 
-												exp.exp_date,
-												expt.`name` AS exp_type,
-												expd.amount,
-												expd.note,
-												pp.`name` AS staff
-												FROM tbl_expense_details expd
-												INNER JOIN tbl_expense exp ON expd.exp_id = exp.id
-												INNER JOIN tbl_expense_type expt ON expd.exp_type_id = expt.id
-												INNER JOIN tbl_people pp ON exp.people_id = pp.id
+												s.id,
+												s.sale_date,
+												c.`name` AS customer,
+												s.total,
+												s.discount,
+												s.received,
+												ROUND((s.total - ((s.discount/100) * s.total)),2) AS grand_total,
+												s.payment_type,
+												p.`name` AS staff
+												FROM tbl_sales s
+												INNER JOIN tbl_customer c ON s.customer_id = c.id
+												INNER JOIN tbl_people p ON s.people_id = p.id
 											";
 											if ($keystartdate == "" && $keyenddate == "") {
-												$sql = $sql_select . "ORDER BY expd.id DESC " . "LIMIT $current_page, $row_per_page;";
+												$sql = $sql_select . "ORDER BY s.id DESC " . "LIMIT $current_page, $row_per_page;";
 											}
 
 											if ($keystartdate && $keyenddate) {
 												echo "<script>console.log('Jol start and end')</script>";
 												$sql = $sql_select . "
 												WHERE
-													DATE(exp.exp_date) BETWEEN '$keystartdate' AND '$keyenddate'
+													DATE(s.sale_date) BETWEEN '$keystartdate' AND '$keyenddate'
 												ORDER BY
-													expd.id DESC LIMIT $current_page, $row_per_page;";
+													s.id DESC LIMIT $current_page, $row_per_page;";
 											} else if ($keystartdate) {
 												echo "<script>console.log('Jol start')</script>";
 												$sql = $sql_select . "
 												WHERE
-													DATE(exp.exp_date) BETWEEN '$keystartdate' AND DATE(NOW())
+													DATE(s.sale_date) BETWEEN '$keystartdate' AND DATE(NOW())
 												ORDER BY
-													expd.id DESC LIMIT $current_page, $row_per_page;";
+													s.id DESC LIMIT $current_page, $row_per_page;";
 											} else if ($keyenddate) {
 												echo "<script>console.log('Jol end')</script>";
 												$sql = $sql_select . "
 												WHERE
-													DATE(exp.exp_date) BETWEEN DATE(NOW()) AND '$keyenddate'
+													DATE(s.sale_date) BETWEEN DATE(NOW()) AND '$keyenddate'
 												ORDER BY
-													expd.id DESC LIMIT $current_page, $row_per_page;";
+													s.id DESC LIMIT $current_page, $row_per_page;";
 											}
 
 											$result = mysqli_query($conn, $sql);
@@ -156,10 +160,9 @@
 											#pagination when first load
 											$number_of_page = 0;
 											$s = "SELECT count(*) 
-												FROM tbl_expense_details expd
-												INNER JOIN tbl_expense exp ON expd.exp_id = exp.id
-												INNER JOIN tbl_expense_type expt ON expd.exp_type_id = expt.id
-												INNER JOIN tbl_people pp ON exp.people_id = pp.id
+												FROM tbl_sales s
+												INNER JOIN tbl_customer c ON s.customer_id = c.id
+												INNER JOIN tbl_people p ON s.people_id = p.id
 											";
 											$q = $conn->query($s);
 											$r = mysqli_fetch_row($q);
@@ -174,18 +177,20 @@
 											// End pagination
 
 											$sql = "SELECT 
-												expd.exp_id, 
-												exp.exp_date,
-												expt.`name`AS exp_type,
-												expd.amount,
-												expd.note,
-												pp.`name` AS staff
-												FROM tbl_expense_details expd
-												INNER JOIN tbl_expense exp ON expd.exp_id = exp.id
-												INNER JOIN tbl_expense_type expt ON expd.exp_type_id = expt.id
-												INNER JOIN tbl_people pp ON exp.people_id = pp.id
+												s.id,
+												s.sale_date,
+												c.`name` AS customer,
+												s.total,
+												s.discount,
+												s.received,
+												ROUND((s.total - ((s.discount/100) * s.total)),2) AS grand_total,
+												s.payment_type,
+												p.`name` AS staff
+												FROM tbl_sales s
+												INNER JOIN tbl_customer c ON s.customer_id = c.id
+												INNER JOIN tbl_people p ON s.people_id = p.id
 												ORDER BY
-													expd.id DESC
+													s.id DESC
 												LIMIT $current_page, $row_per_page;
 											";
 											$result = mysqli_query($conn, $sql);
@@ -198,10 +203,13 @@
 										?>
 												<tr>
 													<td class="cell"><?= $rowNumber++ ?></td>
-													<td class="cell" style="text-align: center;"><?= date('Y-m-d', strtotime($row['exp_date'])) ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['exp_type'] ? $row['exp_type'] : "N/A" ?></td>
-													<td class="cell" style="text-align: center;">$<?= $row['amount'] ? $row['amount'] : "N/A" ?></td>
-													<td class="cell" style="text-align: center;"><?= $row['note'] ?></td>
+													<td class="cell" style="text-align: center;"><?= date('Y-m-d', strtotime($row['sale_date'])) ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['customer'] ? $row['customer'] : "N/A" ?></td>
+													<td class="cell" style="text-align: center;">$<?= $row['total'] ? $row['total'] : "0" ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['discount'] ? $row['discount'] : "0" ?>%</td>
+													<td class="cell" style="text-align: center;">$<?= $row['received'] ? $row['received'] : "0" ?></td>
+													<td class="cell" style="text-align: center;">$<?= $row['grand_total'] ? $row['grand_total'] : "0" ?></td>
+													<td class="cell" style="text-align: center;"><?= $row['payment_type'] ? $row['payment_type'] : "N/A" ?></td>
 													<td class="cell" style="text-align: center;"><?= $row['staff'] ? $row['staff'] : "N/A" ?></td>
 												</tr>
 										<?php
@@ -221,6 +229,8 @@
 
 						</div><!--//app-card-body-->
 					</div><!--//app-card-->
+					<?php
+					?>
 
 
 					<!-- Start pagination -->
@@ -239,19 +249,19 @@
 
 <script>
 	document.getElementById('generate-pdf-button').addEventListener('click', function() {
-		var tableToPrint = document.getElementById('expense-table');
+		var tableToPrint = document.getElementById('income-table');
 		var printWindow = window.open('', '', 'width=1000, height=700');
 		printWindow.document.open();
-		printWindow.document.write('<html><head><title>របាយការណ៍ ចំណាយ</title>');
+		printWindow.document.write('<html><head><title>របាយការណ៍ ចំណូល</title>');
 		printWindow.document.write('<style>');
 		printWindow.document.write('@page { size: A4; margin: 1cm; }');
-		printWindow.document.write('body { font-size: 14px; font-family: khmer; }'); // Adjust font size as needed
+		printWindow.document.write('body { font-size: 11px; font-family: khmer; }'); // Adjust font size as needed
 		printWindow.document.write('table { width: 100%; border-collapse: collapse; }');
 		printWindow.document.write('table, th, td { border: 1px solid #000; }');
-		printWindow.document.write('th, td { padding: 8px; }'); // Adjust padding as needed
+		printWindow.document.write('th, td { padding: 6px; }'); // Adjust padding as needed
 		printWindow.document.write('</style>');
 		printWindow.document.write('</head><body>');
-		printWindow.document.write('<h1>របាយការណ៍ ចំណាយ</h1>');
+		printWindow.document.write('<h1>របាយការណ៍ ចំណូល</h1>');
 		printWindow.document.write(tableToPrint.outerHTML);
 		printWindow.document.write('</body></html>');
 		printWindow.document.close();
@@ -259,6 +269,6 @@
 		printWindow.close();
 	});
 
-	var tableToPrint = document.getElementById('expense-table');
+	var tableToPrint = document.getElementById('income-table');
 	var incomeData = <?php echo json_encode($result); ?>;
 </script>

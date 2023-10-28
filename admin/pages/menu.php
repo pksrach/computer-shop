@@ -266,6 +266,24 @@
                                 </ul>
                             </div>
                         </li>
+
+                        <li class="nav-item has-submenu">
+                            <a class="nav-link submenu-toggle" href="#" data-bs-toggle="collapse" data-bs-target="#submenu-14" aria-expanded="false" aria-controls="submenu-13">
+                                <span class="nav-icon">
+                                    <i class="fa-solid fa-file-invoice-dollar fa-xl"></i>
+                                </span>
+                                <span class="nav-link-text">របាយការណ៍</span>
+                                <span class="submenu-arrow">
+                                    <i class="fa-solid fa-arrow-turn-down"></i>
+                                </span>
+                            </a>
+                            <div id="submenu-14" class="collapse submenu submenu-14" data-bs-parent="#menu-accordion">
+                                <ul class="submenu-list list-unstyled">
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?rep=income"><i class="fa-solid fa-file"></i> របាយការណ៍ ចំណូល</a></li>
+                                    <li class="submenu-item"><a class="submenu-link" href="index.php?rep=income_details"><i class="fa-solid fa-file"></i> របាយការណ៍ ចំណូលលម្អិត</a></li>
+                                </ul>
+                            </div>
+                        </li>
                     </ul>
                 </nav>
                 <div class="app-sidepanel-footer">
