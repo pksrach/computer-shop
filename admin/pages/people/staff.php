@@ -96,7 +96,7 @@
                                             }
                                             // End pagination
 
-                                            $sql_select = "SELECT * FROM tbl_people ";
+                                            $sql_select = "SELECT id, name, phone_number, address, people_type, DATE(date_of_birth) as date_of_birth FROM tbl_people ";
 
                                             if ($keyinputdata == "") {
                                                 $sql = $sql_select . "LIMIT $current_page, $row_per_page;";
@@ -126,7 +126,7 @@
                                                 $current_page = ($current_page - 1) * $row_per_page;
                                             }
                                             // End pagination
-                                            $sql = "SELECT * FROM tbl_people;";
+                                            $sql = "SELECT id, name, phone_number, address, people_type, DATE(date_of_birth) as date_of_birth FROM tbl_people;";
                                             $result = mysqli_query($conn, $sql);
                                             $num_row = $result->num_rows;
                                         }
@@ -183,13 +183,15 @@
                                                                 </div>
                                                                 <div class="mb-3">
                                                                     <label for="txt_rate" class="form-label">ថ្ងៃខែឆ្នាំកំណើត<span style="color: red"> *</span></label>
-                                                                    <input type="date" name="txt_date_of_birth" class="form-control" id="txt_date_of_birth" value="' . $row['date_of_birth'] . '" required>
+                                                                    <input type="date" name="txt_date_of_birth" class="form-control" id="txt_date_of_birth" value="' . date('Y-m-d', strtotime($row['date_of_birth'])) . '" required>
                                                                 </div>
                                                                 <button type="submit" name="btnUpdate" class="btn app-btn-primary" >កែប្រែ</button>
                                                             </form>
                                                             <script>
                                                                 var textarea = document.getElementById("txt_address' . $row['id'] . '");
-                                                                textarea.value = "' . $row['address'] . '";
+                                                                if (textarea !== null) {
+                                                                    textarea.value = "' . $row['address'] . '";
+                                                                }
                                                             </script>
                                                         </div><!--//app-card-body--> 
                                                     </div>
@@ -266,7 +268,7 @@
                     <div class="app-card app-card-orders-table mb-5">
                         <div class="app-card-body">
                             <div class="container-xl">
-                                <h1 class="app-page-title">បំពេញព័ត៌មានខ្នាត</h1>
+                                <h1 class="app-page-title">បំពេញព័ត៌មាន</h1>
                                 <!-- <hr class="my-4"> -->
                                 <div class="row">
 
