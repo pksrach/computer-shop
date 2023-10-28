@@ -62,12 +62,13 @@
 			}
 			?>
 
+			<button type="button" class="btn btn-info" id="generate-pdf-button">Print <i class="fa-solid fa-print"></i></button>
 			<div class="tab-content" id="orders-table-tab-content">
 				<div class="tab-pane fade show active" id="product_list" role="tabpanel" aria-labelledby="product_list-tab">
 					<div class="app-card app-card-orders-table shadow-sm mb-5">
 						<div class="app-card-body">
 							<div class="table-responsive">
-								<table class="table app-table-hover mb-0 text-left">
+								<table class="table app-table-hover mb-0 text-left" id="import-table">
 									<thead>
 										<tr>
 											<th class="cell">#</th>
@@ -107,7 +108,7 @@
 											";
 											$q = $conn->query($s);
 											$r = mysqli_fetch_row($q);
-											$row_per_page = 10;
+											$row_per_page = 100;
 											$number_of_page = ceil($r[0] / $row_per_page); #Round numbers up to the nearest integer
 											if (!isset($_GET['pn'])) {
 												$current_page = 0;
@@ -194,7 +195,7 @@
 											";
 											$q = $conn->query($s);
 											$r = mysqli_fetch_row($q);
-											$row_per_page = 10;
+											$row_per_page = 100;
 											$number_of_page = ceil($r[0] / $row_per_page); #Round numbers up to the nearest integer
 											if (!isset($_GET['pn'])) {
 												$current_page = 0;
@@ -275,3 +276,29 @@
 	</div><!--//app-content-->
 
 </div><!--//app-wrapper-->
+
+<script>
+	document.getElementById('generate-pdf-button').addEventListener('click', function() {
+		var tableToPrint = document.getElementById('import-table');
+		var printWindow = window.open('', '', 'width=1000, height=700');
+		printWindow.document.open();
+		printWindow.document.write('<html><head><title>របាយការណ៍ នាំចូល</title>');
+		printWindow.document.write('<style>');
+		printWindow.document.write('@page { size: A4; margin: 1cm; }');
+		printWindow.document.write('body { font-size: 11px; font-family: khmer; }'); // Adjust font size as needed
+		printWindow.document.write('table { width: 100%; border-collapse: collapse; }');
+		printWindow.document.write('table, th, td { border: 1px solid #000; }');
+		printWindow.document.write('th, td { padding: 6px; }'); // Adjust padding as needed
+		printWindow.document.write('</style>');
+		printWindow.document.write('</head><body>');
+		printWindow.document.write('<h1>របាយការណ៍ នាំចូល</h1>');
+		printWindow.document.write(tableToPrint.outerHTML);
+		printWindow.document.write('</body></html>');
+		printWindow.document.close();
+		printWindow.print();
+		printWindow.close();
+	});
+
+	var tableToPrint = document.getElementById('import-table');
+	var incomeData = <?php echo json_encode($result); ?>;
+</script>

@@ -20,6 +20,8 @@ if (isset($_GET['pg'])) {
     include "pages/" . $_GET['pg'] . ".php";
 } elseif (isset($_GET['exp'])) {
     include "pages/Expense/" . $_GET['exp'] . ".php";
+} elseif (isset($_GET['rep'])) {
+    include "pages/report/" . $_GET['rep'] . ".php";
 } elseif (isset($_GET['cexp'])) {
     include "pages/Expense/" . $_GET['cexp'] . ".php";
 } elseif (isset($_GET['expt'])) {
